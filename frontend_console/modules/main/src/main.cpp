@@ -15,5 +15,7 @@ int main(int argc, char *argv[])
 		// Handle events from firc (fircCore.update(&event))
 	}
 	
+	//fircCore.deinit();
+	
 	return 0;
 }

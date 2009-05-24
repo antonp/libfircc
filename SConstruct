@@ -11,6 +11,8 @@ targetCharSize = 'TARGET_ASCII8'
 
 # output_path = 'BUILDRESULTS/' + targetPlatform + targetMode + targetCharSize
 
+folderIgnoreList = ['.svn']
+
 ###################################
 # Generic functions to build crap #
 ###################################
@@ -27,11 +29,13 @@ def buildLibrary(name, path, externalIncludeDirList):
 	srcList = []
 	
 	for folder in os.listdir(modulesBasePath):
-		modulePath = os.path.join(modulesBasePath, folder)
-		if ( os.path.isdir(modulePath) ):
-			print 'Added '+modulePath+' to the list of modules.'
-			moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
-			srcList += Split(glob.glob(moduleSrcPath))
+		if folder not in folderIgnoreList:
+			modulePath = os.path.join(modulesBasePath, folder)
+			if ( os.path.isdir(modulePath) ):
+				print 'Added '+modulePath+' to the list of modules.'
+				externalIncludeDirList += [modulePath]
+				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
+				srcList += Split(glob.glob(moduleSrcPath))
 
 	cppFlags = []
 
@@ -44,8 +48,8 @@ def buildLibrary(name, path, externalIncludeDirList):
 	)
 	
 	return target
-
-def buildProgram(name, path, externalIncludeDirList):
+	
+def buildSharedLibrary(name, path, externalIncludeDirList, externalLibList):
 	compOutName = name
 	
 	# Output path and name
@@ -58,11 +62,47 @@ def buildProgram(name, path, externalIncludeDirList):
 	srcList = []
 	
 	for folder in os.listdir(modulesBasePath):
-		modulePath = os.path.join(modulesBasePath, folder)
-		if ( os.path.isdir(modulePath) ):
-			print 'Added '+modulePath+' to the list of modules.'
-			moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
-			srcList += Split(glob.glob(moduleSrcPath))
+		if folder not in folderIgnoreList:
+			modulePath = os.path.join(modulesBasePath, folder)
+			if ( os.path.isdir(modulePath) ):
+				print 'Added '+modulePath+' to the list of modules.'
+				externalIncludeDirList += [modulePath]
+				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
+				srcList += Split(glob.glob(moduleSrcPath))
+
+	cppFlags = []
+
+	target = SharedLibrary(
+		compOutName,
+		srcList,
+		CPPPATH=externalIncludeDirList,
+		CPPFLAGS=cppFlags,
+		CPPDEFINES=[targetPlatform, targetMode, targetCharSize],
+		LIBS=externalLibList,
+		LIBPATH=('debug' if (targetMode == 'TARGET_DEBUG') else 'release')
+	)
+	
+	return target
+
+def buildProgram(name, path, externalIncludeDirList, externalLibList, linkFlagList):
+	compOutName = name
+	
+	# Output path and name
+	if targetMode == 'TARGET_DEBUG':
+		compOutName = 'debug/'+name
+	else:
+		targetMode == 'release/'+name
+	
+	modulesBasePath = path+'/modules'
+	srcList = []
+	
+	for folder in os.listdir(modulesBasePath):
+		if folder not in folderIgnoreList:
+			modulePath = os.path.join(modulesBasePath, folder)
+			if ( os.path.isdir(modulePath) ):
+				print 'Added '+modulePath+' to the list of modules.'
+				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
+				srcList += Split(glob.glob(moduleSrcPath))
 
 	cppFlags = []
 
@@ -71,7 +111,11 @@ def buildProgram(name, path, externalIncludeDirList):
 		srcList,
 		CPPPATH=externalIncludeDirList,
 		CPPFLAGS=cppFlags,
-		CPPDEFINES=[targetPlatform, targetMode, targetCharSize]
+		CPPDEFINES=[targetPlatform, targetMode, targetCharSize],
+		LIBS=externalLibList,
+		LIBPATH=('debug' if (targetMode == 'TARGET_DEBUG') else 'release'),
+#		LINKFLAGS=['-E', '-rdynamic', '--export-dynamic']
+		LINKFLAGS=linkFlagList
 	)
 	
 	return target
@@ -80,4 +124,22 @@ def buildProgram(name, path, externalIncludeDirList):
 # Build main crap #
 ###################
 
-buildProgram('frontend_console', 'frontend_console', [])
+core = buildLibrary(
+	'core',
+	'core',
+	['basecode']
+)
+frontend_console = buildProgram(
+	'frontend_console',
+	'frontend_console',
+	['core/modules/frontend_interface', 'basecode',
+		'core/modules/pluginmanager'], #pluginmanager: johnny bigert!
+	['core', 'pthread', 'dl'],
+	['-rdynamic']
+)
+
+# Plugins
+pluginTest1 = buildSharedLibrary('pluginTest1', 'plugindev/pluginTest1', ['basecode', 'core/modules/plugin_interface'], [])
+
+Depends(core, [pluginTest1])
+Depends(frontend_console, [core])

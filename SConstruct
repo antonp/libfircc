@@ -141,5 +141,5 @@ frontend_console = buildProgram(
 # Plugins
 pluginTest1 = buildSharedLibrary('pluginTest1', 'plugindev/pluginTest1', ['basecode', 'core/modules/plugin_interface'], [])
 
-Depends(core, [pluginTest1])
+Depends(pluginTest1, [core])
 Depends(frontend_console, [core])

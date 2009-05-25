@@ -49,13 +49,16 @@ namespace firc
 	Result PluginManager::loadPlugin(const int8 *fileName)
 	{
 		Result res = RES_FAILED;
+
+		PF_irc_onJoin ioj = NULL;
+
 		Plugin *plugin = new Plugin;
 		
 		if ( NULL == plugin )
 		{
 			return RES_MEMALLOC_FAILED;
 		}
-		res = plugin->loadFromFile(fileName);
+		res = plugin->loadFromFile(fileName, &ioj);
 		if ( RES_OK != res )
 		{
 			delete plugin;
@@ -63,6 +66,11 @@ namespace firc
 			return res;
 		}
 		m_plugins.push_back(plugin);
+		
+		if ( NULL != ioj )
+		{
+			m_irc_onJoin_funcs.push_back(ioj);
+		}
 
 		return RES_OK;
 	}
@@ -94,5 +102,33 @@ namespace firc
 			}
 		}
 		m_plugins.clear();
+	}
+	
+
+
+
+	/**
+	 * @brief
+	 * Calls every loaded plugin's irc_onJoin function.
+	 * 
+	 * @param network
+	 * The network that sent the JOIN message.
+	 * 
+	 * @param channel
+	 * The channel that someone joined.
+	 * 
+	 * @param user
+	 * The nickname of the user who joined the channel.
+	 */	
+	void PluginManager::irc_onJoin(void *network, const int8 *channel,
+									const int8 *user)
+	{
+		uint32 funcCount = m_irc_onJoin_funcs.size();
+		uint32 i = 0;
+		for ( ; i<funcCount; ++i )
+		{
+			// Call the onJoin funcs
+			m_irc_onJoin_funcs[i](network, channel, user);
+		}
 	}
 }

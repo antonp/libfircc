@@ -24,7 +24,7 @@ namespace firc
 		{
 			return RES_MEMALLOC_FAILED;
 		}
-		res = net1->init();
+		res = net1->init(&m_pluginManager);
 		if ( RES_OK != res )
 		{
 			delete net1;

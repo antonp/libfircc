@@ -86,7 +86,7 @@ namespace firc{
 		memset((void *)buffer, 0, bufferSize);
 		if ( 0 >= ::recv(m_socket, buffer, bufferSize, 0) )
 		{
-			return RES_FAILED;
+			return RES_CONNECTION_CLOSED;
 		}
 		return RES_OK;
 	}

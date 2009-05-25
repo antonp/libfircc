@@ -8,12 +8,14 @@
 
 namespace firc
 {
+	class PluginManager;
+	
 	class NetworkManager
 	{
 	public:
 		NetworkManager();
 		
-		Result init();
+		Result init(PluginManager *m_pluginManager);
 		void deinit();
 		enum State
 		{
@@ -35,6 +37,8 @@ namespace firc
 		TCPConnection m_connection;
 		
 		pthread_t m_receiverThread;
+		
+		PluginManager *m_pluginManager;
 	};
 }
 

@@ -2,6 +2,7 @@
 #define _PLUGINMANAGER_H_
 
 #include <basedefs.h>
+#include "inc/plugin_functions.h"
 
 #include <vector> // johnny bigert this!
 
@@ -16,9 +17,17 @@ namespace firc
 		Result loadPlugin(const int8 *fileName);
 		Result unloadAllPlugins();
 		
-		
+		void irc_onJoin(void *network, const int8 *channel,
+						const int8 *user);
 	private:
-		std::vector<Plugin *> m_plugins;
+		enum
+		{
+			IRC_JOIN,
+			IRC_PRIVMSG
+		};
+	
+		std::vector<Plugin *>			m_plugins;
+		std::vector<PF_irc_onJoin>		m_irc_onJoin_funcs;
 	};
 
 }

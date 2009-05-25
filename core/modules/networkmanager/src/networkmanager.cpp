@@ -1,9 +1,11 @@
 #include "../networkmanager.h"
 #include <tokenizer.h>
 #include <tcpconnection.h>
+#include <pluginmanager.h>
 
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
 
 namespace firc
 {
@@ -22,10 +24,12 @@ namespace firc
 //		m_stateMutex = PTHREAD_MUTEX_INITIALIZER;
 	}
 	
-	Result NetworkManager::init()
+	Result NetworkManager::init(PluginManager *pluginManager)
 	{
 		Result res = RES_FAILED;
 		std::string m_outStr;
+		
+		m_pluginManager = pluginManager;
 		
 		m_state = CONNECTING;
 		res = m_connection.connect("irc.efnet.ch", "6667");
@@ -44,13 +48,14 @@ namespace firc
 		m_connection.send(m_outStr);
 		// Handle the first ping command
 		m_connection.send("PING\r\n");
+		m_connection.send("PONG\r\n");
 		
 		m_connection.send("JOIN #my-secret-botdev\r\n");
 		
 		
 		m_state = CONNECTED;
 		pthread_create(&m_receiverThread, NULL,
-						threadRunMessageReceiver, NULL);
+						threadRunMessageReceiver, (void *)this);
 		
 		
 		
@@ -85,7 +90,9 @@ namespace firc
 					temp1,
 					temp2,
 					temp3;
-		/*
+					
+		std::cout << "runMessageReceiver():start" << std::endl;
+		
 		while ( TRUE == connected )
 		{
 			sleep(2);
@@ -104,14 +111,15 @@ namespace firc
 			/////////////////////////////////////////
 
 			// 1. Receive a message
-			if ( N_CONNECTION_CLOSED == m_connection->Receive(buffer) ) {
+			if ( RES_CONNECTION_CLOSED == m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0])) ) {
 				// The server closed the connection
 				// Flag we're not connected anymore, and exit thread
 				connected = FALSE;
 				//m_eventProcessor.addEvent(m_agentID, -1, -1, "-- Disconnected from server, by server --\n");
-				return;
+				return RES_CONNECTION_CLOSED;
 			}
 			in = buffer; // optimize..?
+			std::cout << "recv:    " << in << std::endl;
 			//m_out << "[Before parsing, the message looks like] " << in << '\n';
 
 			// 2. Tokenize it and parse it
@@ -143,7 +151,7 @@ namespace firc
 
 					if ( command == "PING" ) {
 						currentMessage.erase(0, 1); // Strip the starting colon ':'
-						m_pluginManager->onPing(currentMessage);
+						//#m_pluginManager->onPing(currentMessage);
 					} else if ( command == "PRIVMSG" ) {
 						tokenize(target, currentMessage, ' ');
 	//					m_pluginManager->onPrivMsg(
@@ -155,8 +163,9 @@ namespace firc
 						//m_eventProcessor.addEvent(m_agentID, -1, -1, s.str());
 						currentMessage.erase(0, 1);
 
-						m_pluginManager->onPrivMsg(prefix, target, currentMessage);
+						//#m_pluginManager->onPrivMsg(prefix, target, currentMessage);
 					} else if ( command == "JOIN" ) {
+						std::cout << "(local) JOIN command detected: " << currentMessage << std::endl;
 						if ( currentMessage[0] == ':' )
 							currentMessage.erase(0, 1); // Remove ':' in front of the channel name (efnet seems to use it)
 
@@ -165,8 +174,8 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_cache->onJoin(temp1, temp2, prefix, currentMessage);
-						m_pluginManager->onJoin(temp1, currentMessage);
+						//#m_cache->onJoin(temp1, temp2, prefix, currentMessage);
+						m_pluginManager->irc_onJoin((void *)this, currentMessage.c_str(), temp1.c_str());
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
 							currentMessage.erase(0, 1); // Remove ':' in front of the channel name
@@ -176,13 +185,13 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_cache->onPart(temp1, temp2, prefix, currentMessage);
-						m_pluginManager->onPart(temp1, currentMessage);
+						//#m_cache->onPart(temp1, temp2, prefix, currentMessage);
+						//#m_pluginManager->onPart(temp1, currentMessage);
 					} else if ( command == "TOPIC" ) {
 						// topic change.. ex: (GTANet) [Original message] :Pliskin!IceChat7@gtanet-ADE03D4F.bsnet.se TOPIC #antons_kanal :Det här är en topic
 						tokenize(target, currentMessage, " :");
 
-						m_cache->setTopic(target, currentMessage);
+						//#m_cache->setTopic(target, currentMessage);
 						//m_pluginManager->onTopicChange(); TODO
 
 						// ##### NUMERIC REPLIES BELOW ######
@@ -191,7 +200,7 @@ namespace firc
 						tokenize(target, currentMessage, ' '); // target = firc_04
 						tokenize(temp1, currentMessage, " :"); // temp1 = #antons_kanal
 						
-						m_cache->setTopic(temp1, currentMessage);
+						//#m_cache->setTopic(temp1, currentMessage);
 					} else if ( command == "333" ) {
 						// "RPL_TOPICWHOWHEN" ? Ex ?
 					} else if ( command == "353" ) {
@@ -214,7 +223,7 @@ namespace firc
 							default:
 								break;
 							}
-							m_cache->addUser(temp2, temp3);
+							//#m_cache->addUser(temp2, temp3);
 						}
 					}
 
@@ -236,7 +245,7 @@ namespace firc
 			/////////////////////////////////////////
 			
 			
-		}*/
+		}
 		return RES_OK;
 	}
 	

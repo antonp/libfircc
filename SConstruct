@@ -37,7 +37,7 @@ def buildLibrary(name, path, externalIncludeDirList):
 				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
 				srcList += Split(glob.glob(moduleSrcPath))
 
-	cppFlags = []
+	cppFlags = ['-g']
 
 	target = StaticLibrary(
 		compOutName,
@@ -70,7 +70,7 @@ def buildSharedLibrary(name, path, externalIncludeDirList, externalLibList):
 				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
 				srcList += Split(glob.glob(moduleSrcPath))
 
-	cppFlags = []
+	cppFlags = ['-g']
 
 	target = SharedLibrary(
 		compOutName,
@@ -104,7 +104,7 @@ def buildProgram(name, path, externalIncludeDirList, externalLibList, linkFlagLi
 				moduleSrcPath = os.path.join(modulePath, 'src') + '/*.cpp'
 				srcList += Split(glob.glob(moduleSrcPath))
 
-	cppFlags = []
+	cppFlags = ['-g']
 
 	target = Program(
 		compOutName,
@@ -132,14 +132,14 @@ core = buildLibrary(
 frontend_console = buildProgram(
 	'frontend_console',
 	'frontend_console',
-	['core/modules/frontend_interface', 'basecode',
-		'core/modules/pluginmanager'], #pluginmanager: johnny bigert!
+	['basecode', 'core/modules/plugin_interface'],
 	['core', 'pthread', 'dl'],
 	['-rdynamic']
 )
 
 # Plugins
 pluginTest1 = buildSharedLibrary('pluginTest1', 'plugindev/pluginTest1', ['basecode', 'core/modules/plugin_interface'], [])
+pluginTest2 = buildSharedLibrary('pluginTest2', 'plugindev/pluginTest2', ['basecode', 'core/modules/plugin_interface'], [])
 
 Depends(pluginTest1, [core])
 Depends(frontend_console, [core])

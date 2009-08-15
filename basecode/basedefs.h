@@ -20,6 +20,9 @@ namespace firc
 
   typedef uint32				bool32;
   typedef uint8					bool8;
+  
+  typedef int32					word;
+  typedef uint32				uword;
 #endif
 
 #ifdef TARGET_UBUNTU64
@@ -34,6 +37,9 @@ namespace firc
 
   typedef uint32				bool32;
   typedef uint8					bool8;
+  
+  typedef int64					word;
+  typedef uint64				uword;
 #endif
 
 //#define MGE_TRUE 1
@@ -61,7 +67,8 @@ enum Result
 	RES_OUTOFBOUNDS,
 	RES_INTERNALERROR,
 	RES_MEMALLOC_FAILED,
-	RES_CONNECTION_CLOSED
+	RES_CONNECTION_CLOSED,
+	RES_BUFFER_TOO_SMALL
 };
 
 } // namespace mge

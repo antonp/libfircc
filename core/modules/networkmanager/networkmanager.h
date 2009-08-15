@@ -3,6 +3,7 @@
 
 #include <basedefs.h>
 #include <tcpconnection.h>
+#include <ircnetworkcache.h>
 
 #include <pthread.h> // fix with johnny bigert article on interfaces
 
@@ -14,9 +15,11 @@ namespace firc
 	{
 	public:
 		NetworkManager();
+		~NetworkManager();
 		
-		Result init(PluginManager *m_pluginManager);
-		void deinit();
+		Result init(const int8 *host, const int8 *port,
+					PluginManager *m_pluginManager);
+		void deinit(const int8 *message);
 		enum State
 		{
 			CONNECTING=0,
@@ -29,6 +32,20 @@ namespace firc
 		Result runMessageReceiver();
 		
 		Result sendMessage(const std::string &message);
+		
+		// Network cache stuff
+		Result getBotNickName(int8 *destName,
+								uint32 maxNameLength) const;
+		Result getTopic(const int8 *channel, int8 *destTopic,
+						uint32 maxTopicSize) const;
+		Result getChannelUserCount(const int8 *channel,
+									uint32 *destChannelUserCount) const;
+		Result isUserInChannel(const int8 *channel,
+								const int8 *nickName,
+								bool32 *userIsInChannel) const;
+									
+		Result getChannelInfo(void *network, const int8 *channel,
+								const void **userList) const;
 	private:
 	
 		State m_state;
@@ -39,6 +56,8 @@ namespace firc
 		pthread_t m_receiverThread;
 		
 		PluginManager *m_pluginManager;
+		
+		irc::NetworkCache m_networkCache;
 	};
 }
 

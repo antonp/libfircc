@@ -13,8 +13,18 @@ namespace firc
 	class Core
 	{
 	public:
-		Result init();
+		Result init(uint8 pluginCount, const int8 *pluginNames[]);
 		bool32 update();
+		
+		Result createNetworkManager(const int8 *host, const int8 *port,
+									NetworkManager **networkManager);
+									
+		Result destroyNetworkManager(NetworkManager *networkManager,
+										const int8 *message);
+										
+		Result getPluginManager(PluginManager **pluginManager);
+		
+		Result addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
 	private:
 		PluginManager m_pluginManager;
 		std::vector<NetworkManager *> m_networkManagers;

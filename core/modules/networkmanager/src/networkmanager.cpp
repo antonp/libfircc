@@ -3,7 +3,6 @@
 #include <tcpconnection.h>
 #include <pluginmanager.h>
 
-#include <unistd.h>
 #include <iostream>
 #include <sstream>
 
@@ -16,15 +15,22 @@ namespace firc
 		{
 			nm->runMessageReceiver();
 		}
+		std::cout << "NetworkManager: closing thread." << std::endl;
 		pthread_exit(0);
 	}
 	
 	NetworkManager::NetworkManager()
 	{
-//		m_stateMutex = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_init(&m_stateMutex, NULL);
 	}
 	
-	Result NetworkManager::init(PluginManager *pluginManager)
+	NetworkManager::~NetworkManager()
+	{
+		pthread_mutex_destroy(&m_stateMutex);
+	}
+	
+	Result NetworkManager::init(const int8 *host, const int8 *port,
+								PluginManager *pluginManager)
 	{
 		Result res = RES_FAILED;
 		std::string m_outStr;
@@ -32,7 +38,7 @@ namespace firc
 		m_pluginManager = pluginManager;
 		
 		m_state = CONNECTING;
-		res = m_connection.connect("irc.efnet.ch", "6667");
+		res = m_connection.connect(host, port);
 		if ( res != RES_OK )
 		{
 			return res;
@@ -46,11 +52,10 @@ namespace firc
 		// User
 		m_outStr = std::string("USER ")+std::string("fircbot09")+std::string(" 0 * :")+std::string("Anton Petersson")+std::string("\r\n");
 		m_connection.send(m_outStr);
-		// Handle the first ping command
-		m_connection.send("PING\r\n");
-		m_connection.send("PONG\r\n");
 		
-		m_connection.send("JOIN #my-secret-botdev\r\n");
+		//m_connection.send("JOIN #my-secret-botdev\r\n");
+		
+		m_networkCache.init(host, "fircbot09");
 		
 		
 		m_state = CONNECTED;
@@ -63,13 +68,20 @@ namespace firc
 		return RES_OK;
 	}
 	
-	void NetworkManager::deinit()
+	void NetworkManager::deinit(const int8 *message)
 	{
 		pthread_mutex_lock(&m_stateMutex);
 		m_state = SHUTTING_DOWN;
 		pthread_mutex_unlock(&m_stateMutex);
 		
+		std::string quitMessage("QUIT :");
+		quitMessage += message;
+		quitMessage += "\r\n";
+		m_connection.send(quitMessage);
+		
+		std::cout << "NetworkManager: pthread_join..." << std::endl;
 		pthread_join(m_receiverThread, NULL);
+		std::cout << "NetworkManager: receiver thread dead..." << std::endl;
 	}
 	
 	Result NetworkManager::runMessageReceiver()
@@ -95,8 +107,8 @@ namespace firc
 		
 		while ( TRUE == connected )
 		{
-			sleep(2);
-			std::cout << "messageReceiver: hi" << std::endl;
+			//sleep(2);
+			//std::cout << "messageReceiver: hi" << std::endl;
 			
 			pthread_mutex_lock(&m_stateMutex);
 			state = m_state;
@@ -151,30 +163,40 @@ namespace firc
 
 					if ( command == "PING" ) {
 						currentMessage.erase(0, 1); // Strip the starting colon ':'
+						temp3 = "PONG :";
+						temp3 += currentMessage;
+						temp3 += "\r\n";
+						std::cout << "receiver: Sending mgs=" << temp3
+							<< std::endl;
+						m_connection.send(temp3);
 						//#m_pluginManager->onPing(currentMessage);
 					} else if ( command == "PRIVMSG" ) {
 						tokenize(target, currentMessage, ' ');
-	//					m_pluginManager->onPrivMsg(
 
-						//std::stringstream s;
-						//s << "PRIVMSG DETECTED: [Prefix] '" << prefix << "' [target] '" << target << "' [msg] '" << currentMessage.erase(0, 1) << "'\n";
-						//m_eventProcessor.addEvent(m_agentID, -1, -1, s.str());
-						//m_eventProcessor.addEvent(m_agentID, -1, -1, s.str());
-						//m_eventProcessor.addEvent(m_agentID, -1, -1, s.str());
 						currentMessage.erase(0, 1);
+						std::cout << "(local) PRIVMSG detected: " << currentMessage << std::endl;
+						
 
-						//#m_pluginManager->onPrivMsg(prefix, target, currentMessage);
+						m_pluginManager->irc_onPrivMsg((void *)this,
+												prefix.c_str(),
+												target.c_str(),
+												currentMessage.c_str());
 					} else if ( command == "JOIN" ) {
 						std::cout << "(local) JOIN command detected: " << currentMessage << std::endl;
 						if ( currentMessage[0] == ':' )
-							currentMessage.erase(0, 1); // Remove ':' in front of the channel name (efnet seems to use it)
+						{
+ 							// Remove ':' in front of the channel
+ 							// name (efnet seems to use it)
+							currentMessage.erase(0, 1);
+						}
 
-						// Separate the prefix into nickname, user and host
+						// Separate the prefix into nickname,
+						// user and host
 						tokenize(temp1, prefix, '!'); // nickname
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						//#m_cache->onJoin(temp1, temp2, prefix, currentMessage);
+						m_networkCache.onJoin(temp1, temp2, prefix, currentMessage);
 						m_pluginManager->irc_onJoin((void *)this, currentMessage.c_str(), temp1.c_str());
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
@@ -185,13 +207,13 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						//#m_cache->onPart(temp1, temp2, prefix, currentMessage);
+						m_networkCache.onPart(temp1, temp2, prefix, currentMessage);
 						//#m_pluginManager->onPart(temp1, currentMessage);
 					} else if ( command == "TOPIC" ) {
 						// topic change.. ex: (GTANet) [Original message] :Pliskin!IceChat7@gtanet-ADE03D4F.bsnet.se TOPIC #antons_kanal :Det här är en topic
 						tokenize(target, currentMessage, " :");
 
-						//#m_cache->setTopic(target, currentMessage);
+						m_networkCache.setTopic(target, currentMessage);
 						//m_pluginManager->onTopicChange(); TODO
 
 						// ##### NUMERIC REPLIES BELOW ######
@@ -200,9 +222,10 @@ namespace firc
 						tokenize(target, currentMessage, ' '); // target = firc_04
 						tokenize(temp1, currentMessage, " :"); // temp1 = #antons_kanal
 						
-						//#m_cache->setTopic(temp1, currentMessage);
+						m_networkCache.setTopic(temp1, currentMessage);
 					} else if ( command == "333" ) {
-						// "RPL_TOPICWHOWHEN" ? Ex ?
+						// "RPL_TOPICWHOWHEN" ? Ex: (ChatJunkies) [original message] :at.chatjunkies.org 333 fircbot09 #my-secret-botdev antonp!~antonp@ChatJunkies-6a09bfa2.dyn.perspektivbredband.net 1248007592
+
 					} else if ( command == "353" ) {
 						// RPL_NAMREPLY ex: (efnet) [Original message] :efnet.demon.co.uk 353 firc_04 = #antons_kanal :firc_04 @Pliskin_
 						tokenize(target, currentMessage, ' '); // target = firc_04
@@ -223,7 +246,7 @@ namespace firc
 							default:
 								break;
 							}
-							//#m_cache->addUser(temp2, temp3);
+							m_networkCache.addUser(temp2, temp3);
 						}
 					}
 
@@ -259,6 +282,131 @@ namespace firc
 		m_connection.send(message);
 		
 		return RES_OK;
+	}
+	
+	Result NetworkManager::getBotNickName(int8 *destName,
+								uint32 maxNameLength) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != destName
+			 && maxNameLength > 0 )
+		{
+			std::string tempName;
+			uint32 i = 0;
+			m_networkCache.getBotNickName(&tempName);
+			
+			for ( i=0; i<maxNameLength && tempName.size(); ++i )
+			{
+				destName[i] = tempName[i];
+			}
+			destName[i] = 0;
+			res = RES_OK;
+		}
+		
+		return res;
+	}
+	
+	Result NetworkManager::getTopic(const int8 *channel,
+									int8 *destTopic,
+									uint32 maxTopicSize) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		int32 ret = 0;
+		
+		if ( NULL != channel && NULL != destTopic && maxTopicSize > 0 )
+		{
+			std::string topic;
+			uint32 i = 0;
+			ret = m_networkCache.getTopic(&topic, channel);
+			if ( -1 != ret )
+			{
+				for ( i=0; i<maxTopicSize-1 && i<topic.size(); ++i )
+				{
+					destTopic[i] = topic[i];
+				}
+				destTopic[i] = 0;
+				res = RES_OK;
+			} else
+			{
+				res = RES_NOTFOUND;
+			}
+		}
+		
+		return res;
+	}
+	
+	Result NetworkManager::getChannelUserCount(const int8 *channel,
+							uint32 *destChannelUserCount) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != channel
+			 && NULL != destChannelUserCount )
+		{
+			if ( -1 != m_networkCache.getChannelUserCount(
+												destChannelUserCount,
+												channel) )
+			{
+				res = RES_OK;
+			} else
+			{
+				res = RES_NOTFOUND;
+			}
+		}
+	
+		return res;	
+	}
+	
+	Result NetworkManager::isUserInChannel(const int8 *channel,
+						const int8 *nickName,
+						bool32 *userIsInChannel) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != channel
+			&& NULL != nickName
+			&& NULL != userIsInChannel )
+		{
+			switch ( m_networkCache.isUserInChannel(channel, nickName) )
+			{
+			case -1:
+				res = RES_NOTFOUND;
+				break;
+			case 0:
+				res = RES_OK;
+				*userIsInChannel = FALSE;
+				break;
+			case 1:
+				res = RES_OK;
+				*userIsInChannel = TRUE;
+				break;
+			default:
+				res = RES_INTERNALERROR;
+				break;
+			}
+		}
+		
+		return res;
+	}
+	
+	Result NetworkManager::getChannelInfo(void *network,
+							const int8 *channel,
+							const void **channelInfo) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != network
+			&& NULL != channel
+			&& NULL != channelInfo )
+		{
+			// Make the call
+			res = m_networkCache.createChannelInfoFromChannelName(
+				channel,
+				channelInfo);
+		}
+		
+		return res;
 	}
 	
 	
@@ -316,6 +464,211 @@ namespace firc
 			}
 			
 			nm->sendMessage(std::string(rawCommand));
+		}
+
+		/**
+		 * @brief
+		 * Retrieves the nick of the bot/client.
+		 * 
+		 * @param network
+		 * IRC network to look at.
+		 * 
+		 * @param destName
+		 * String buffer that the nickname will be written to.
+		 * 
+		 * @param maxNameLength
+		 * Size of the destination buffer in bytes.
+		 * 
+		 * @return
+		 * RES_OK on success or an error code on failure.
+		 */		
+		Result cacheGetBotNickName(void *network, int8 *destName,
+							uint32 maxNameLength)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != network
+				 && NULL != destName
+				 && maxNameLength > 0 )
+			{
+				res = ((NetworkManager *)network)->getBotNickName(
+														destName,
+														maxNameLength);
+			}
+			
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Retrieves the topic of a channel.
+		 * 
+		 * @param network
+		 * IRC network to look at.
+		 * 
+		 * @param channel
+		 * The channel from which the topic will be retrieved.
+		 * 
+		 * @param destTopic
+		 * String buffer that the topic will be written to.
+		 * 
+		 * @param maxTopicSize
+		 * Size of the destination buffer in bytes.
+		 * 
+		 * @return
+		 * RES_OK on success or an error code on failure.
+		 */
+		Result cacheGetTopic(void *network, const int8 *channel,
+					int8 *destTopic, uint32 maxTopicSize)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if (   NULL != network
+				&& NULL != channel
+				&& NULL != destTopic
+				&& 0 < maxTopicSize )
+			{
+				res = ((NetworkManager *)network)->getTopic(channel,
+													destTopic,
+													maxTopicSize);
+			}
+			
+			return res;
+		}
+
+		/**
+		 * @brief
+		 * Retrieve the user count for a channel.
+		 * 
+		 * @param network
+		 * IRC network to look at
+		 * 
+		 * @param channel
+		 * The channel to retrieve the user count from.
+		 * 
+		 * @param destUserCount
+		 * Pointer to a uint32 that will receive the user count.
+		 * 
+		 * @return
+		 * RES_OK on success or an error code on failure.
+		 */		
+		Result cacheGetChannelUserCount(void *network,
+										const int8 *channel,
+										uint32 *destUserCount)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != network
+				 && NULL != channel
+				 && NULL != destUserCount )
+			{
+				res = ((NetworkManager *)network)->getChannelUserCount(
+														channel,
+														destUserCount);
+			}
+			
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Check if a user is in a channel.
+		 * 
+		 * @param network
+		 * IRC network to look at.
+		 * 
+		 * @param channel
+		 * Channel to look in.
+		 * 
+		 * @param userNick
+		 * Nickname of the user to look for.
+		 * 
+		 * @param userIsInChannel
+		 * Set to TRUE if the user is in the specified channel
+		 * (according to the cache), FALSE otherwise.
+		 * 
+		 * @return
+		 * RES_OK on success, RES_NOTFOUND if the channel can't be
+		 * found or another error code if something else goes wrong.
+		 */
+		Result cacheIsUserInChannel(void *network, const int8 *channel,
+								const int8 *userNick,
+								bool32 *userIsInChannel)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != network
+				&& NULL != channel
+				&& NULL != userNick
+				&& NULL != userIsInChannel )
+			{
+				res = ((NetworkManager *)network)->isUserInChannel(
+													channel,
+													userNick,
+													userIsInChannel);
+			}
+			
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Retrieves various information about a specific channel that
+		 * the bot is in.
+		 * 
+		 * @param[in] network
+		 * The IRC network of the channel.
+		 * 
+		 * @param[in] channel
+		 * The name of the channel (including '#' character).
+		 * 
+		 * @param[out] channelInfo
+		 * Will point to a dynamically allocated copy of the internal
+		 * channel info object stored in the cache. Remember to destroy
+		 * it when you don't need it anymore.
+		 * 
+		 * @remarks
+		 * The channel info object is a read only snapshot of the
+		 * channel, and will not be updated automatically.
+		 * To get current information, you need to continuously retrieve
+		 * new channel info objects. But don't forget to destroy the old
+		 * ones, otherwise you will cause memory leakage.
+		 * 
+		 * @return
+		 * RES_OK on success, an error code otherwise.
+		 */
+		Result cacheCreateChannelInfoFromChannelName(void *network,
+							const int8 *channel,
+							const void **channelInfo)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != network
+				&& NULL != channel )
+			{
+				res = ((NetworkManager *)network)->getChannelInfo(
+					network, channel, channelInfo);
+			}
+			
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Deallocates a channel info object.
+		 * 
+		 * @param channelInfo
+		 * ChannelInfo object to destroy.
+		 * 
+		 * @sa
+		 * cacheCreateChannelInfoFromChannelName
+		 */
+		void cacheDestroyChannelInfo(const void *channelInfo)
+		{
+			if ( NULL != channelInfo )
+			{
+				delete channelInfo;
+			}
 		}
 	}
 }

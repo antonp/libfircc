@@ -4,6 +4,8 @@
 #include <basedefs.h>
 #include "plugin_functions.h"
 
+#include <string>
+
 namespace firc
 {
 	class Plugin
@@ -11,8 +13,12 @@ namespace firc
 	public:
 		Plugin();
 		
-		Result loadFromFile(const int8 *fileName, PF_irc_onJoin *ioj);
-		void unload();
+		Result loadFromFile(void *fircCore, const int8 *fileName,
+							PF_irc_onJoin *ioj,
+							PF_irc_onPrivMsg *iopm);
+		void unload(uint32 reason);
+		
+		Result getName(const std::string **name);
 	private:
 		void				*m_handle;
 		
@@ -21,6 +27,9 @@ namespace firc
 		// Pure irc functions
 		PF_irc_onJoin		m_pf_irc_onJoin;
 		PF_irc_onPrivMsg	m_pf_irc_onPrivMsg;
+		
+		// Info
+		std::string			m_name;
 	};
 }
 

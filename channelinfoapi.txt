@@ -1,0 +1,18 @@
+1. getChannelInfoBuffer(void **channelInfoBuffer/Session)
+Desc: Allocates and generates a list of users and other channel info (topic..).
+Then provides an API to work on that channelinfo, which will be fast.
+Then a destroyer function.
+
+Pros:
+* Flexible (no limit on number of users or nickname lengths etc)
+* Easy to use
+
+Cons:
+* User is responsible for freeing up memory with destroyer.
+* The create function may take some time (memalloc(s) + O(n) copying)
+
+2. Hashtables for looking up channels and users quickly at every call,
+and no copying at all.
+
+But how do you iterate over all users then (as the number of users may change while you are iterating..)?
+

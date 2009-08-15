@@ -5,6 +5,18 @@
 
 namespace firc
 {
+	PluginManager::PluginManager():
+	m_fircCore(NULL),
+	m_pluginCount(0)
+	{
+		
+	}
+	
+	void PluginManager::setFircCore(void *fircCore)
+	{
+		m_fircCore = fircCore; // extend
+	}
+	
 	/**
 	 * @brief
 	 * Load a set of plugins.
@@ -51,6 +63,7 @@ namespace firc
 		Result res = RES_FAILED;
 
 		PF_irc_onJoin ioj = NULL;
+		PF_irc_onPrivMsg iopm = NULL;
 
 		Plugin *plugin = new Plugin;
 		
@@ -58,7 +71,7 @@ namespace firc
 		{
 			return RES_MEMALLOC_FAILED;
 		}
-		res = plugin->loadFromFile(fileName, &ioj);
+		res = plugin->loadFromFile(m_fircCore, fileName, &ioj, &iopm);
 		if ( RES_OK != res )
 		{
 			delete plugin;
@@ -71,6 +84,11 @@ namespace firc
 		{
 			m_irc_onJoin_funcs.push_back(ioj);
 		}
+		if ( NULL != iopm )
+		{
+			m_irc_onPrivMsg_funcs.push_back(iopm);
+		}
+		++m_pluginCount;
 
 		return RES_OK;
 	}
@@ -91,20 +109,106 @@ namespace firc
 			p = m_plugins[i];
 			if ( NULL == p )
 			{
-				// weird
+				// weird, but ok skip this one then
 				continue;
 			} else
 			{
-				p->unload();
+				p->unload(0); // Revise '0'
 				delete p;
 				p = NULL;
 				m_plugins[i] = NULL;
 			}
 		}
 		m_plugins.clear();
+		m_pluginCount = 0;
 	}
 	
-
+	/**
+	 * @brief
+	 * Unloads a specific plugin.
+	 * 
+	 * @param index
+	 * The location in the plugin manager's internal list.
+	 * 
+	 * @param reason
+	 * Reason for unload. (Will introduce some predefined constants
+	 * for this parameter later, like RELOAD/UPGRADE/SHUTDOWN etc).
+	 * 
+	 * @return
+	 * Returns CERR_OK on success or an error code on failure.
+	 */
+	Result PluginManager::unloadPlugin(uint32 index, uint32 reason)
+	{
+		if ( index >= m_plugins.size() || NULL == m_plugins[index] )
+		{
+			return RES_INVALID_PARAMETER;
+		}
+		
+		m_plugins[index]->unload(reason);
+		m_plugins[index] = NULL; // List becomes fragmented :\
+		// assert m_pluginCount > 0 (todo)
+		--m_pluginCount;
+		
+		std::vector<Plugin *>::iterator i = m_plugins.begin()+index;
+		m_plugins.erase(i); // Not fragmented anymore
+		
+		
+		return RES_OK;
+	}
+	
+	Result PluginManager::getPluginCount(uint32 *count) const
+	{
+		if ( NULL != count )
+		{
+			*count = m_pluginCount;
+			return RES_OK;
+		} else
+		{
+			return RES_INVALID_PARAMETER;
+		}
+	}
+	
+	Result PluginManager::getPluginInfo(uint32 index,
+							int8 *name, uint32 nameLength)
+	{
+		Result res = RES_INVALID_PARAMETER;
+		uint32 size = m_plugins.size();
+		const std::string *n = NULL;
+		
+		if ( size > index && NULL != m_plugins[index] )
+		{
+			if ( NULL != name )
+			{
+				res = m_plugins[index]->getName(&n);
+				if ( RES_OK == res )
+				{
+					const int8 *temp = n->c_str();
+					uint32 tempSize = n->size();
+					uint32 i=0;
+					for ( ; i<nameLength && i<tempSize; ++i )
+					{
+						name[i] = temp[i];
+					}
+					if ( i < nameLength )
+					{
+						name[i] = 0; // Null-terminate
+					} else
+					{
+						name[nameLength-1] = 0; // Null-terminate
+					}
+					if ( i == tempSize )
+					{
+						res = RES_OK;
+					} else
+					{
+						// The name didn't fit in the supplied buffer
+						res = RES_BUFFER_TOO_SMALL;	
+					}
+				}
+			}
+		}
+		return res;
+	}
 
 
 	/**
@@ -129,6 +233,172 @@ namespace firc
 		{
 			// Call the onJoin funcs
 			m_irc_onJoin_funcs[i](network, channel, user);
+		}
+	}
+	
+	/**
+	 * @brief
+	 * Calls every loaded plugin's irc_onPrivMsg function.
+	 * 
+	 * @param network
+	 * The network that sent the PRIVMSG message.
+	 * 
+	 * @param sender
+	 * The sender of the message.
+	 * 
+	 * @param target
+	 * The receiver of the message, channel or user.
+	 * 
+	 * @param message
+	 * The message.
+	 */
+	void PluginManager::irc_onPrivMsg(void *network, const int8 *sender,
+										const int8 *target,
+										const int8 *message)
+	{
+		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
+		uint32 i = 0;
+		for ( ; i<funcCount; ++i )
+		{
+			m_irc_onPrivMsg_funcs[i](network, sender, target, message);
+		}
+	}
+	/**
+	 * @brief
+	 * Adds a function to be called whenever a PRIVMSG is received
+	 * from the IRC network.
+	 * 
+	 * @param func
+	 * The function to call when a PRIVMSG is received.
+	 * 
+	 * @return
+	 * Returns RES_OK on success or a specific error code on
+	 * failure.
+	 */
+	Result PluginManager::addCallbackOnPrivMsg(PF_irc_onPrivMsg func)
+	{
+		Result res = RES_INVALID_PARAMETER;
+		if ( NULL != func )
+		{
+			m_irc_onPrivMsg_funcs.push_back(func);
+			res = RES_OK;
+		}
+		return res;
+	}
+	
+	/* Native functions */
+	extern "C"
+	{
+		/**
+		 * @brief
+		 * Load a plugin.
+		 * 
+		 * @param pluginManager
+		 * Valid pointer to a (the) plugin manager object.
+		 * 
+		 * @param fileName
+		 * Filename of the plugin to load.
+		 * 
+		 * @return
+		 * RES_OK on success or a specific error code on failure.
+		 */
+		Result pluginLoad(void *pluginManager, const int8 *fileName)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager && NULL != fileName )
+			{
+				res = ((PluginManager *)pluginManager)->loadPlugin(
+															fileName);
+			}
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Get the number of loaded plugins.
+		 * 
+		 * @param pluginManager
+		 * Valid pointer to a (the) plugin manager object.
+		 * 
+		 * @param[out] count
+		 * Valid pointer to an unsigned integer to receive the number.
+		 * 
+		 * @return
+		 * Returns RES_OK on success or a specific error code on
+		 * failure.
+		 */
+		Result pluginGetPluginCount(void *pluginManager, uint32 *count)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager && NULL != count )
+			{
+				res = ((PluginManager *)pluginManager)
+							->getPluginCount(count);
+			}
+			return res;
+		}
+
+		/**
+		 * @brief
+		 * Retrieve information about a loaded plugin.
+		 * 
+		 * @param pluginManager
+		 * Pointer to a plugin manager.
+		 * 
+		 * @param index
+		 * The location in the plugin manager's list.
+		 * 
+		 * @param[out] name
+		 * Pointer to a buffer which will receive the name.
+		 * 
+		 * @param nameLength
+		 * Maximum number of characters that the name buffer can hold.
+		 * 
+		 * @return
+		 * RES_OK on success or a specific error code on failure.
+		 */		
+		Result pluginGetPluginInfo(void *pluginManager, uint32 index,
+									int8 *name, uint32 nameLength)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager )
+			{
+				res = ((PluginManager *)pluginManager)->getPluginInfo(
+					index,
+					name, nameLength);
+			}
+			return res;
+		}
+		
+		/**
+		 * @brief 
+		 * Unload a specific plugin.
+		 * 
+		 * @param pluginManager
+		 * Pointer to a plugin manager.
+		 * 
+		 * @param index
+		 * The location in the plugin manager's internal list.
+		 * 
+		 * @param reason
+		 * Reason for unload. (Will introduce some predefined constants
+		 * for this parameter later, like RELOAD/UPGRADE/SHUTDOWN etc).
+		 */
+		Result pluginUnload(void *pluginManager, uint32 index,
+							uint32 reason)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager )
+			{
+				res = ((PluginManager *)pluginManager)->unloadPlugin(
+					index, reason);
+			}
+			
+			return res;
 		}
 	}
 }

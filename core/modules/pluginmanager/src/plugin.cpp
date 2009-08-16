@@ -11,7 +11,10 @@ namespace firc
 	 */
 	Plugin::Plugin():
 		m_handle(NULL),
-		m_name("n/a")
+		m_name("n/a"),
+		m_pf_irc_onJoin(NULL),
+		m_pf_irc_onPrivMsg(NULL),
+		m_executionCount(0)
 	{
 		m_pf_pluginDeinit = NULL;
 	}
@@ -77,10 +80,17 @@ namespace firc
 		return RES_OK;
 	}
 	
-	void Plugin::unload(uint32 reason)
+	Result Plugin::unload(uint32 reason)
 	{
-		m_pf_pluginDeinit(reason);
-		dlclose(m_handle);
+		if ( m_executionCount == 0 )
+		{
+			m_pf_pluginDeinit(reason);
+			dlclose(m_handle);
+			return RES_OK;
+		} else
+		{
+			return RES_FAILED;
+		}
 	}
 	
 	Result Plugin::getName(const std::string **name)
@@ -94,5 +104,63 @@ namespace firc
 			res = RES_OK;
 		}
 		return res;
+	}
+	
+	/////////////////////////
+	// Get plugin handlers
+	/////////////////////////
+
+	Result Plugin::getEventHandler(PF_irc_onJoin *dest) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != dest )
+		{
+			if ( NULL != m_pf_irc_onJoin )
+			{
+				*dest = m_pf_irc_onJoin;
+				res = RES_OK;
+			} else
+			{
+				res = RES_NOTFOUND;
+			}
+		}
+		
+		return res;
+	}
+	
+	Result Plugin::getEventHandler(PF_irc_onPrivMsg *dest) const
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		if ( NULL != dest )
+		{
+			if ( NULL != m_pf_irc_onPrivMsg )
+			{
+				*dest = m_pf_irc_onPrivMsg;
+				res = RES_OK;
+			} else
+			{
+				res = RES_NOTFOUND;
+			}
+		}
+		
+		return res;
+	}
+	
+	//////////////////////////////////
+	// Execution, status, reloading
+	//////////////////////////////////
+
+	void Plugin::increaseExecutionCount()
+	{
+		++m_executionCount;
+	}
+	
+	void Plugin::decreaseExecutionCount()
+	{
+		--m_executionCount;
+		
+		/// @todo Add assert and/or log if m_executionCount < 0
 	}
 }

@@ -2,6 +2,7 @@
 #include "../inc/plugin.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace firc
 {
@@ -82,11 +83,13 @@ namespace firc
 		
 		if ( NULL != ioj )
 		{
-			m_irc_onJoin_funcs.push_back(ioj);
+			m_irc_onJoin_funcs.push_back(
+				std::pair<PF_irc_onJoin, Plugin *>(ioj, plugin));
 		}
 		if ( NULL != iopm )
 		{
-			m_irc_onPrivMsg_funcs.push_back(iopm);
+			m_irc_onPrivMsg_funcs.push_back(
+				std::pair<PF_irc_onPrivMsg, Plugin *>(iopm, plugin));
 		}
 		++m_pluginCount;
 
@@ -139,12 +142,48 @@ namespace firc
 	 */
 	Result PluginManager::unloadPlugin(uint32 index, uint32 reason)
 	{
+		using std::vector;
+		using std::pair;
+		Result res = RES_OK;
 		if ( index >= m_plugins.size() || NULL == m_plugins[index] )
 		{
 			return RES_INVALID_PARAMETER;
 		}
 		
-		m_plugins[index]->unload(reason);
+		res = m_plugins[index]->unload(reason);
+		
+		// Remove all callbacks associated with this plugin
+		
+		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
+				m_irc_onJoin_funcs.begin();
+				i != m_irc_onJoin_funcs.end(); )
+		{
+			if( (*i).second == m_plugins[index] )
+			{
+				i = m_irc_onJoin_funcs.erase(i);
+			} else
+			{
+				++i;
+			}
+		}
+
+		
+		for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator i =
+				m_irc_onPrivMsg_funcs.begin();
+				i != m_irc_onPrivMsg_funcs.end(); )
+		{
+			if( (*i).second == m_plugins[index] )
+			{
+				i = m_irc_onPrivMsg_funcs.erase(i);
+			} else
+			{
+				++i;
+			}
+		}
+
+		
+		// Plugin list and memory cleanup
+		delete m_plugins[index];
 		m_plugins[index] = NULL; // List becomes fragmented :\
 		// assert m_pluginCount > 0 (todo)
 		--m_pluginCount;
@@ -152,8 +191,7 @@ namespace firc
 		std::vector<Plugin *>::iterator i = m_plugins.begin()+index;
 		m_plugins.erase(i); // Not fragmented anymore
 		
-		
-		return RES_OK;
+		return res;
 	}
 	
 	Result PluginManager::getPluginCount(uint32 *count) const
@@ -229,10 +267,24 @@ namespace firc
 	{
 		uint32 funcCount = m_irc_onJoin_funcs.size();
 		uint32 i = 0;
+		std::pair<PF_irc_onJoin, Plugin *> *entry;
 		for ( ; i<funcCount; ++i )
 		{
 			// Call the onJoin funcs
-			m_irc_onJoin_funcs[i](network, channel, user);
+			entry = &m_irc_onJoin_funcs[i];
+			
+			if ( NULL != entry->second )
+			{
+				entry->second->increaseExecutionCount();
+			}
+			m_irc_onJoin_funcs[i].first(network, channel, user);
+			if ( NULL != entry->second )
+			{
+				entry->second->decreaseExecutionCount();
+			}
+			
+			/** @todo Later, add a task with function (first) and
+			Plugin * (second). */
 		}
 	}
 	
@@ -256,11 +308,27 @@ namespace firc
 										const int8 *target,
 										const int8 *message)
 	{
-		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
+//		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
 		uint32 i = 0;
-		for ( ; i<funcCount; ++i )
+		std::pair<PF_irc_onPrivMsg, Plugin *> *entry;
+//		for ( ; i<funcCount; ++i )
+		for ( ; i<m_irc_onPrivMsg_funcs.size(); ++i )
 		{
-			m_irc_onPrivMsg_funcs[i](network, sender, target, message);
+			// Call the onPrivMsg funcs
+			entry = &m_irc_onPrivMsg_funcs[i];
+			
+			if ( NULL != entry->second )
+			{
+				entry->second->increaseExecutionCount();
+			}
+			entry->first(network, sender, target, message);
+			if ( NULL != entry->second )
+			{
+				entry->second->decreaseExecutionCount();
+			}
+
+			/** @todo Later, add a task with function (first) and
+			Plugin * (second). */
 		}
 	}
 	/**
@@ -280,7 +348,8 @@ namespace firc
 		Result res = RES_INVALID_PARAMETER;
 		if ( NULL != func )
 		{
-			m_irc_onPrivMsg_funcs.push_back(func);
+			m_irc_onPrivMsg_funcs.push_back(
+				std::pair<PF_irc_onPrivMsg, Plugin *>(func, NULL));
 			res = RES_OK;
 		}
 		return res;

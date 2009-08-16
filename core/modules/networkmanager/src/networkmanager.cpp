@@ -663,8 +663,10 @@ namespace firc
 		 * @sa
 		 * cacheCreateChannelInfoFromChannelName
 		 */
-		void cacheDestroyChannelInfo(const void *channelInfo)
+		void cacheDestroyChannelInfo(void *channelInfo)
 		{
+			/// @todo Move deletion into ircnetworkcache,
+			/// cast to (Channel *)
 			if ( NULL != channelInfo )
 			{
 				delete channelInfo;

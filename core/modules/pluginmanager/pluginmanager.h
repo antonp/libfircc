@@ -5,6 +5,7 @@
 #include <plugin_functions.h>
 
 #include <vector> // johnny bigert this!
+#include <map>
 
 namespace firc
 {
@@ -42,8 +43,11 @@ namespace firc
 		void							*m_fircCore; // Extend
 		uint32							m_pluginCount;
 		std::vector<Plugin *>			m_plugins;
-		std::vector<PF_irc_onJoin>		m_irc_onJoin_funcs;
-		std::vector<PF_irc_onPrivMsg>	m_irc_onPrivMsg_funcs;
+		
+		std::vector<std::pair<PF_irc_onJoin, Plugin *> >
+										m_irc_onJoin_funcs;
+		std::vector<std::pair<PF_irc_onPrivMsg, Plugin *> >
+										m_irc_onPrivMsg_funcs;
 	};
 
 }

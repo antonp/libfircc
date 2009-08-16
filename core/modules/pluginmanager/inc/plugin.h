@@ -16,9 +16,17 @@ namespace firc
 		Result loadFromFile(void *fircCore, const int8 *fileName,
 							PF_irc_onJoin *ioj,
 							PF_irc_onPrivMsg *iopm);
-		void unload(uint32 reason);
+		Result unload(uint32 reason);
 		
 		Result getName(const std::string **name);
+		
+		// Event handler get functions
+		Result getEventHandler(PF_irc_onJoin *dest) const;
+		Result getEventHandler(PF_irc_onPrivMsg *dest) const;
+		
+		// Execution, status, reloading
+		void increaseExecutionCount();
+		void decreaseExecutionCount();
 	private:
 		void				*m_handle;
 		
@@ -30,6 +38,9 @@ namespace firc
 		
 		// Info
 		std::string			m_name;
+		
+		// Execution
+		uint32				m_executionCount;
 	};
 }
 

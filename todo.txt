@@ -29,6 +29,7 @@ Finalize:
 * Go through doxygen todo list.
 * Maybe create separate doxygen configs to generate external and complete documentation.
 * Look through documentation.
+* Find and replace all Johnny Bigert references ^^
 
 Misc:
 * Look at/install trac?

@@ -4,7 +4,8 @@
 #include <sstream>
 #include <string.h>
 
-using namespace firc;
+using namespace anp;
+using namespace anp::firc;
 
 extern "C"
 {

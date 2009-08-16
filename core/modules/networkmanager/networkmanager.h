@@ -5,8 +5,10 @@
 #include <tcpconnection.h>
 #include <ircnetworkcache.h>
 
-#include <pthread.h> // fix with johnny bigert article on interfaces
+#include <anp_threading.h> // johnny bigert?
 
+namespace anp
+{
 namespace firc
 {
 	class PluginManager;
@@ -49,16 +51,18 @@ namespace firc
 	private:
 	
 		State m_state;
-		pthread_mutex_t m_stateMutex;
+		//pthread_mutex_t m_stateMutex;
+		threading::Mutex *m_stateMutex;
 		
 		TCPConnection m_connection;
 		
-		pthread_t m_receiverThread;
+		threading::Thread m_receiverThread;
 		
 		PluginManager *m_pluginManager;
 		
 		irc::NetworkCache m_networkCache;
 	};
-}
+} // namespace firc
+} // namespace anp
 
 #endif // _NETWORKMANAGER_H_

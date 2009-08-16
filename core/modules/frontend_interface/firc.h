@@ -6,6 +6,8 @@
 
 #include <vector> // johnny bigert this!
 
+namespace anp
+{
 namespace firc
 {
 	class NetworkManager;
@@ -29,6 +31,7 @@ namespace firc
 		PluginManager m_pluginManager;
 		std::vector<NetworkManager *> m_networkManagers;
 	};
-}
+} // namespace firc
+} // namespace anp
 
 #endif // _FIRC_H_

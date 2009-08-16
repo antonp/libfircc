@@ -7,13 +7,15 @@
 #include <anp_threading.h>
 #include <pthread.h>
 
-namespace firc
+namespace anp
+{
+namespace threading
 {
 	////////////////
 	// Data types //
 	////////////////
 	
-	struct Thread
+	struct ThreadPlatformSpecific
 	{
 		pthread_t m_thread;
 	};
@@ -32,13 +34,13 @@ namespace firc
 	// Functions //
 	///////////////
 	
-	Result createThreadObject(Thread **thread)
+	Result createThreadObject(ThreadPlatformSpecific **thread)
 	{
 		if ( NULL == thread )
 		{
 			return RES_INVALID_PARAMETER;
 		}
-		*thread = new Thread;
+		*thread = new ThreadPlatformSpecific;
 		if ( NULL == *thread )
 		{
 			return RES_MEMALLOC_FAILED;
@@ -46,22 +48,24 @@ namespace firc
 		return RES_OK;
 	}
 
-	void destroyThreadObject(Thread *thread)
+	void destroyThreadObject(ThreadPlatformSpecific *thread)
 	{
-		delete thread;
+		if ( NULL != thread )
+		{
+			delete thread;
+		}
 	}
 	
-	Result createThread(Thread *thread, const ThreadAttributes *attr,
+	Result Thread::create(const ThreadAttributes *attr,
 		void *(*startRoutine)(void *), void *arg)
 	{
 		/// @todo Add support for attr parameter
 		Result res = RES_INVALID_PARAMETER;
 		
 		// attr and arg are allowed to be NULL
-		if ( NULL != thread
-			&& NULL != startRoutine )
+		if ( NULL != startRoutine )
 		{
-			if ( 0 == pthread_create(&thread->m_thread, NULL,
+			if ( 0 == pthread_create(&m_thread->m_thread, NULL,
 				startRoutine, arg) )
 			{
 				res = RES_OK;
@@ -72,4 +76,62 @@ namespace firc
 		}
 		return res;
 	}
-}
+	
+	Result Thread::join(void **valuePtr)
+	{
+		Result res = RES_INVALID_PARAMETER;
+		
+		res = (0 == pthread_join(m_thread->m_thread, valuePtr) ?
+			RES_OK: RES_FAILED);
+
+		return res;
+	}
+	
+	Result createMutexObject(Mutex **mutex)
+	{
+		if ( NULL == mutex )
+		{
+			return RES_INVALID_PARAMETER;
+		}
+		*mutex = new Mutex;
+		if ( NULL == *mutex )
+		{
+			return RES_MEMALLOC_FAILED;
+		}
+		pthread_mutex_init(&((*mutex)->m_mutex), NULL);
+		return RES_OK;
+	}
+
+	void destroyMutexObject(Mutex *mutex)
+	{
+		if ( NULL != mutex )
+		{
+			pthread_mutex_destroy(&mutex->m_mutex);
+			delete mutex;
+		}
+	}
+	
+	Result mutexLock(Mutex *mutex)
+	{
+		Result res = RES_INVALID_PARAMETER;
+		if ( NULL != mutex )
+		{
+			res = (0 == pthread_mutex_lock(&mutex->m_mutex) ?
+				RES_OK: RES_FAILED);
+		}
+		return res;
+	}
+
+	Result mutexUnlock(Mutex *mutex)
+	{
+		Result res = RES_INVALID_PARAMETER;
+		if ( NULL != mutex )
+		{
+			res = (0 == pthread_mutex_unlock(&mutex->m_mutex) ?
+				RES_OK: RES_FAILED);
+		}
+		return res;
+	}
+	
+} // namespace threading
+} // namespace anp

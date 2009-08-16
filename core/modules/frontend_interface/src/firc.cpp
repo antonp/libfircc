@@ -2,6 +2,8 @@
 #include <networkmanager.h>
 #include <iostream> // todo remove
 
+namespace anp
+{
 namespace firc
 {
 	Result Core::init(uint8 pluginCount, const int8 *pluginNames[])
@@ -291,4 +293,5 @@ namespace firc
 			return res;
 		}
 	}
-}
+} // namespace firc
+} // namespace anp

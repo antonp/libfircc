@@ -35,7 +35,7 @@ getUser() same as above
 		int isUserInChannel(const std::string &channel, const std::string &nickName) const;
 		int getChannelUserCount(unsigned int *dest, const std::string &channel) const;
 		int getTopic(std::string *dest, const std::string &channel) const;
-		firc::Result createChannelInfoFromChannelName(
+		anp::Result createChannelInfoFromChannelName(
 			const std::string &channel,
 			const void **channelInfo
 		) const;

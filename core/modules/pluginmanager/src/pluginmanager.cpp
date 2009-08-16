@@ -4,6 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
+namespace anp
+{
 namespace firc
 {
 	PluginManager::PluginManager():
@@ -470,4 +472,5 @@ namespace firc
 			return res;
 		}
 	}
-}
+} // namespace firc
+} // namespace anp

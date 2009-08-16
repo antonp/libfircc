@@ -19,6 +19,8 @@
 #define N_CONNECTION_CLOSED -6
 #define N_OK 1
 
+namespace anp
+{
 namespace firc
 {
 	class TCPConnection
@@ -40,5 +42,6 @@ namespace firc
 	private:
 		int m_socket;
 	};
-}
+} // namespace firc
+} // namespace anp
 #endif

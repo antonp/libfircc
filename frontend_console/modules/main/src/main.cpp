@@ -6,12 +6,12 @@
 #include <string.h>
 
 static pthread_mutex_t g_stateMutex;
-static firc::uint32 g_state = 0;
+static anp::uint32 g_state = 0;
 
 void irc_onPrivMsg(void *network,
-					const firc::int8 *sender,
-					const firc::int8 *receiver,
-					const firc::int8 *message)
+					const anp::int8 *sender,
+					const anp::int8 *receiver,
+					const anp::int8 *message)
 {
 	std::cout << "main.cpp: Received a PRIVMSG!" << std::endl;
 
@@ -26,7 +26,8 @@ void irc_onPrivMsg(void *network,
 
 int main(int argc, char *argv[])
 {
-	using namespace firc;
+	using namespace anp;
+	using namespace anp::firc;
 
 	Result res = RES_FAILED;
 	void *fircCore = NULL;
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 	
 	if ( RES_OK == res )
 	{
-		firc::uint32 state = 0;
+		anp::uint32 state = 0;
 		res = ircAddOnPrivMsgCallback(fircCore, irc_onPrivMsg);
 		if ( RES_OK != res )
 		{

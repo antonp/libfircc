@@ -6,6 +6,8 @@
 #include <iostream>
 #include <sstream>
 
+namespace anp
+{
 namespace firc
 {
 	static void *threadRunMessageReceiver(void *arg)
@@ -21,12 +23,12 @@ namespace firc
 	
 	NetworkManager::NetworkManager()
 	{
-		pthread_mutex_init(&m_stateMutex, NULL);
+		threading::createMutexObject(&m_stateMutex);
 	}
 	
 	NetworkManager::~NetworkManager()
 	{
-		pthread_mutex_destroy(&m_stateMutex);
+		threading::destroyMutexObject(m_stateMutex);
 	}
 	
 	Result NetworkManager::init(const int8 *host, const int8 *port,
@@ -59,20 +61,20 @@ namespace firc
 		
 		
 		m_state = CONNECTED;
-		pthread_create(&m_receiverThread, NULL,
-						threadRunMessageReceiver, (void *)this);
+			
+		res = m_receiverThread.create(NULL,	threadRunMessageReceiver,
+			(void *)this);
+
 		
-		
-		
-		
-		return RES_OK;
+
+		return res;
 	}
 	
 	void NetworkManager::deinit(const int8 *message)
 	{
-		pthread_mutex_lock(&m_stateMutex);
+		threading::mutexLock(m_stateMutex);
 		m_state = SHUTTING_DOWN;
-		pthread_mutex_unlock(&m_stateMutex);
+		threading::mutexUnlock(m_stateMutex);
 		
 		std::string quitMessage("QUIT :");
 		quitMessage += message;
@@ -80,7 +82,7 @@ namespace firc
 		m_connection.send(quitMessage);
 		
 		std::cout << "NetworkManager: pthread_join..." << std::endl;
-		pthread_join(m_receiverThread, NULL);
+		m_receiverThread.join(NULL);
 		std::cout << "NetworkManager: receiver thread dead..." << std::endl;
 	}
 	
@@ -110,9 +112,9 @@ namespace firc
 			//sleep(2);
 			//std::cout << "messageReceiver: hi" << std::endl;
 			
-			pthread_mutex_lock(&m_stateMutex);
+			threading::mutexLock(m_stateMutex);
 			state = m_state;
-			pthread_mutex_unlock(&m_stateMutex);
+			threading::mutexUnlock(m_stateMutex);
 			
 			if ( state == SHUTTING_DOWN )
 			{
@@ -673,4 +675,5 @@ namespace firc
 			}
 		}
 	}
-}
+} // namespace firc
+} // namespace anp

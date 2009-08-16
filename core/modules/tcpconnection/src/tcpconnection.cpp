@@ -4,7 +4,10 @@
 #include <netdb.h>
 
 //#pragma comment(lib, "wsock32.lib")
-namespace firc{
+namespace anp
+{
+namespace firc
+{
 	TCPConnection::TCPConnection()
 	{
 		
@@ -96,4 +99,5 @@ namespace firc{
 	/*	return lastError;*/
 		return 0; /// @todo remove this function?
 	}
-}
+} // namespace firc
+} // namespace anp

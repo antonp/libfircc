@@ -5,7 +5,7 @@
   #define NULL 0
 #endif
 
-namespace firc
+namespace anp
 {
 
 #ifdef WINDOWS_32
@@ -71,7 +71,7 @@ enum Result
 	RES_BUFFER_TOO_SMALL
 };
 
-} // namespace mge
+} // namespace anp
 
 #define FIRC_CLEANUP_LABEL mgeCleanUpLabel1:
 #define FIRC_GOTO_CLEANUP_LABEL goto mgeCleanUpLabel1

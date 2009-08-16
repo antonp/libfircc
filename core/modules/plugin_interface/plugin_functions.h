@@ -1,6 +1,8 @@
 #ifndef _PLUGIN_FUNCTIONS_H_
 #define _PLUGIN_FUNCTIONS_H_
 
+namespace anp
+{
 namespace firc
 {
 	// Abbreviations/prefixes:
@@ -19,6 +21,7 @@ namespace firc
 	
 	// void irc_onPrivMsg(void *network, const int8 *sender, const int8 *receiver, const int8 *message)
 	typedef void (*PF_irc_onPrivMsg)(void *, const int8 *, const int8 *, const int8 *);
-}
+} // namespace firc
+} // namespace anp
 
 #endif // _PLUGIN_FUNCTIONS_H_

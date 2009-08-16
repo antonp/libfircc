@@ -7,6 +7,8 @@
 #include <vector> // johnny bigert this!
 #include <map>
 
+namespace anp
+{
 namespace firc
 {
 	class Plugin;
@@ -50,6 +52,7 @@ namespace firc
 										m_irc_onPrivMsg_funcs;
 	};
 
-}
+} // namespace firc
+} // namespace anp
 
 #endif // _PLUGINMANAGER_H_

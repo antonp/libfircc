@@ -3,6 +3,8 @@
 #include <dlfcn.h>
 #include <iostream>
 
+namespace anp
+{
 namespace firc
 {
 	/**
@@ -163,4 +165,5 @@ namespace firc
 		
 		/// @todo Add assert and/or log if m_executionCount < 0
 	}
-}
+} // namespace firc
+} // namespace anp

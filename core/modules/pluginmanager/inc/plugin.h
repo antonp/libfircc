@@ -6,6 +6,8 @@
 
 #include <string>
 
+namespace anp
+{
 namespace firc
 {
 	class Plugin
@@ -42,6 +44,7 @@ namespace firc
 		// Execution
 		uint32				m_executionCount;
 	};
-}
+} // namespace firc
+} // namespace anp
 
 #endif // _PLUGIN_H_

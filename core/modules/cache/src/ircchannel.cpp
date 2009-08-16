@@ -1,9 +1,12 @@
 #include "../inc/ircchannel.h"
 #include <basedefs.h>
 
+namespace anp
+{
 namespace firc
 {
 	typedef void *ChannelInfo;
+}
 }
 
 namespace irc {
@@ -79,45 +82,45 @@ namespace irc {
 		m_topic = newTopic;
 	}
 	
-	firc::Result Channel::getUserNickName(firc::uint32 index,
+	anp::Result Channel::getUserNickName(anp::uint32 index,
 						const std::string **nickName)
 	{
 		if ( NULL != nickName
 			&& index < m_users.size() )
 		{
 			*nickName = m_users[index].getNickName();
-			return firc::RES_OK;
+			return anp::RES_OK;
 		} else
 		{
-			return firc::RES_INVALID_PARAMETER;
+			return anp::RES_INVALID_PARAMETER;
 		}
 	}
 	
-	firc::Result Channel::getUserString(firc::uint32 index,
+	anp::Result Channel::getUserString(anp::uint32 index,
 						const std::string **userString)
 	{
 		if ( NULL != userString
 			&& index < m_users.size() )
 		{
 			*userString = m_users[index].getUser();
-			return firc::RES_OK;
+			return anp::RES_OK;
 		} else
 		{
-			return firc::RES_INVALID_PARAMETER;
+			return anp::RES_INVALID_PARAMETER;
 		}
 	}
 
-	firc::Result Channel::getUserHost(firc::uint32 index,
+	anp::Result Channel::getUserHost(anp::uint32 index,
 							const std::string **host)
 	{
 		if ( NULL != host
 			&& index < m_users.size() )
 		{
 			*host = m_users[index].getHost();
-			return firc::RES_OK;
+			return anp::RES_OK;
 		} else
 		{
-			return firc::RES_INVALID_PARAMETER;
+			return anp::RES_INVALID_PARAMETER;
 		}		
 	}
 
@@ -127,6 +130,8 @@ namespace irc {
 	// Public API functions below
 	///////////////////////////////
 
+namespace anp
+{
 namespace firc
 {	
 	extern "C"
@@ -240,7 +245,7 @@ namespace firc
 				const std::string *nickName = NULL;
 				res = ((irc::Channel *)channelInfo)->getUserNickName(index,
 															&nickName);
-				if ( firc::RES_OK == res )
+				if ( anp::RES_OK == res )
 				{
 					*destNickName = nickName->c_str();
 				}
@@ -280,7 +285,7 @@ namespace firc
 				res = ((irc::Channel *)channelInfo)->getUserNickName(
 														index,
 														&userString);
-				if ( firc::RES_OK == res )
+				if ( RES_OK == res )
 				{
 					*destUserString = userString->c_str();
 				}
@@ -330,3 +335,4 @@ namespace firc
 	
 
 } // namespace firc
+} // namespace anp

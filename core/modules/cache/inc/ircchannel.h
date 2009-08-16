@@ -54,11 +54,11 @@ namespace irc {
 		int findUserByNickName(const std::string &nickName) const;
 		int getUsers(const std::vector<User> **users) const;
 		
-		firc::Result getUserNickName(firc::uint32 index,
+		anp::Result getUserNickName(anp::uint32 index,
 								const std::string **nickName);
-		firc::Result getUserString(firc::uint32 index,
+		anp::Result getUserString(anp::uint32 index,
 								const std::string **userString);
-		firc::Result getUserHost(firc::uint32 index,
+		anp::Result getUserHost(anp::uint32 index,
 								const std::string **host);		
 
 		enum {

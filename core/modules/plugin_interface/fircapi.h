@@ -9,6 +9,8 @@
  * Plugins include this file to interact with the core functionality
  */
 
+namespace anp
+{
 namespace firc
 {
 	
@@ -94,7 +96,8 @@ extern "C"
 
 	Result pluginUnload(void *pluginManager, uint32 index,
 						uint32 reason);
-}
-}
+} // extern "C"
+} // namespace firc
+} // namespace anp
 
 #endif // _FIRCAPI_H_

@@ -107,12 +107,12 @@ namespace irc {
 		}
 	}
 	
-	firc::Result NetworkCache::createChannelInfoFromChannelName(
+	anp::Result NetworkCache::createChannelInfoFromChannelName(
 		const std::string &channel,
 		const void **channelInfo
 	) const
 	{
-		using firc::uint32;
+		using anp::uint32;
 		
 		int c = findChannel(channel);
 
@@ -127,13 +127,13 @@ namespace irc {
 					*channelInfo = (void *)tempChannelInfo;
 				} else
 				{
-					return firc::RES_MEMALLOC_FAILED;
+					return anp::RES_MEMALLOC_FAILED;
 				}
 			}
 		} else {
-			return firc::RES_NOTFOUND;
+			return anp::RES_NOTFOUND;
 		}
-		return firc::RES_OK;
+		return anp::RES_OK;
 	}
 
 	int NetworkCache::removeChannel(int index) {

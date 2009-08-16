@@ -20,12 +20,12 @@ namespace threading
 		pthread_t m_thread;
 	};
 	
-	struct Mutex
+	struct MutexPlatformSpecific
 	{
 		pthread_mutex_t m_mutex;
 	};
 	
-	struct ThreadAttributes
+	struct ThreadAttributesPlatformSpecific
 	{
 		pthread_attr_t m_attributes;
 	};
@@ -56,7 +56,7 @@ namespace threading
 		}
 	}
 	
-	Result Thread::create(const ThreadAttributes *attr,
+	Result Thread::create(const ThreadAttributesPlatformSpecific *attr,
 		void *(*startRoutine)(void *), void *arg)
 	{
 		/// @todo Add support for attr parameter
@@ -87,13 +87,13 @@ namespace threading
 		return res;
 	}
 	
-	Result createMutexObject(Mutex **mutex)
+	Result createMutexObject(MutexPlatformSpecific **mutex)
 	{
 		if ( NULL == mutex )
 		{
 			return RES_INVALID_PARAMETER;
 		}
-		*mutex = new Mutex;
+		*mutex = new MutexPlatformSpecific;
 		if ( NULL == *mutex )
 		{
 			return RES_MEMALLOC_FAILED;
@@ -102,7 +102,7 @@ namespace threading
 		return RES_OK;
 	}
 
-	void destroyMutexObject(Mutex *mutex)
+	void destroyMutexObject(MutexPlatformSpecific *mutex)
 	{
 		if ( NULL != mutex )
 		{
@@ -111,25 +111,23 @@ namespace threading
 		}
 	}
 	
-	Result mutexLock(Mutex *mutex)
+	Result Mutex::lock()
 	{
 		Result res = RES_INVALID_PARAMETER;
-		if ( NULL != mutex )
-		{
-			res = (0 == pthread_mutex_lock(&mutex->m_mutex) ?
-				RES_OK: RES_FAILED);
-		}
+
+		res = (0 == pthread_mutex_lock(&m_mutex->m_mutex) ?
+			RES_OK: RES_FAILED);
+
 		return res;
 	}
 
-	Result mutexUnlock(Mutex *mutex)
+	Result Mutex::unlock()
 	{
 		Result res = RES_INVALID_PARAMETER;
-		if ( NULL != mutex )
-		{
-			res = (0 == pthread_mutex_unlock(&mutex->m_mutex) ?
-				RES_OK: RES_FAILED);
-		}
+
+		res = (0 == pthread_mutex_unlock(&m_mutex->m_mutex) ?
+			RES_OK: RES_FAILED);
+
 		return res;
 	}
 	

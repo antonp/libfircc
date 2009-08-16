@@ -17,22 +17,23 @@ namespace threading
 {
 	/**
 	 * @brief
-	 * The Thread object represents a single thread and can be used
-	 * to carry out operations on that thread.
+	 * The ThreadPlatformSpecific object represents a single
+	 * thread and can be used to carry out operations on that thread.
 	 */
 	struct ThreadPlatformSpecific;
 	
 	/**
 	 * @brief
-	 * The Mutex object can be used for synchronizing threads.
+	 * The MutexPlatformSpecific object can be used for
+	 * synchronizing threads.
 	 */
-	struct Mutex;
+	struct MutexPlatformSpecific;
 	
 	/**
 	 * @brief
 	 * Attributes and creation options for a thread.
 	 */
-	struct ThreadAttributes;
+	struct ThreadAttributesPlatformSpecific;
 
 	/**
 	 * @brief
@@ -43,7 +44,7 @@ namespace threading
 	{
 	public:
 		Thread();
-		~Thread();
+		virtual ~Thread();
 		
 		/**
 		 * @brief
@@ -61,7 +62,7 @@ namespace threading
 		 * @return
 		 * RES_OK on success, specific error code on failure.
 		 */
-		Result create(const ThreadAttributes *attr,
+		Result create(const ThreadAttributesPlatformSpecific *attr,
 			void *(*startRoutine)(void *), void *arg);
 			
 		/**
@@ -82,60 +83,39 @@ namespace threading
 	private:
 		ThreadPlatformSpecific *m_thread;
 	};
+	
+	class Mutex
+	{
+	public:
+		Mutex();
+		~Mutex();
 		
-	/**
-	 * @brief
-	 * Allocate memory and initialize a Mutex object.
-	 * 
-	 * @param[out] mutex
-	 * The created mutex object.
-	 * 
-	 * @return
-	 * RES_OK on success, an error code otherwise.
-	 * 
-	 * @remark
-	 * Does @b NOT create a thread. Use createThread for that.
-	 * 
-	 * @sa
-	 * destroyMutexObject
-	 */
-	Result createMutexObject(Mutex **mutex);
-	
-	/**
-	 * @brief
-	 * Destroys the Mutex object.
-	 * 
-	 * @param[in] mutex
-	 * The mutex object to destroy.
-	 * 
-	 * @sa
-	 * createMutexObject
-	 */
-	void destroyMutexObject(Mutex *mutex);
-	
-	/**
-	 * @brief
-	 * Locks the mutex.
-	 * 
-	 * @param[in] mutex
-	 * The mutex to lock.
-	 * 
-	 * @return
-	 * RES_OK on success, error code otherwise.
-	 */
-	Result mutexLock(Mutex *mutex);
+		/**
+		 * @brief
+		 * Locks the mutex.
+		 * 
+		 * @param[in] mutex
+		 * The mutex to lock.
+		 * 
+		 * @return
+		 * RES_OK on success, error code otherwise.
+		 */
+		Result lock();
 
-	/**
-	 * @brief
-	 * Unlocks the mutex.
-	 * 
-	 * @param[in] mutex
-	 * The mutex to unlock.
-	 * 
-	 * @return
-	 * RES_OK on success, error code otherwise.
-	 */	
-	Result mutexUnlock(Mutex *mutex);
+		/**
+		 * @brief
+		 * Unlocks the mutex.
+		 * 
+		 * @param[in] mutex
+		 * The mutex to unlock.
+		 * 
+		 * @return
+		 * RES_OK on success, error code otherwise.
+		 */	
+		Result unlock();
+	private:
+		MutexPlatformSpecific *m_mutex;
+	};
 		
 } // namespace threading
 } // namespace anp

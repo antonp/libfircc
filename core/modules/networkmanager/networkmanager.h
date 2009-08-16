@@ -52,7 +52,7 @@ namespace firc
 	
 		State m_state;
 		//pthread_mutex_t m_stateMutex;
-		threading::Mutex *m_stateMutex;
+		threading::Mutex m_stateMutex;
 		
 		TCPConnection m_connection;
 		

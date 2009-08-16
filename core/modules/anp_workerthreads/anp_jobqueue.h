@@ -9,13 +9,14 @@
 #define _ANP_JOBQUEUE_H_
 
 #include <basedefs.h>
-#include <queue>
+#include <anp_threading.h>
+#include <queue> // create a struct for it and forward declare it to
+				// avoid including queue here...
 
 namespace anp
 {
 namespace threading
 {
-
 	/**
 	 * @brief
 	 * Job base class.
@@ -24,7 +25,9 @@ namespace threading
 	{
 	public:
 		Job();
-		~Job();
+		virtual ~Job();
+		
+		virtual void execute() = 0;
 		
 		enum JobStatus
 		{

@@ -23,12 +23,12 @@ namespace firc
 	
 	NetworkManager::NetworkManager()
 	{
-		threading::createMutexObject(&m_stateMutex);
+
 	}
 	
 	NetworkManager::~NetworkManager()
 	{
-		threading::destroyMutexObject(m_stateMutex);
+
 	}
 	
 	Result NetworkManager::init(const int8 *host, const int8 *port,
@@ -72,9 +72,9 @@ namespace firc
 	
 	void NetworkManager::deinit(const int8 *message)
 	{
-		threading::mutexLock(m_stateMutex);
+		m_stateMutex.lock();
 		m_state = SHUTTING_DOWN;
-		threading::mutexUnlock(m_stateMutex);
+		m_stateMutex.unlock();
 		
 		std::string quitMessage("QUIT :");
 		quitMessage += message;
@@ -112,9 +112,9 @@ namespace firc
 			//sleep(2);
 			//std::cout << "messageReceiver: hi" << std::endl;
 			
-			threading::mutexLock(m_stateMutex);
+			m_stateMutex.lock();
 			state = m_state;
-			threading::mutexUnlock(m_stateMutex);
+			m_stateMutex.unlock();
 			
 			if ( state == SHUTTING_DOWN )
 			{

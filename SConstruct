@@ -137,6 +137,14 @@ frontend_console = buildProgram(
 	['-rdynamic']
 )
 
+test_threading = buildProgram(
+	'test_threading',
+	'test_threading',
+	['basecode', 'core/modules/anp_threading', 'core/modules/anp_workerthreads'],
+	['core', 'pthread', 'dl'], # core because anp_workerthreads is compiled into it...
+	['-rdynamic'] #beacuse of dynamic linking? don't remember exactly
+)
+
 # Plugins
 pluginTest1 = buildSharedLibrary('pluginTest1', 'plugindev/pluginTest1', ['basecode', 'core/modules/plugin_interface'], [])
 pluginTest2 = buildSharedLibrary('pluginTest2', 'plugindev/pluginTest2', ['basecode', 'core/modules/plugin_interface'], [])

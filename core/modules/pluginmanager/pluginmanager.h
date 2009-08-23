@@ -3,6 +3,7 @@
 
 #include <basedefs.h>
 #include <plugin_functions.h>
+#include <anp_jobqueue.h>
 
 #include <vector> // johnny bigert this!
 #include <map>
@@ -50,6 +51,8 @@ namespace firc
 										m_irc_onJoin_funcs;
 		std::vector<std::pair<PF_irc_onPrivMsg, Plugin *> >
 										m_irc_onPrivMsg_funcs;
+										
+		anp::threading::JobQueue		m_jobQueue;
 	};
 
 } // namespace firc

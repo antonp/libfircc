@@ -34,6 +34,13 @@ namespace threading
 	 * Attributes and creation options for a thread.
 	 */
 	struct ThreadAttributesPlatformSpecific;
+	
+	/**
+	 * @brief
+	 * The EventPlatformSpecific object represents a synchronization
+	 * event. 
+	 */
+	struct EventPlatformSpecific;
 
 	/**
 	 * @brief
@@ -94,9 +101,6 @@ namespace threading
 		 * @brief
 		 * Locks the mutex.
 		 * 
-		 * @param[in] mutex
-		 * The mutex to lock.
-		 * 
 		 * @return
 		 * RES_OK on success, error code otherwise.
 		 */
@@ -106,9 +110,6 @@ namespace threading
 		 * @brief
 		 * Unlocks the mutex.
 		 * 
-		 * @param[in] mutex
-		 * The mutex to unlock.
-		 * 
 		 * @return
 		 * RES_OK on success, error code otherwise.
 		 */	
@@ -116,7 +117,19 @@ namespace threading
 	private:
 		MutexPlatformSpecific *m_mutex;
 	};
+	
+	class Event
+	{
+	public:
+		Event();
+		~Event();
 		
+		Result wait();
+		Result signal();
+		Result signalBroadcast();
+	private:
+		EventPlatformSpecific *m_event;
+	};
 } // namespace threading
 } // namespace anp
 

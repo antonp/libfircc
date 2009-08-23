@@ -99,5 +99,46 @@ namespace threading
 	{
 		destroyMutexObject(m_mutex);
 	}
+	
+	/**
+	 * @brief
+	 * Allocate memory for and initialize an Event object.
+	 * 
+	 * @param[out] event
+	 * The created Event object.
+	 * 
+	 * @return
+	 * RES_OK on success, an error code otherwise.
+	 * 
+	 * @sa
+	 * destroyEventObject
+	 */
+	Result createEventObject(EventPlatformSpecific **event);
+	
+	/**
+	 * @brief
+	 * Destroys the Event object.
+	 * 
+	 * @param[in] event
+	 * The event object to destroy.
+	 * 
+	 * @sa
+	 * createEventObject
+	 */
+	void destroyEventObject(EventPlatformSpecific *event);
+
+	Event::Event():
+	m_event(NULL)
+	{
+		if ( RES_OK != createEventObject(&m_event) )
+		{
+			// exception? might be thrown from createEventObject though
+		}
+	}
+	
+	Event::~Event()
+	{
+		destroyEventObject(m_event);
+	}
 } // namespace threading
 } // namespace anp

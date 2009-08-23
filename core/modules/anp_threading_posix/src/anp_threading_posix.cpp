@@ -7,6 +7,8 @@
 #include <anp_threading.h>
 #include <pthread.h>
 
+#include <iostream> // ETODO REMOVE THIS SHIT
+
 namespace anp
 {
 namespace threading
@@ -30,10 +32,17 @@ namespace threading
 		pthread_attr_t m_attributes;
 	};
 	
+	struct EventPlatformSpecific
+	{
+		pthread_cond_t m_cond;
+		pthread_mutex_t m_mutex;
+	};
+	
 	///////////////
 	// Functions //
 	///////////////
 	
+	// Thread
 	Result createThreadObject(ThreadPlatformSpecific **thread)
 	{
 		if ( NULL == thread )
@@ -87,6 +96,7 @@ namespace threading
 		return res;
 	}
 	
+	// Mutex
 	Result createMutexObject(MutexPlatformSpecific **mutex)
 	{
 		if ( NULL == mutex )
@@ -128,6 +138,69 @@ namespace threading
 		res = (0 == pthread_mutex_unlock(&m_mutex->m_mutex) ?
 			RES_OK: RES_FAILED);
 
+		return res;
+	}
+	
+	// Event
+	Result createEventObject(EventPlatformSpecific **event)
+	{
+		if ( NULL == event )
+		{
+			return RES_INVALID_PARAMETER;
+		}
+		*event = new EventPlatformSpecific;
+		if ( NULL == *event )
+		{
+			return RES_MEMALLOC_FAILED;
+		}
+		pthread_cond_init(&((*event)->m_cond), NULL);
+		pthread_mutex_init(&((*event)->m_mutex), NULL);
+		return RES_OK;
+	}
+	
+	void destroyEventObject(EventPlatformSpecific *event)
+	{
+		if ( NULL != event )
+		{
+			pthread_cond_destroy(&event->m_cond);
+			pthread_mutex_destroy(&event->m_mutex);
+			delete event;
+		}
+	}
+	
+	Result Event::wait()
+	{
+		Result res = RES_OK;
+		
+		pthread_mutex_lock(&m_event->m_mutex);
+		pthread_cond_wait(&m_event->m_cond, &m_event->m_mutex);
+		pthread_mutex_unlock(&m_event->m_mutex);
+		
+		return res;
+	}
+	
+	Result Event::signal()
+	{
+		/// @todo error codes
+		Result res = RES_OK;
+		pthread_mutex_lock(&m_event->m_mutex);
+		if ( 0 != pthread_cond_signal(&m_event->m_cond) )
+		{
+			/// @todo error
+		}
+		pthread_mutex_unlock(&m_event->m_mutex);
+		
+		return res;
+	}
+	
+	Result Event::signalBroadcast()
+	{
+		Result res = RES_OK;
+		
+		pthread_mutex_lock(&m_event->m_mutex);
+		pthread_cond_broadcast(&m_event->m_cond);
+		pthread_mutex_unlock(&m_event->m_mutex);
+		
 		return res;
 	}
 	

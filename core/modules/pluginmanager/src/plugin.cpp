@@ -16,7 +16,8 @@ namespace firc
 		m_name("n/a"),
 		m_pf_irc_onJoin(NULL),
 		m_pf_irc_onPrivMsg(NULL),
-		m_executionCount(0)
+		m_executionCount(0),
+		m_unloading(FALSE)
 	{
 		m_pf_pluginDeinit = NULL;
 	}
@@ -93,6 +94,16 @@ namespace firc
 		{
 			return RES_FAILED;
 		}
+	}
+	
+	void Plugin::setUnloading()
+	{
+		m_unloading = TRUE;
+	}
+	
+	bool32 Plugin::isUnloading() const
+	{
+		return m_unloading;
 	}
 	
 	Result Plugin::getName(const std::string **name)

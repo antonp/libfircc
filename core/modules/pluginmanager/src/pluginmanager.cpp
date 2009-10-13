@@ -142,7 +142,7 @@ namespace firc
 	 * @return
 	 * Returns CERR_OK on success or an error code on failure.
 	 */
-	Result PluginManager::unloadPlugin(uint32 index, uint32 reason)
+	Result PluginManager::unloadPluginReally(uint32 index, uint32 reason)
 	{
 		using std::vector;
 		using std::pair;
@@ -152,39 +152,10 @@ namespace firc
 			return RES_INVALID_PARAMETER;
 		}
 		
-		res = m_plugins[index]->unload(reason);
+		/// @todo Use reason parameter.
+		res = m_plugins[index]->setUnloading(TRUE);
 		
-		// Remove all callbacks associated with this plugin
-		
-		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
-				m_irc_onJoin_funcs.begin();
-				i != m_irc_onJoin_funcs.end(); )
-		{
-			if( (*i).second == m_plugins[index] )
-			{
-				i = m_irc_onJoin_funcs.erase(i);
-			} else
-			{
-				++i;
-			}
-		}
-
-		
-		for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator i =
-				m_irc_onPrivMsg_funcs.begin();
-				i != m_irc_onPrivMsg_funcs.end(); )
-		{
-			if( (*i).second == m_plugins[index] )
-			{
-				i = m_irc_onPrivMsg_funcs.erase(i);
-			} else
-			{
-				++i;
-			}
-		}
-
-		
-		// Plugin list and memory cleanup
+/*		// Plugin list and memory cleanup
 		delete m_plugins[index];
 		m_plugins[index] = NULL; // List becomes fragmented :\
 		// assert m_pluginCount > 0 (todo)
@@ -192,7 +163,7 @@ namespace firc
 		
 		std::vector<Plugin *>::iterator i = m_plugins.begin()+index;
 		m_plugins.erase(i); // Not fragmented anymore
-		
+		*/
 		return res;
 	}
 	
@@ -267,26 +238,54 @@ namespace firc
 	void PluginManager::irc_onJoin(void *network, const int8 *channel,
 									const int8 *user)
 	{
+		using std::vector;
+		using std::pair;
 		uint32 funcCount = m_irc_onJoin_funcs.size();
 		uint32 i = 0;
-		std::pair<PF_irc_onJoin, Plugin *> *entry;
+		pair<PF_irc_onJoin, Plugin *> *entry;
+		Plugin *plugin = NULL;
 		for ( ; i<funcCount; ++i )
 		{
 			// Call the onJoin funcs
 			entry = &m_irc_onJoin_funcs[i];
 			
-			if ( NULL != entry->second )
+			plugin = entry->second;
+			if ( NULL != plugin )
 			{
-				entry->second->increaseExecutionCount();
+				if ( plugin->isUnloading() )
+				{
+					continue;
+				}
+				plugin->increaseExecutionCount();
 			}
-			m_irc_onJoin_funcs[i].first(network, channel, user);
-			if ( NULL != entry->second )
+			entry->first(network, channel, user);
+			if ( NULL != plugin )
 			{
-				entry->second->decreaseExecutionCount();
+				plugin->decreaseExecutionCount();
 			}
 			
 			/** @todo Later, add a task with function (first) and
 			Plugin * (second). */
+		}
+		
+		// Remove all callbacks associated with plugins being unloaded.
+		/// @todo Improve this by doing it directly in the first loop
+		/// in this function. (This is unnessecarily slow)
+		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
+				m_irc_onJoin_funcs.begin();
+				i != m_irc_onJoin_funcs.end(); )
+		{
+			plugin = (*i).second;
+			if ( NULL != plugin && plugin->isUnloading() )
+			{
+				///@todo Call the real unload function here since this
+				/// is only called from the messagereceiverthread.
+				plugin->unload(0);
+				i = m_irc_onJoin_funcs.erase(i);
+			} else
+			{
+				++i;
+			}
 		}
 	}
 	
@@ -446,7 +445,7 @@ namespace firc
 		
 		/**
 		 * @brief 
-		 * Unload a specific plugin.
+		 * Schedule a specific plugin for unloading.
 		 * 
 		 * @param pluginManager
 		 * Pointer to a plugin manager.
@@ -465,8 +464,8 @@ namespace firc
 			
 			if ( NULL != pluginManager )
 			{
-				res = ((PluginManager *)pluginManager)->unloadPlugin(
-					index, reason);
+				res = ((PluginManager *)pluginManager)->
+					unloadPluginReally(index, reason);
 			}
 			
 			return res;

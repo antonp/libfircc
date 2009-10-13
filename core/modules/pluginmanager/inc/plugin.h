@@ -19,6 +19,8 @@ namespace firc
 							PF_irc_onJoin *ioj,
 							PF_irc_onPrivMsg *iopm);
 		Result unload(uint32 reason);
+		void setUnloading();
+		bool32 isUnloading() const;
 		
 		Result getName(const std::string **name);
 		
@@ -43,6 +45,8 @@ namespace firc
 		
 		// Execution
 		uint32				m_executionCount;
+		bool32				m_unloading;
+		
 	};
 } // namespace firc
 } // namespace anp

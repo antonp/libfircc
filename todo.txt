@@ -4,7 +4,7 @@
 (Done) * Add functionality for unloading plugins (experimental; what happens if the plugin is executing code while it is unloaded..?)
 (Done) * What happens if the plugin has registered a callback? Then that callback must be removed when the plugin is unloaded.
 
-* Add worker threads and a task/job queue system for executing plugins (and maybe other stuff so make it flexible?).
+(Done (actually decided not to use it, but it works great!))* Add worker threads and a task/job queue system for executing plugins (and maybe other stuff so make it flexible?).
 * Plugin unloading: event handler list is changed while in use.
 	* Entries for plugin being unloaded must be marked as unloaded but not removed.
 	* Removal of the entry in the list must be done when an unloaded entry is encountered. Then the iteration can proceed from the correct index.

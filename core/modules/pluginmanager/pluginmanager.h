@@ -25,6 +25,7 @@ namespace firc
 		Result loadPlugin(const int8 *fileName);
 		Result unloadAllPlugins();
 		Result unloadPlugin(uint32 index, uint32 reason);
+		Result unloadPluginReally(uint32 index, uint32 reason);
 		Result getPluginCount(uint32 *count) const;
 		Result getPluginInfo(uint32 index,
 							int8 *name, uint32 nameLength);
@@ -40,12 +41,15 @@ namespace firc
 		enum
 		{
 			IRC_JOIN,
-			IRC_PRIVMSG
+			IRC_PRIVMSG,
+			
+			IRC_MAX_CALLBACKS
 		};
 	
 		void							*m_fircCore; // Extend
 		uint32							m_pluginCount;
 		std::vector<Plugin *>			m_plugins;
+		std::vector<Plugin *>			m_pluginsToBeUnloaded;
 		
 		std::vector<std::pair<PF_irc_onJoin, Plugin *> >
 										m_irc_onJoin_funcs;

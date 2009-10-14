@@ -12,7 +12,8 @@ namespace firc
 	m_fircCore(NULL),
 	m_pluginCount(0)
 	{
-		
+		m_irc_onJoin_funcs.reserve(10);
+		m_irc_onPrivMsg_funcs.reserve(10);
 	}
 	
 	void PluginManager::setFircCore(void *fircCore)
@@ -153,7 +154,7 @@ namespace firc
 		}
 		
 		/// @todo Use reason parameter.
-		res = m_plugins[index]->setUnloading(TRUE);
+		m_plugins[index]->setUnloading(TRUE);
 		
 /*		// Plugin list and memory cleanup
 		delete m_plugins[index];
@@ -241,19 +242,23 @@ namespace firc
 		using std::vector;
 		using std::pair;
 		uint32 funcCount = m_irc_onJoin_funcs.size();
-		uint32 i = 0;
 		pair<PF_irc_onJoin, Plugin *> *entry;
 		Plugin *plugin = NULL;
-		for ( ; i<funcCount; ++i )
+		
+		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
+				m_irc_onJoin_funcs.begin();
+				i != m_irc_onJoin_funcs.end(); )
 		{
 			// Call the onJoin funcs
-			entry = &m_irc_onJoin_funcs[i];
+			entry = &(*i);
 			
 			plugin = entry->second;
 			if ( NULL != plugin )
 			{
 				if ( plugin->isUnloading() )
 				{
+					addPluginToUnloadList(plugin);
+					i = m_irc_onJoin_funcs.erase(i);
 					continue;
 				}
 				plugin->increaseExecutionCount();
@@ -264,29 +269,13 @@ namespace firc
 				plugin->decreaseExecutionCount();
 			}
 			
+			i++;
+			
 			/** @todo Later, add a task with function (first) and
 			Plugin * (second). */
 		}
 		
-		// Remove all callbacks associated with plugins being unloaded.
-		/// @todo Improve this by doing it directly in the first loop
-		/// in this function. (This is unnessecarily slow)
-		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
-				m_irc_onJoin_funcs.begin();
-				i != m_irc_onJoin_funcs.end(); )
-		{
-			plugin = (*i).second;
-			if ( NULL != plugin && plugin->isUnloading() )
-			{
-				///@todo Call the real unload function here since this
-				/// is only called from the messagereceiverthread.
-				plugin->unload(0);
-				i = m_irc_onJoin_funcs.erase(i);
-			} else
-			{
-				++i;
-			}
-		}
+		unloadScheduledPlugins();
 	}
 	
 	/**
@@ -309,28 +298,43 @@ namespace firc
 										const int8 *target,
 										const int8 *message)
 	{
-//		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
-		uint32 i = 0;
-		std::pair<PF_irc_onPrivMsg, Plugin *> *entry;
-//		for ( ; i<funcCount; ++i )
-		for ( ; i<m_irc_onPrivMsg_funcs.size(); ++i )
+		using std::vector;
+		using std::pair;
+		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
+		pair<PF_irc_onPrivMsg, Plugin *> *entry;
+		Plugin *plugin = NULL;
+		
+		for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator i =
+				m_irc_onPrivMsg_funcs.begin();
+				i != m_irc_onPrivMsg_funcs.end(); )
 		{
 			// Call the onPrivMsg funcs
-			entry = &m_irc_onPrivMsg_funcs[i];
+			entry = &(*i);
 			
-			if ( NULL != entry->second )
+			plugin = entry->second;
+			if ( NULL != plugin )
 			{
-				entry->second->increaseExecutionCount();
+				if ( plugin->isUnloading() )
+				{
+					addPluginToUnloadList(plugin);
+					i = m_irc_onPrivMsg_funcs.erase(i);
+					continue;
+				}
+				plugin->increaseExecutionCount();
 			}
 			entry->first(network, sender, target, message);
-			if ( NULL != entry->second )
+			if ( NULL != plugin )
 			{
-				entry->second->decreaseExecutionCount();
+				plugin->decreaseExecutionCount();
 			}
-
+			
+			i++;
+			
 			/** @todo Later, add a task with function (first) and
 			Plugin * (second). */
 		}
+		
+		unloadScheduledPlugins();
 	}
 	/**
 	 * @brief
@@ -354,6 +358,51 @@ namespace firc
 			res = RES_OK;
 		}
 		return res;
+	}
+	
+	void PluginManager::addPluginToUnloadList(Plugin *const plugin)
+	{	
+		// Check if it's already in the list	
+		for ( uint32 i=0; i<m_pluginsToBeUnloaded.size(); ++i )
+		{
+			if ( plugin == m_pluginsToBeUnloaded[i] )
+			{
+				return;
+			}
+		}
+		m_pluginsToBeUnloaded.push_back(plugin);
+	}
+	
+	void PluginManager::unloadScheduledPlugins()
+	{
+		using std::vector;
+		using std::pair;
+		
+		for ( uint32 i=0; i<m_pluginsToBeUnloaded.size(); ++i )
+		{
+			for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator j =
+					m_irc_onJoin_funcs.begin();
+					j != m_irc_onJoin_funcs.end(); )
+			{
+				if ( m_pluginsToBeUnloaded[i] == (*j).second )
+				{
+					j = m_irc_onJoin_funcs.erase(j);
+				}
+				j++;
+			}
+			for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator j =
+					m_irc_onPrivMsg_funcs.begin();
+					j != m_irc_onPrivMsg_funcs.end(); )
+			{
+				if ( m_pluginsToBeUnloaded[i] == (*j).second )
+				{
+					j = m_irc_onPrivMsg_funcs.erase(j);
+				}
+				j++;
+			}
+			delete m_pluginsToBeUnloaded[i];
+		}
+		m_pluginsToBeUnloaded.clear();
 	}
 	
 	/* Native functions */

@@ -96,9 +96,9 @@ namespace firc
 		}
 	}
 	
-	void Plugin::setUnloading()
+	void Plugin::setUnloading(bool32 unloading)
 	{
-		m_unloading = TRUE;
+		m_unloading = unloading;
 	}
 	
 	bool32 Plugin::isUnloading() const

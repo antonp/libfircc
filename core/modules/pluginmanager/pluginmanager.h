@@ -38,6 +38,9 @@ namespace firc
 							
 		Result addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
 	private:
+		void addPluginToUnloadList(Plugin *const plugin);
+		void unloadScheduledPlugins();
+	
 		enum
 		{
 			IRC_JOIN,

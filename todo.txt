@@ -5,13 +5,11 @@
 (Done) * What happens if the plugin has registered a callback? Then that callback must be removed when the plugin is unloaded.
 
 (Done (actually decided not to use it, but it works great!))* Add worker threads and a task/job queue system for executing plugins (and maybe other stuff so make it flexible?).
-* Plugin unloading: event handler list is changed while in use.
-	* Entries for plugin being unloaded must be marked as unloaded but not removed.
-	* Removal of the entry in the list must be done when an unloaded entry is encountered. Then the iteration can proceed from the correct index.
-	*
-	* When iterating through the list to create jobs (executing event handlers), the list is locked.
-	* If a thread executing a plugin tries to unload another plugin, it will try to acquire the list mutex to remove entries associated with the plugin being unloaded. Then that thread will simply wait for the mutex.
-	* That means there will be jobs created for executing the unloaded plugin! Prevent this by blabla. See paper note.
+(Done) * Plugin unloading: event handler list is changed while in use.
+	|-* Entries for plugin being unloaded must be marked as unloaded but not removed.
+	|-* Removal of the entry in the list must be done when an unloaded entry is encountered. 			Then the iteration can proceed from the correct index.
+
+* Refactor callback handling to minimize code duplication and simplify adding of new callbacks.
 
 * Prevent multiple Plugin objects from being created using the same shared library handle.
 

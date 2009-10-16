@@ -12,8 +12,10 @@ namespace firc
 	m_fircCore(NULL),
 	m_pluginCount(0)
 	{
-		m_irc_onJoin_funcs.reserve(10);
-		m_irc_onPrivMsg_funcs.reserve(10);
+		for ( uint32 i=0; i<IRC_MAX_CALLBACKS; ++i )
+		{
+			m_callbacks[i].reserve(10);
+		}
 	}
 	
 	void PluginManager::setFircCore(void *fircCore)
@@ -65,6 +67,7 @@ namespace firc
 	Result PluginManager::loadPlugin(const int8 *fileName)
 	{
 		Result res = RES_FAILED;
+		CallbackEntry entry = { NULL, NULL };
 
 		PF_irc_onJoin ioj = NULL;
 		PF_irc_onPrivMsg iopm = NULL;
@@ -84,15 +87,17 @@ namespace firc
 		}
 		m_plugins.push_back(plugin);
 		
+		entry.plugin = plugin;
+		
 		if ( NULL != ioj )
 		{
-			m_irc_onJoin_funcs.push_back(
-				std::pair<PF_irc_onJoin, Plugin *>(ioj, plugin));
+			entry.func = (void *)ioj;
+			m_callbacks[IRC_JOIN].push_back(entry);
 		}
 		if ( NULL != iopm )
 		{
-			m_irc_onPrivMsg_funcs.push_back(
-				std::pair<PF_irc_onPrivMsg, Plugin *>(iopm, plugin));
+			entry.func = (void *)iopm;
+			m_callbacks[IRC_PRIVMSG].push_back(entry);
 		}
 		++m_pluginCount;
 
@@ -222,120 +227,48 @@ namespace firc
 		return res;
 	}
 
-
 	/**
 	 * @brief
-	 * Calls every loaded plugin's irc_onJoin function.
-	 * 
-	 * @param network
-	 * The network that sent the JOIN message.
-	 * 
-	 * @param channel
-	 * The channel that someone joined.
-	 * 
-	 * @param user
-	 * The nickname of the user who joined the channel.
+	 * Calls every loaded plugin's _type_ callback function.
 	 */	
-	void PluginManager::irc_onJoin(void *network, const int8 *channel,
-									const int8 *user)
+	void PluginManager::performJob(PluginJob *job, CallbackType type)
 	{
 		using std::vector;
 		using std::pair;
-		uint32 funcCount = m_irc_onJoin_funcs.size();
-		pair<PF_irc_onJoin, Plugin *> *entry;
-		Plugin *plugin = NULL;
 		
-		for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator i =
-				m_irc_onJoin_funcs.begin();
-				i != m_irc_onJoin_funcs.end(); )
+		vector<CallbackEntry> &vec = m_callbacks[type];
+		
+		for ( vector<CallbackEntry>::iterator i =
+				vec.begin();
+				i != vec.end(); )
 		{
-			// Call the onJoin funcs
-			entry = &(*i);
+			CallbackEntry &entry = (*i);
+			Plugin *plugin = entry.plugin;
 			
-			plugin = entry->second;
 			if ( NULL != plugin )
 			{
 				if ( plugin->isUnloading() )
 				{
 					addPluginToUnloadList(plugin);
-					i = m_irc_onJoin_funcs.erase(i);
+					i = vec.erase(i);
 					continue;
 				}
+				job->setPlugin(plugin);
 				plugin->increaseExecutionCount();
 			}
-			entry->first(network, channel, user);
+			job->setFunc(entry.func);
+			job->execute();
 			if ( NULL != plugin )
 			{
 				plugin->decreaseExecutionCount();
 			}
 			
 			i++;
-			
-			/** @todo Later, add a task with function (first) and
-			Plugin * (second). */
 		}
 		
 		unloadScheduledPlugins();
 	}
-	
-	/**
-	 * @brief
-	 * Calls every loaded plugin's irc_onPrivMsg function.
-	 * 
-	 * @param network
-	 * The network that sent the PRIVMSG message.
-	 * 
-	 * @param sender
-	 * The sender of the message.
-	 * 
-	 * @param target
-	 * The receiver of the message, channel or user.
-	 * 
-	 * @param message
-	 * The message.
-	 */
-	void PluginManager::irc_onPrivMsg(void *network, const int8 *sender,
-										const int8 *target,
-										const int8 *message)
-	{
-		using std::vector;
-		using std::pair;
-		uint32 funcCount = m_irc_onPrivMsg_funcs.size();
-		pair<PF_irc_onPrivMsg, Plugin *> *entry;
-		Plugin *plugin = NULL;
-		
-		for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator i =
-				m_irc_onPrivMsg_funcs.begin();
-				i != m_irc_onPrivMsg_funcs.end(); )
-		{
-			// Call the onPrivMsg funcs
-			entry = &(*i);
-			
-			plugin = entry->second;
-			if ( NULL != plugin )
-			{
-				if ( plugin->isUnloading() )
-				{
-					addPluginToUnloadList(plugin);
-					i = m_irc_onPrivMsg_funcs.erase(i);
-					continue;
-				}
-				plugin->increaseExecutionCount();
-			}
-			entry->first(network, sender, target, message);
-			if ( NULL != plugin )
-			{
-				plugin->decreaseExecutionCount();
-			}
-			
-			i++;
-			
-			/** @todo Later, add a task with function (first) and
-			Plugin * (second). */
-		}
-		
-		unloadScheduledPlugins();
-	}
+
 	/**
 	 * @brief
 	 * Adds a function to be called whenever a PRIVMSG is received
@@ -353,8 +286,8 @@ namespace firc
 		Result res = RES_INVALID_PARAMETER;
 		if ( NULL != func )
 		{
-			m_irc_onPrivMsg_funcs.push_back(
-				std::pair<PF_irc_onPrivMsg, Plugin *>(func, NULL));
+			CallbackEntry entry = { (void *)func, NULL };
+			m_callbacks[IRC_PRIVMSG].push_back(entry);
 			res = RES_OK;
 		}
 		return res;
@@ -380,27 +313,23 @@ namespace firc
 		
 		for ( uint32 i=0; i<m_pluginsToBeUnloaded.size(); ++i )
 		{
-			for ( vector<pair<PF_irc_onJoin, Plugin *> >::iterator j =
-					m_irc_onJoin_funcs.begin();
-					j != m_irc_onJoin_funcs.end(); )
+			for ( uint32 k=0; k<IRC_MAX_CALLBACKS; ++k )
 			{
-				if ( m_pluginsToBeUnloaded[i] == (*j).second )
+				std::vector<CallbackEntry> &vec = m_callbacks[k];
+				for ( vector<CallbackEntry>::iterator j =
+					vec.begin();
+					j != vec.end(); )
+			{
+				if ( m_pluginsToBeUnloaded[i] == (*j).plugin )
 				{
-					j = m_irc_onJoin_funcs.erase(j);
+					j = vec.erase(j);
 				}
 				j++;
 			}
-			for ( vector<pair<PF_irc_onPrivMsg, Plugin *> >::iterator j =
-					m_irc_onPrivMsg_funcs.begin();
-					j != m_irc_onPrivMsg_funcs.end(); )
-			{
-				if ( m_pluginsToBeUnloaded[i] == (*j).second )
-				{
-					j = m_irc_onPrivMsg_funcs.erase(j);
-				}
-				j++;
 			}
+			
 			delete m_pluginsToBeUnloaded[i];
+			m_pluginCount--;
 		}
 		m_pluginsToBeUnloaded.clear();
 	}

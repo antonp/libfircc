@@ -23,20 +23,23 @@ namespace firc
 	public:
 		PluginJob(Plugin *plugin);
 		virtual ~PluginJob();
+		
+		void setPlugin(Plugin *plugin);
+		void setFunc(void *func);
 	protected:
 		Plugin *m_plugin;
+		void *m_func;
 	};
 	
 	class JoinJob: public PluginJob
 	{
+	public:
 		JoinJob(Plugin *plugin,
-				PF_irc_onJoin,
 				void *network,
 				const int8 *channel,
 				const int8 *user);
 		virtual ~JoinJob();
-	protected:
-		PF_irc_onJoin m_func;
+	protected:	
 		void *m_network;
 		std::string m_channel;
 		std::string m_user;
@@ -48,7 +51,6 @@ namespace firc
 	{
 	public:
 		PrivMsgJob(Plugin *plugin,
-					PF_irc_onPrivMsg func,
 					void *network,
 					const int8 *sender,
 					const int8 *target,
@@ -56,7 +58,6 @@ namespace firc
 		
 		virtual ~PrivMsgJob();
 	protected:
-		PF_irc_onPrivMsg m_func;
 		void *m_network;
 		std::string m_sender;
 		std::string m_target;

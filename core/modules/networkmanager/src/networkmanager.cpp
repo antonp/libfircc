@@ -2,6 +2,7 @@
 #include <tokenizer.h>
 #include <tcpconnection.h>
 #include <pluginmanager.h>
+#include <plugin_jobs.h>
 
 #include <iostream>
 #include <sstream>
@@ -177,12 +178,14 @@ namespace firc
 
 						currentMessage.erase(0, 1);
 						std::cout << "(local) PRIVMSG detected: " << currentMessage << std::endl;
-						
 
-						m_pluginManager->irc_onPrivMsg((void *)this,
-												prefix.c_str(),
-												target.c_str(),
-												currentMessage.c_str());
+						PrivMsgJob job(	NULL,
+										(void *)this,
+										prefix.c_str(),
+										target.c_str(),
+										currentMessage.c_str());
+						m_pluginManager->performJob(&job,
+											PluginManager::IRC_PRIVMSG);
 					} else if ( command == "JOIN" ) {
 						std::cout << "(local) JOIN command detected: " << currentMessage << std::endl;
 						if ( currentMessage[0] == ':' )
@@ -199,7 +202,13 @@ namespace firc
 						// prefix now only holds the host
 
 						m_networkCache.onJoin(temp1, temp2, prefix, currentMessage);
-						m_pluginManager->irc_onJoin((void *)this, currentMessage.c_str(), temp1.c_str());
+						JoinJob joinJob(NULL,
+										(void *)this,
+										currentMessage.c_str(),
+										temp1.c_str());
+						//m_pluginManager->irc_onJoin((void *)this, currentMessage.c_str(), temp1.c_str());
+						m_pluginManager->performJob(&joinJob,
+											PluginManager::IRC_JOIN);
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
 							currentMessage.erase(0, 1); // Remove ':' in front of the channel name

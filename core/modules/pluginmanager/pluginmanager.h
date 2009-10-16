@@ -7,6 +7,7 @@
 
 #include <vector> // johnny bigert this!
 #include <map>
+#include "plugin_jobs.h" // remove this dependency by moving the stuff in this header to another
 
 namespace anp
 {
@@ -17,6 +18,14 @@ namespace firc
 	class PluginManager
 	{
 	public:
+		enum CallbackType
+		{
+			IRC_JOIN,
+			IRC_PRIVMSG,
+			
+			IRC_MAX_CALLBACKS
+		};
+
 		PluginManager();
 
 		void setFircCore(void *fircCore); // Extend
@@ -30,23 +39,17 @@ namespace firc
 		Result getPluginInfo(uint32 index,
 							int8 *name, uint32 nameLength);
 		
-		void irc_onJoin(void *network, const int8 *channel,
-						const int8 *user);
-		void irc_onPrivMsg(void *network, const int8 *sender,
-							const int8 *target,
-							const int8 *message);
+		void performJob(PluginJob *job, CallbackType type);
 							
 		Result addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
 	private:
 		void addPluginToUnloadList(Plugin *const plugin);
 		void unloadScheduledPlugins();
-	
-		enum
+		
+		struct CallbackEntry
 		{
-			IRC_JOIN,
-			IRC_PRIVMSG,
-			
-			IRC_MAX_CALLBACKS
+			void *func;
+			Plugin *plugin;
 		};
 	
 		void							*m_fircCore; // Extend
@@ -54,10 +57,7 @@ namespace firc
 		std::vector<Plugin *>			m_plugins;
 		std::vector<Plugin *>			m_pluginsToBeUnloaded;
 		
-		std::vector<std::pair<PF_irc_onJoin, Plugin *> >
-										m_irc_onJoin_funcs;
-		std::vector<std::pair<PF_irc_onPrivMsg, Plugin *> >
-										m_irc_onPrivMsg_funcs;
+		std::vector<CallbackEntry> m_callbacks[IRC_MAX_CALLBACKS];
 										
 		anp::threading::JobQueue		m_jobQueue;
 	};

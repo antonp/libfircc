@@ -23,6 +23,8 @@
 
 * Add handlers for more irc events than join and privmsg.
 
+* Add antiflood mechanism (output queue + monitor)
+
 Finalize:
 * Perhaps Johnny Bigert some includes, header cleanup
 * Remove all memory leaks (valgrind..?)

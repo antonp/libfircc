@@ -130,6 +130,27 @@ namespace threading
 	private:
 		EventPlatformSpecific *m_event;
 	};
+	
+	template<typename T, T INIT>
+	class ProtectedData
+	{
+	public:
+		ProtectedData():m_data(INIT) { };
+		
+		void set(T value) {
+			m_mutex.lock();
+			m_data = value;
+			m_mutex.unlock();
+		}
+		void get(const T &value) const {
+			m_mutex.lock();
+			value = m_data;
+			m_mutex.unlock();
+		}
+	protected:
+		mutable Mutex m_mutex;
+		T m_data;	
+	};
 } // namespace threading
 } // namespace anp
 

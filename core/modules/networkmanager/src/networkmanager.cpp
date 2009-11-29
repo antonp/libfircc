@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+#include <memory>
 
 namespace anp
 {
@@ -22,19 +24,8 @@ namespace firc
 		pthread_exit(0);
 	}
 	
-	NetworkManager::NetworkManager():
-	m_messageSender(m_connection)
-	{
-
-	}
-	
-	NetworkManager::~NetworkManager()
-	{
-
-	}
-	
-	Result NetworkManager::init(const int8 *host, const int8 *port,
-								PluginManager *pluginManager)
+	NetworkManager::NetworkManager()
+	// : initializers...
 	{
 		Result res = RES_FAILED;
 		std::string m_outStr;
@@ -69,6 +60,21 @@ namespace firc
 			
 		res = m_receiverThread.create(NULL,	threadRunMessageReceiver,
 			(void *)this);
+		
+		
+		
+		m_messageSender = new MessageSender(m_connection);
+	}
+	
+	NetworkManager::~NetworkManager()
+	{
+
+	}
+	
+	Result NetworkManager::init(const int8 *host, const int8 *port,
+								PluginManager *pluginManager)
+	{
+
 
 		return res;
 	}

@@ -7,6 +7,7 @@
 #include "inc/messagesender.h"
 
 #include <anp_threading.h> // johnny bigert?
+#include <memory>
 
 namespace anp
 {
@@ -58,7 +59,7 @@ namespace firc
 		TCPConnection m_connection;
 		
 		threading::Thread m_receiverThread;
-		MessageSender m_messageSender;
+		std::auto_ptr<MessageSender> m_messageSender;
 		
 		PluginManager *m_pluginManager;
 		

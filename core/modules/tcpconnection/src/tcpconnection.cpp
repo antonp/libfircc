@@ -2,27 +2,25 @@
 
 #include <string.h> // for memset
 #include <netdb.h>
+#include <stdexcept>
 
 //#pragma comment(lib, "wsock32.lib")
 namespace anp
 {
 namespace firc
 {
-	TCPConnection::TCPConnection()
-	{
-		
-	}
 	TCPConnection::TCPConnection(
 		const std::string &hostname,
 		const std::string &port
 	)
 	{
-		// Nothing is done with return value..?
 		connect(hostname, port);
 	}
 
 	TCPConnection::~TCPConnection(void)
 	{
+		::close(m_socket);
+		clean();
 	}
 
 	void TCPConnection::clean()
@@ -30,7 +28,7 @@ namespace firc
 		//WSACleanup();
 	}
 
-	Result TCPConnection::connect(
+	void TCPConnection::connect(
 		const std::string &hostname,
 		const std::string &port)
 	{
@@ -54,7 +52,7 @@ namespace firc
 			if ( -1 == m_socket )
 			{
 				// Failed
-				return RES_FAILED;
+				throw NetworkException("Failed to create socket file descriptor");
 			}
 			
 			if ( -1 == ::connect(	m_socket,
@@ -62,19 +60,12 @@ namespace firc
 									pServInfoCurrent->ai_addrlen) )
 			{
 				// Failed to connect
-				return RES_FAILED;
+				throw NetworkException("Failed to connect");
 			} else
 			{
 				// Successfully connected
 			}
 		}
-		
-		return RES_OK;
-	}
-
-	void TCPConnection::closeSocket()
-	{
-	/*	closesocket(sock);*/
 	}
 
 	Result TCPConnection::send(const std::string &buffer)
@@ -92,12 +83,6 @@ namespace firc
 			return RES_CONNECTION_CLOSED;
 		}
 		return RES_OK;
-	}
-
-	int TCPConnection::getLastError()
-	{
-	/*	return lastError;*/
-		return 0; /// @todo remove this function?
 	}
 } // namespace firc
 } // namespace anp

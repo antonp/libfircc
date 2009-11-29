@@ -4,6 +4,7 @@
 #include <basedefs.h>
 #include <tcpconnection.h>
 #include <ircnetworkcache.h>
+#include "inc/messagesender.h"
 
 #include <anp_threading.h> // johnny bigert?
 
@@ -57,6 +58,7 @@ namespace firc
 		TCPConnection m_connection;
 		
 		threading::Thread m_receiverThread;
+		MessageSender m_messageSender;
 		
 		PluginManager *m_pluginManager;
 		

@@ -16,13 +16,18 @@ namespace firc
 	{
 	friend void *threadRunMessageSender(void *arg);
 	public:
-		MessageSender(TCPConnection &m_connection);
+		MessageSender(TCPConnection &connection);
+		virtual ~MessageSender();
 
 		void addMessage(const std::string &message);
 		
 		void setCooldownTime(uint32 ms);
 		
-		
+		/**
+		 * Forces the monitor to stop, without letting it
+		 * send the messages still in queue, if any.
+		 */
+		void stop();
 	private:
 		// Should be hidden somehow.. private (for now) or maybe interfaced
 		void monitor();
@@ -31,6 +36,10 @@ namespace firc
 		threading::ThreadSafeQueue<std::string> m_queue;
 		
 		threading::ProtectedData<uint32, 5000> m_cooldownTime;
+		threading::ProtectedData<bool32, false> m_isDying;
+		
+		threading::Event m_newMessage;
+		threading::Thread m_thread;
 	};
 }
 }

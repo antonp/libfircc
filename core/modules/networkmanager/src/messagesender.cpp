@@ -1,6 +1,7 @@
 #include "../inc/messagesender.h"
 
 #include <anp_timing.h>
+#include <anp_threadsafequeue.h>
 #include <tcpconnection.h>
 
 /// @todo REMOVE IOSTREAM INCLUDE! REPLACE WITH INTERNAL LOGGING OR
@@ -26,9 +27,21 @@ namespace firc
 		pthread_exit(0);
 	}
 	
+	MessageSender::MessageSender(TCPConnection &connection):
+	m_connection(connection)
+	{
+		
+	}
+	
+	MessageSender::~MessageSender()
+	{
+		stop();
+	}
+	
 	void MessageSender::addMessage(const std::string &message)
 	{
 		m_queue.push(message);
+		m_newMessage.signal();
 	}
 
 	void MessageSender::setCooldownTime(uint32 ms)
@@ -36,15 +49,29 @@ namespace firc
 		m_cooldownTime.set(ms);
 	}
 	
+	void MessageSender::stop()
+	{
+		m_isDying.set(true);
+		m_newMessage.signal();
+	}
+	
 	void MessageSender::monitor()
 	{
 		while ( true )
 		{
+			bool32 isDying = true;
+			m_isDying.get(isDying);
 			
+			m_newMessage.wait();
 						
 			bool32 empty = m_queue.isEmpty();
 			while ( !empty )
 			{
+				if ( isDying )
+				{
+					break;
+				}
+				
 				uint32 cooldown = 0;
 				std::string &message = m_queue.front();
 				
@@ -52,6 +79,8 @@ namespace firc
 				m_queue.pop();
 				m_cooldownTime.get(cooldown);
 				timing::sleepMilliseconds(cooldown);
+				
+				empty = m_queue.isEmpty();
 			}
 		}
 	}

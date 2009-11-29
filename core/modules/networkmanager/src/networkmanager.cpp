@@ -22,7 +22,8 @@ namespace firc
 		pthread_exit(0);
 	}
 	
-	NetworkManager::NetworkManager()
+	NetworkManager::NetworkManager():
+	m_messageSender(m_connection)
 	{
 
 	}

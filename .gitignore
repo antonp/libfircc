@@ -1,0 +1,4 @@
+*.o
+*.os
+debug/*
+.sconsign.dblite

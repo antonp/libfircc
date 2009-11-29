@@ -9,7 +9,9 @@
 	|-* Entries for plugin being unloaded must be marked as unloaded but not removed.
 	|-* Removal of the entry in the list must be done when an unloaded entry is encountered. 			Then the iteration can proceed from the correct index.
 
-* Refactor callback handling to minimize code duplication and simplify adding of new callbacks.
+(Done) * Refactor callback handling to minimize code duplication and simplify adding of new callbacks.
+
+* Break out "PluginJob", don't have it depend on threading lib. Split it into functor and arg pack.
 
 * Prevent multiple Plugin objects from being created using the same shared library handle.
 

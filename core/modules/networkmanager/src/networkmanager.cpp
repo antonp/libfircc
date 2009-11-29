@@ -50,23 +50,24 @@ namespace firc
 		
 		m_state = REGISTERING;
 		// Nick
-		m_outStr = std::string("NICK ")+std::string("fircbot09")+std::string("\r\n");
+		m_outStr = std::string("NICK ")
+			+std::string("fircbot09")
+			+std::string("\r\n");
 		m_connection.send(m_outStr);
 		// User
-		m_outStr = std::string("USER ")+std::string("fircbot09")+std::string(" 0 * :")+std::string("Anton Petersson")+std::string("\r\n");
+		m_outStr = std::string("USER ")
+			+std::string("fircbot09")
+			+std::string(" 0 * :")
+			+std::string("Anton Petersson")
+			+std::string("\r\n");
 		m_connection.send(m_outStr);
 		
-		//m_connection.send("JOIN #my-secret-botdev\r\n");
-		
 		m_networkCache.init(host, "fircbot09");
-		
 		
 		m_state = CONNECTED;
 			
 		res = m_receiverThread.create(NULL,	threadRunMessageReceiver,
 			(void *)this);
-
-		
 
 		return res;
 	}
@@ -126,31 +127,29 @@ namespace firc
 			/////////////////////////////////////////
 
 			// 1. Receive a message
-			if ( RES_CONNECTION_CLOSED == m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0])) ) {
+			if ( RES_CONNECTION_CLOSED == m_connection.receive(buffer,
+				 sizeof(buffer)/sizeof(buffer[0])) )
+			{
 				// The server closed the connection
 				// Flag we're not connected anymore, and exit thread
 				connected = FALSE;
-				//m_eventProcessor.addEvent(m_agentID, -1, -1, "-- Disconnected from server, by server --\n");
 				return RES_CONNECTION_CLOSED;
 			}
 			in = buffer; // optimize..?
 			std::cout << "recv:    " << in << std::endl;
-			//m_out << "[Before parsing, the message looks like] " << in << '\n';
 
 			// 2. Tokenize it and parse it
-			// Start by dividing it up into several messages (sometimes the server
+			// Start by dividing it up into several messages
+			// (sometimes the server
 			// will send several messages at the same time)
 			while ( 1 ) {
 				if ( tokenize(currentMessage, in, "\r\n") ) {
-					// if there was something left from the previous parsing run, add it here
+					// if there was something left from the previous
+					// parsing run, add it here
 					if ( leftOvers.length() > 0 ) {
 						currentMessage = leftOvers + currentMessage;
 						leftOvers.erase();
 					}
-					//m_out << "<Original message> " << currentMessage << '\n';
-					std::stringstream s2;
-					s2 << "[Original message] " << currentMessage << '\n';
-					//m_eventProcessor.addEvent(m_agentID, -1, -1, s2.str());
 
 					// Reset old vars as needed
 					prefix.erase();
@@ -165,7 +164,8 @@ namespace firc
 					tokenize(command, currentMessage, ' ');
 
 					if ( command == "PING" ) {
-						currentMessage.erase(0, 1); // Strip the starting colon ':'
+						 // Strip the starting colon ':'
+						currentMessage.erase(0, 1);
 						temp3 = "PONG :";
 						temp3 += currentMessage;
 						temp3 += "\r\n";
@@ -177,7 +177,8 @@ namespace firc
 						tokenize(target, currentMessage, ' ');
 
 						currentMessage.erase(0, 1);
-						std::cout << "(local) PRIVMSG detected: " << currentMessage << std::endl;
+						std::cout << "(local) PRIVMSG detected: "
+							<< currentMessage << std::endl;
 
 						PrivMsgJob job(	NULL,
 										(void *)this,
@@ -187,7 +188,8 @@ namespace firc
 						m_pluginManager->performJob(&job,
 											PluginManager::IRC_PRIVMSG);
 					} else if ( command == "JOIN" ) {
-						std::cout << "(local) JOIN command detected: " << currentMessage << std::endl;
+						std::cout << "(local) JOIN command detected: "
+							<< currentMessage << std::endl;
 						if ( currentMessage[0] == ':' )
 						{
  							// Remove ':' in front of the channel
@@ -201,27 +203,39 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_networkCache.onJoin(temp1, temp2, prefix, currentMessage);
+						m_networkCache.onJoin(temp1,
+											  temp2,
+											  prefix,
+											  currentMessage);
 						JoinJob joinJob(NULL,
 										(void *)this,
 										currentMessage.c_str(),
 										temp1.c_str());
-						//m_pluginManager->irc_onJoin((void *)this, currentMessage.c_str(), temp1.c_str());
 						m_pluginManager->performJob(&joinJob,
 											PluginManager::IRC_JOIN);
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
-							currentMessage.erase(0, 1); // Remove ':' in front of the channel name
+						 	// Remove ':' in front of the channel name
+							currentMessage.erase(0, 1);
 
-						// Separate the prefix into nickname, user and host (UNNECESSARY FOR PART MESSAGE !? ONLY USES NICKNAME ANYWAY!!!)
+						// Separate the prefix into nickname, user
+						// and host (UNNECESSARY FOR PART MESSAGE !?
+						//  ONLY USES NICKNAME ANYWAY!!!)
 						tokenize(temp1, prefix, '!'); // nickname
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_networkCache.onPart(temp1, temp2, prefix, currentMessage);
-						//#m_pluginManager->onPart(temp1, currentMessage);
+						m_networkCache.onPart(temp1,
+											  temp2,
+											  prefix,
+											  currentMessage);
+						//#m_pluginManager->onPart(temp1,
+						// currentMessage);
 					} else if ( command == "TOPIC" ) {
-						// topic change.. ex: (GTANet) [Original message] :Pliskin!IceChat7@gtanet-ADE03D4F.bsnet.se TOPIC #antons_kanal :Det här är en topic
+						// topic change.. ex: (GTANet)
+						// [Original message]
+						// ":Pliskin!IceChat7@gtanet-ADE03D4F.bsnet.se
+						// TOPIC #antons_kanal :Det här är en topic"
 						tokenize(target, currentMessage, " :");
 
 						m_networkCache.setTopic(target, currentMessage);
@@ -229,24 +243,42 @@ namespace firc
 
 						// ##### NUMERIC REPLIES BELOW ######
 					} else if ( command == "332" ) {
-						// RPL_TOPIC ex: (GTANet) [Original message] :frosties.de.eu.gtanet.com 332 firc_04 #antons_kanal :lalala
-						tokenize(target, currentMessage, ' '); // target = firc_04
-						tokenize(temp1, currentMessage, " :"); // temp1 = #antons_kanal
+						// RPL_TOPIC ex: (GTANet)
+						//[Original message]
+						// ":frosties.de.eu.gtanet.com 332
+						// firc_04 #antons_kanal :lalala"
+						
+						 // target = firc_04
+						tokenize(target, currentMessage, ' ');
+						 // temp1 = #antons_kanal
+						tokenize(temp1, currentMessage, " :");
 						
 						m_networkCache.setTopic(temp1, currentMessage);
 					} else if ( command == "333" ) {
-						// "RPL_TOPICWHOWHEN" ? Ex: (ChatJunkies) [original message] :at.chatjunkies.org 333 fircbot09 #my-secret-botdev antonp!~antonp@ChatJunkies-6a09bfa2.dyn.perspektivbredband.net 1248007592
+						// "RPL_TOPICWHOWHEN" ? Ex: (ChatJunkies)
+						// [original message] :at.chatjunkies.org 333
+						// fircbot09 #my-secret-botdev
+						// antonp!~antonp@ChatJunkies-6a09bfa2.dyn.
+						// perspektivbredband.net 1248007592
 
 					} else if ( command == "353" ) {
-						// RPL_NAMREPLY ex: (efnet) [Original message] :efnet.demon.co.uk 353 firc_04 = #antons_kanal :firc_04 @Pliskin_
-						tokenize(target, currentMessage, ' '); // target = firc_04
-						tokenize(temp1, currentMessage, ' '); // temp1 = '='
+						// RPL_NAMREPLY ex: (efnet) [Original message]
+						// :efnet.demon.co.uk 353 firc_04 =
+						// #antons_kanal :firc_04 @Pliskin_
 						
-						tokenize(temp2, currentMessage, " :"); // temp2 = #antons_kanal
+						 // target = firc_04
+						tokenize(target, currentMessage, ' ');
+						 // temp1 = '='
+						tokenize(temp1, currentMessage, ' ');
+						 // temp2 = #antons_kanal
+						tokenize(temp2, currentMessage, " :");
 
 						bool keepGoing = true;
-						while ( keepGoing ) { // temp3 = [@|+|nothing]nickname
-							keepGoing = tokenize(temp3, currentMessage, " ");
+						while ( keepGoing ) {
+							// temp3 = [@|+|nothing]nickname
+							keepGoing = tokenize(temp3,
+												 currentMessage,
+												 " ");
 							switch ( temp3[0] ) {
 							case '@':
 								temp3.erase(0, 1);
@@ -260,25 +292,22 @@ namespace firc
 							m_networkCache.addUser(temp2, temp3);
 						}
 					}
-
-					//m_out << "[Parsing results] Prefix: " << prefix << " Command: " << command << " The rest: " << currentMessage << '\n';
 				} else {
-					// The message isn't complete, so save it and add the rest when it arrives [todo]
-					//m_out << "[Parsing results] The message wasn't complete. (Looked like: " << currentMessage << ")\n";
-					if ( currentMessage.length() >= 3 ) // Test added august 25th
-						leftOvers = currentMessage.erase(currentMessage.length()-3);
+					// The message isn't complete, so save it and
+					// add the rest when it arrives [todo]
+					//m_out << "[Parsing results] The message wasn't
+					// complete. (Looked like: " << currentMessage
+					// << ")\n";
+					if ( currentMessage.length() >= 3 )
+					{
+						leftOvers = currentMessage.erase(
+							currentMessage.length()-3);
+					}
 					break;
 				}
 				if ( in.length() == 0 )
 					break;
-			}
-
-			// 3. Update registry (if needed)
-
-			// 4. Assign tasks to addons (or perhaps to the ActionTaker directly in some cases)
-			/////////////////////////////////////////
-			
-			
+			}			
 		}
 		return RES_OK;
 	}

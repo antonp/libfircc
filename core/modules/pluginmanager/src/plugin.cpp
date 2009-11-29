@@ -22,6 +22,11 @@ namespace firc
 		m_pf_pluginDeinit = NULL;
 	}
 	
+	Plugin::~Plugin()
+	{
+		unload(0);
+	}
+	
 	/**
 	 * @brief
 	 * Load plugin from file.

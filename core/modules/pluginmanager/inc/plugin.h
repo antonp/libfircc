@@ -14,6 +14,7 @@ namespace firc
 	{
 	public:
 		Plugin();
+		~Plugin();
 		
 		Result loadFromFile(void *fircCore, const int8 *fileName,
 							PF_irc_onJoin *ioj,

@@ -189,7 +189,8 @@ namespace firc
 							int8 *name, uint32 nameLength)
 	{
 		Result res = RES_INVALID_PARAMETER;
-		uint32 size = m_plugins.size();
+//		uint32 size = m_plugins.size();
+		uint32 size = m_pluginCount;
 		const std::string *n = NULL;
 		
 		if ( size > index && NULL != m_plugins[index] )
@@ -250,7 +251,7 @@ namespace firc
 				if ( plugin->isUnloading() )
 				{
 					addPluginToUnloadList(plugin);
-					i = vec.erase(i);
+					i++;
 					continue;
 				}
 				job->setPlugin(plugin);
@@ -311,23 +312,40 @@ namespace firc
 		using std::vector;
 		using std::pair;
 		
+		// Remove all callback entries associated with the plguins
+		// scheduled for unload.
 		for ( uint32 i=0; i<m_pluginsToBeUnloaded.size(); ++i )
 		{
 			for ( uint32 k=0; k<IRC_MAX_CALLBACKS; ++k )
 			{
-				std::vector<CallbackEntry> &vec = m_callbacks[k];
-				for ( vector<CallbackEntry>::iterator j =
-					vec.begin();
+				vector<CallbackEntry> &vec = m_callbacks[k];
+				for ( vector<CallbackEntry>::iterator j = vec.begin();
 					j != vec.end(); )
-			{
-				if ( m_pluginsToBeUnloaded[i] == (*j).plugin )
 				{
-					j = vec.erase(j);
+					if ( m_pluginsToBeUnloaded[i] == (*j).plugin )
+					{
+						j = vec.erase(j);
+					} else
+					{
+						j++;
+					}
 				}
-				j++;
-			}
 			}
 			
+			// Remove the plugin reference from the list of plugins
+			for ( vector<Plugin *>::iterator l=m_plugins.begin();
+				l!=m_plugins.end(); )
+			{
+				if ( m_pluginsToBeUnloaded[i] == (*l) )
+				{
+					l = m_plugins.erase(l);
+				} else
+				{
+					l++;
+				}
+			}
+			
+			// Free up the plugin resources
 			delete m_pluginsToBeUnloaded[i];
 			m_pluginCount--;
 		}

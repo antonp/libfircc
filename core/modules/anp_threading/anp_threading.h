@@ -142,7 +142,7 @@ namespace threading
 			m_data = value;
 			m_mutex.unlock();
 		}
-		void get(const T &value) const {
+		void get(T &value) const {
 			m_mutex.lock();
 			value = m_data;
 			m_mutex.unlock();

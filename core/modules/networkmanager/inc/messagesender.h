@@ -30,28 +30,7 @@ namespace firc
 		TCPConnection &m_connection;
 		threading::ThreadSafeQueue<std::string> m_queue;
 		
-		class CooldownTime
-		{
-		public:
-			CooldownTime():m_time(5000) { }
-			void set(uint32 ms)
-			{
-				m_mutex.lock();
-				m_time = ms;
-				m_mutex.unlock();
-			}
-			void get(uint32 &value) const
-			{
-				m_mutex.lock();
-				value = m_time;
-				m_mutex.unlock();
-			}
-		private:
-			mutable threading::Mutex m_mutex;
-			uint32 m_time;
-		} m_cooldownTime;
-		
-		//threading::ProtectedData<uint32, 5000> m_cooldownTime;
+		threading::ProtectedData<uint32, 5000> m_cooldownTime;
 	};
 }
 }

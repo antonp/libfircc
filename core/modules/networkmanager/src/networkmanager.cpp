@@ -18,26 +18,30 @@ namespace firc
 		NetworkManager *nm = (NetworkManager *)arg;
 		if ( NULL != nm )
 		{
-			nm->runMessageReceiver();
+			try
+			{
+				nm->runMessageReceiver();
+			} catch ( std::exception &e )
+			{
+				std::cout
+					<< "NetworkManager-MessageReceiverRunner: Exception occured: "
+					<< e.what() << std::endl;
+			}
 		}
 		std::cout << "NetworkManager: closing thread." << std::endl;
 		pthread_exit(0);
 	}
 	
-	NetworkManager::NetworkManager()
-	// : initializers...
+	NetworkManager::NetworkManager(const int8 *host, const int8 *port,
+									PluginManager *pluginManager):
+	m_state(CONNECTING),
+	m_connection(host, port),
+	m_messageSender(new MessageSender(m_connection)),
+	m_pluginManager(pluginManager)
 	{
 		Result res = RES_FAILED;
 		std::string m_outStr;
 		
-		m_pluginManager = pluginManager;
-		
-		m_state = CONNECTING;
-		res = m_connection.connect(host, port);
-		if ( res != RES_OK )
-		{
-			return res;
-		}
 		std::cout << "Successfully connected." << std::endl;
 		
 		m_state = REGISTERING;
@@ -58,25 +62,13 @@ namespace firc
 		
 		m_state = CONNECTED;
 			
-		res = m_receiverThread.create(NULL,	threadRunMessageReceiver,
-			(void *)this);
-		
-		
-		
-		m_messageSender = new MessageSender(m_connection);
+		m_receiverThread.create(NULL,	threadRunMessageReceiver,
+								(void *)this);
 	}
 	
 	NetworkManager::~NetworkManager()
 	{
 
-	}
-	
-	Result NetworkManager::init(const int8 *host, const int8 *port,
-								PluginManager *pluginManager)
-	{
-
-
-		return res;
 	}
 	
 	void NetworkManager::deinit(const int8 *message)

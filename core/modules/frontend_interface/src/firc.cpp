@@ -27,37 +27,13 @@ namespace firc
 		return true;
 	}
 	
-	Result Core::createNetworkManager(const int8 *host,
-									const int8 *port,
-									NetworkManager **networkManager)
+	NetworkManager *Core::createNetworkManager(const int8 *host,
+												const int8 *port)
 	{
-		Result res = RES_FAILED;
-		
-		if ( NULL == networkManager )
-		{
-			return RES_INVALID_PARAMETER;
-		}
-		
-		NetworkManager *nm = new NetworkManager;
-		
-		if ( NULL == nm )
-		{
-			res = RES_MEMALLOC_FAILED;
-			return res;
-		}
-		
-		res = nm->init(host, port, &m_pluginManager);
-		if ( RES_OK == res )
-		{
-			m_networkManagers.push_back(nm);
-			*networkManager = nm;
-		} else
-		{
-			delete nm;
-			*networkManager = NULL;
-		}
-		
-		return res;
+		NetworkManager *nm(new NetworkManager(host, port,
+							&m_pluginManager));
+		m_networkManagers.push_back(nm);
+		return nm;
 	}
 	
 	Result Core::destroyNetworkManager(NetworkManager *networkManager,
@@ -228,9 +204,7 @@ namespace firc
 			{
 				Core *core = (Core *)fircCore;
 
-				res = core->createNetworkManager(host,
-									port, (NetworkManager **)network);
-						//			port, NULL);
+				*network = core->createNetworkManager(host,	port);
 			}
 			return res;
 		}

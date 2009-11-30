@@ -18,11 +18,10 @@ namespace firc
 	class NetworkManager
 	{
 	public:
-		NetworkManager();
+		NetworkManager(const int8 *host, const int8 *port,
+						PluginManager *m_pluginManager);
 		~NetworkManager();
 		
-		Result init(const int8 *host, const int8 *port,
-					PluginManager *m_pluginManager);
 		void deinit(const int8 *message);
 		enum State
 		{

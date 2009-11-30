@@ -8,6 +8,7 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <stdexcept>
 
 #define MAX_HOST_LENGTH 256
 #define MAX_DATA_LENGTH 2048
@@ -21,10 +22,10 @@
 
 namespace anp
 {
-	class NetworkFailureException: public std::runtime_error
+	class NetworkException: public std::runtime_error
 	{
 	public:
-		NetworkFailureException(const std::string &message):
+		NetworkException(const std::string &message):
 		std::runtime_error(message) { }
 	};
 	
@@ -39,8 +40,8 @@ namespace firc
 		Result send(const std::string &buffer);
 		Result receive(int8 *buffer, uint32 bufferSize);
 	private:
-		void TCPConnection::connect(const std::string &hostname,
-									const std::string &port);
+		void connect(const std::string &hostname,
+					 const std::string &port);
 		void clean();
 		int m_socket;
 	};

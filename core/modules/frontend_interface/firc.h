@@ -5,6 +5,7 @@
 #include <pluginmanager.h> // johnny bigert this!
 
 #include <vector> // johnny bigert this!
+#include <memory>
 
 namespace anp
 {
@@ -18,8 +19,8 @@ namespace firc
 		Result init(uint8 pluginCount, const int8 *pluginNames[]);
 		bool32 update();
 		
-		Result createNetworkManager(const int8 *host, const int8 *port,
-									NetworkManager **networkManager);
+		NetworkManager *createNetworkManager(const int8 *host,
+											 const int8 *port);
 									
 		Result destroyNetworkManager(NetworkManager *networkManager,
 										const int8 *message);

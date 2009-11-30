@@ -80,7 +80,7 @@ namespace firc
 		memset((void *)buffer, 0, bufferSize);
 		if ( 0 >= ::recv(m_socket, buffer, bufferSize, 0) )
 		{
-			return RES_CONNECTION_CLOSED;
+			throw NetworkException("Failed to recv(), connection closed");
 		}
 		return RES_OK;
 	}

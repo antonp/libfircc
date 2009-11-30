@@ -5,9 +5,16 @@
 
 #include "../anp_threading.h"
 #include <basedefs.h>
+#include <stdexcept>
 
 namespace anp
 {
+	class ConstructionException: public std::runtime_error
+	{
+	public:
+		ConstructionException(const std::string &message):
+		std::runtime_error(message) { }
+	};
 namespace threading
 {
 	
@@ -46,8 +53,7 @@ namespace threading
 	{
 		if ( RES_OK != createThreadObject(&m_thread) )
 		{
-			/// @todo throw an exception here
-			// throw anp::construction_failed exception!
+			throw anp::ConstructionException("Failed to create thread object");
 		}
 	}
 	
@@ -91,7 +97,7 @@ namespace threading
 	{
 		if ( RES_OK != createMutexObject(&m_mutex) )
 		{
-			// exception? Might be thrown from createMutexObject though
+			throw anp::ConstructionException("Failed to create mutex object");
 		}
 	}
 	
@@ -132,7 +138,7 @@ namespace threading
 	{
 		if ( RES_OK != createEventObject(&m_event) )
 		{
-			// exception? might be thrown from createEventObject though
+			throw anp::ConstructionException("Failed to create event object");
 		}
 	}
 	

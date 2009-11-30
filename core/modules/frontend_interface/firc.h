@@ -16,7 +16,9 @@ namespace firc
 	class Core
 	{
 	public:
-		Result init(uint8 pluginCount, const int8 *pluginNames[]);
+		Core(uint8 pluginCount, const int8 *pluginNames[]);
+		virtual ~Core();
+
 		bool32 update();
 		
 		NetworkManager *createNetworkManager(const int8 *host,

@@ -5,16 +5,10 @@
 
 #include "../anp_threading.h"
 #include <basedefs.h>
-#include <stdexcept>
+#include <anp_exceptions.h>
 
 namespace anp
 {
-	class ConstructionException: public std::runtime_error
-	{
-	public:
-		ConstructionException(const std::string &message):
-		std::runtime_error(message) { }
-	};
 namespace threading
 {
 	

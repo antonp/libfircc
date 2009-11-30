@@ -1,12 +1,12 @@
 #include "../firc.h"
 #include <networkmanager.h>
-#include <iostream> // todo remove
+#include <anp_exceptions.h>
 
 namespace anp
 {
 namespace firc
 {
-	Result Core::init(uint8 pluginCount, const int8 *pluginNames[])
+	Core::Core(uint8 pluginCount, const int8 *pluginNames[])
 	{
 		Result res = RES_FAILED;
 		
@@ -15,11 +15,17 @@ namespace firc
 									pluginNames);
 		if ( RES_OK != res )
 		{
-			std::cout << "Failed to load plugins." << std::endl;
-			return res;
+			throw anp::ConstructionException("Failed to load plugins");
 		}
-		
-		return RES_OK;
+	}
+	
+	Core::~Core()
+	{
+		for ( uint32 i=0; i<m_networkManagers.size(); ++i )
+		{
+			delete m_networkManagers[i];
+		}
+		m_networkManagers.clear();
 	}
 	
 	bool32 Core::update()
@@ -113,20 +119,15 @@ namespace firc
 			
 			if ( NULL != fircCore )
 			{
-				Core *core = new Core;
-				if ( NULL != core )
+				try
 				{
-					res = core->init(pluginCount, pluginNames);
-					if ( RES_OK == res )
-					{
-						*fircCore = (void *)core;
-					} else
-					{
-						delete core;
-					}
-				} else
+					std::auto_ptr<Core> core(
+									new Core(pluginCount, pluginNames));
+					*fircCore = (void *)core.release();
+					res = RES_OK;
+				} catch ( std::exception &e )
 				{
-					res = RES_MEMALLOC_FAILED;
+					res = RES_CONSTRUCTION_FAILED;
 				}
 			}
 			

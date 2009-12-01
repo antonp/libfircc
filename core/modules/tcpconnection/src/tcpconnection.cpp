@@ -1,5 +1,6 @@
 #include "../tcpconnection.h"
 
+#include <iostream> // TODO remove this!!!!
 #include <string.h> // for memset
 #include <netdb.h>
 #include <stdexcept>
@@ -14,7 +15,7 @@ namespace firc
 		const std::string &port
 	)
 	{
-		connect(hostname, port);
+		TCPConnection::connect(hostname, port);
 	}
 
 	TCPConnection::~TCPConnection(void)
@@ -42,6 +43,11 @@ namespace firc
 		getaddrinfo(hostname.c_str(), port.c_str(), &hints,
 					&pServInfoFirst);
 		
+		if ( pServInfoFirst == NULL )
+		{
+			throw NetworkException("Failed to getaddrinfo()!");
+		}
+		
 		for ( pServInfoCurrent=pServInfoFirst;
 			  pServInfoCurrent != NULL;
 			  pServInfoCurrent = pServInfoCurrent->ai_next )
@@ -64,6 +70,7 @@ namespace firc
 			} else
 			{
 				// Successfully connected
+				std::cout << "TCPConnection CONNECTED!!!" << std::endl;
 			}
 		}
 	}

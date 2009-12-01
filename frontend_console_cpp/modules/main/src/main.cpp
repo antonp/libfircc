@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 		<< std::endl;
 	
 	INetworkManagerFrontend *chatJunkies =
-		core->createNetworkManager("irc.chatjunkies.de", "6667");
+		core->createNetworkManager("irc.chatjunkies.org", "6667");
 	
 	anp::uint32 state = 0;
 	core->addCallbackOnPrivMsg(irc_onPrivMsg);

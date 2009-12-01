@@ -132,18 +132,18 @@ core = buildLibrary(
 frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	'frontend_console_cpp',
-	['basecode', 'core/modules/plugin_interface'],
+	['basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface'],
 	['core', 'pthread', 'dl'],
 	['-rdynamic']
 )
 
-frontend_console_c = buildProgram(
-	'frontend_console_c',
-	'frontend_console_c',
-	['basecode', 'core/modules/plugin_interface'],
-	['core', 'pthread', 'dl'],
-	['-rdynamic']
-)
+# frontend_console_c = buildProgram(
+#	'frontend_console_c',
+#	'frontend_console_c',
+#	['basecode', 'core/modules/plugin_interface'],
+#	['core', 'pthread', 'dl'],
+#	['-rdynamic']
+# )
 
 test_threading = buildProgram(
 	'test_threading',
@@ -158,4 +158,5 @@ pluginTest1 = buildSharedLibrary('pluginTest1', 'plugindev/pluginTest1', ['basec
 pluginTest2 = buildSharedLibrary('pluginTest2', 'plugindev/pluginTest2', ['basecode', 'core/modules/plugin_interface'], [])
 
 Depends(pluginTest1, [core])
-Depends(frontend_console, [core])
+# Depends(frontend_console_c, [core])
+Depends(frontend_console_cpp, [core])

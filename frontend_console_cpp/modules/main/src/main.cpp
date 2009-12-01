@@ -2,19 +2,34 @@
 
 #include <basedefs.h>
 #include <core_api_cpp.h>
+#include <core_frontend.h>
+#include <networkmanager.h> // should be interfaced like core..
 #include <unistd.h> // for Sleep
 #include <string.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
 
+void irc_onPrivMsg(void *network,
+					const anp::int8 *sender,
+					const anp::int8 *receiver,
+					const anp::int8 *message)
+{
+	std::cout << "main.cpp: Received a PRIVMSG!" << std::endl;
+
+	if ( 0 == strcmp(message, "die") )
+	{
+		// Write state
+		pthread_mutex_lock(&g_stateMutex);
+		g_state = 1; // QUIT
+		pthread_mutex_unlock(&g_stateMutex);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	using namespace anp;
 	using namespace anp::firc;
-
-	void *fircCore = NULL;
-	void *chatJunkies = NULL;
 	
 	const int8 *pluginNames[] = {
 		"./libpluginTest1.so"
@@ -22,66 +37,42 @@ int main(int argc, char *argv[])
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
-	core_create(sizeof(pluginNames)/sizeof(int8 *), pluginNames);
-	res = coreCreate(&fircCore, sizeof(pluginNames)/sizeof(int8 *),
-						pluginNames);
-	std::cout << "fircCore = " << fircCore << std::endl;
-	if ( RES_OK != res )
-	{
-		std::cout << "Failed to create the firc core object! Halting!"
-			<< std::endl;
-		return 1;
-	}
+	ICoreFrontend *core = core_create(
+									sizeof(pluginNames)/sizeof(int8 *),
+									pluginNames);
 	
 	std::cout << "Successfully created the firc core object!"
 		<< std::endl;
 	
-	res = ircConnect(fircCore, "irc.chatjunkies.org", "6667",
-						&chatJunkies);
+	NetworkManager *chatJunkies =
+		core->createNetworkManager("irc.chatjunkies.de", "6667");
 	
-	if ( RES_OK == res )
+	anp::uint32 state = 0;
+	core->addCallbackOnPrivMsg(irc_onPrivMsg);
+
+	sleep(7);
+	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");
+	chatJunkies->sendMessage("PRIVMSG #my-secret-botdev :Hello world!");	
+	sleep(20);
+	
+	// When the quit command has been received, state will equal 1.
+	while ( 0 == state )
 	{
-		anp::uint32 state = 0;
-		res = ircAddOnPrivMsgCallback(fircCore, irc_onPrivMsg);
-		if ( RES_OK != res )
-		{
-			std::cout << "Failed to add privmsg callback." << std::endl;
-		}
-		sleep(5);
-		ircSendRaw(chatJunkies, "JOIN #my-secret-botdev\r\n");
-		ircPrivMsg(chatJunkies, "#my-secret-botdev", "Hello world!");			
-		
-		sleep(20);
-		
-		// When the quit command has been received, state will equal 1.
-		while ( 0 == state )
-		{
-			// Read state
-			pthread_mutex_lock(&g_stateMutex);
-			state = g_state;
-			pthread_mutex_unlock(&g_stateMutex);
-			sleep(3); // Just to conserve CPU..
-		}
-		
-		// Quit
-		res = ircDisconnect(fircCore, chatJunkies,
-							"Time to go! See you ChatJunkies!");
-		if ( RES_OK == res )
-		{
-			std::cout << "main.cpp: Successfully disconnected."
-				<< std::endl;
-		} else
-		{
-			std::cout << "main.cpp: Failed to disconnect"
-				<< std::endl;	
-		}
-	} else
-	{
-		std::cout << "main.cpp: Failed to connect to ChatJunkies:"
-			<< res << std::endl;
+		// Read state
+		pthread_mutex_lock(&g_stateMutex);
+		state = g_state;
+		pthread_mutex_unlock(&g_stateMutex);
+		sleep(1); // Just to conserve CPU..
 	}
 	
-	coreDestroy(fircCore);
+	// Quit
+	res = ircDisconnect(fircCore, chatJunkies,
+						"Time to go! See you ChatJunkies!");
+	core->destroyNetworkManager(chatJunkies,
+							    "Time to go! See you ChatJunkies!");
+	std::cout << "main.cpp: Successfully disconnected."	<< std::endl;
+	
+	core_destroy(core);
 	pthread_mutex_destroy(&g_stateMutex);
 	
 	return 0;

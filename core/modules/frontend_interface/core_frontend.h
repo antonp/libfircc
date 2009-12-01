@@ -2,6 +2,7 @@
 #define _CORE_FRONTEND_H_
 
 #include <basedefs.h>
+#include <plugin_functions.h>
 
 namespace anp
 {

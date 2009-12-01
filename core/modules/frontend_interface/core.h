@@ -1,8 +1,9 @@
-#ifndef _FIRC_H_
-#define _FIRC_H_
+#ifndef _CORE_H_
+#define _CORE_H_
 
 #include <basedefs.h>
 #include <pluginmanager.h> // johnny bigert this!
+#include "core_frontend.h"
 
 #include <vector> // johnny bigert this!
 #include <memory>
@@ -13,23 +14,21 @@ namespace firc
 {
 	class NetworkManager;
 	
-	class Core
+	class Core: public ICoreFrontend
 	{
 	public:
 		Core(uint8 pluginCount, const int8 *pluginNames[]);
 		virtual ~Core();
-
-		bool32 update();
 		
 		NetworkManager *createNetworkManager(const int8 *host,
 											 const int8 *port);
 									
-		Result destroyNetworkManager(NetworkManager *networkManager,
+		void destroyNetworkManager(NetworkManager *networkManager,
 										const int8 *message);
 										
-		Result getPluginManager(PluginManager **pluginManager);
+		PluginManager *getPluginManager();
 		
-		Result addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
+		void addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
 	private:
 		PluginManager m_pluginManager;
 		std::vector<NetworkManager *> m_networkManagers;
@@ -37,4 +36,4 @@ namespace firc
 } // namespace firc
 } // namespace anp
 
-#endif // _FIRC_H_
+#endif // _CORE_H_

@@ -29,7 +29,7 @@ namespace firc
 		m_networkManagers.clear();
 	}
 	
-	NetworkManager *Core::createNetworkManager(const int8 *host,
+	INetworkManagerFrontend *Core::createNetworkManager(const int8 *host,
 												const int8 *port)
 	{
 		NetworkManager *nm(new NetworkManager(host, port,
@@ -38,8 +38,9 @@ namespace firc
 		return nm;
 	}
 	
-	void Core::destroyNetworkManager(NetworkManager *networkManager,
-										const int8 *message)
+	void Core::destroyNetworkManager(
+								INetworkManagerFrontend *networkManager,
+								const int8 *message)
 	{
 		Result res = RES_INVALID_PARAMETER;
 

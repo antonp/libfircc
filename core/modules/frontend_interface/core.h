@@ -12,6 +12,7 @@ namespace anp
 {
 namespace firc
 {
+	class INetworkManagerFrontend;
 	class NetworkManager;
 	
 	class Core: public ICoreFrontend
@@ -20,10 +21,10 @@ namespace firc
 		Core(uint8 pluginCount, const int8 *pluginNames[]);
 		virtual ~Core();
 		
-		NetworkManager *createNetworkManager(const int8 *host,
+		INetworkManagerFrontend *createNetworkManager(const int8 *host,
 											 const int8 *port);
 									
-		void destroyNetworkManager(NetworkManager *networkManager,
+		void destroyNetworkManager(INetworkManagerFrontend *networkManager,
 										const int8 *message);
 										
 		PluginManager *getPluginManager();

@@ -4,6 +4,7 @@
 #include <basedefs.h>
 #include <tcpconnection.h>
 #include <ircnetworkcache.h>
+#include "networkmanager_frontend.h"
 #include "inc/messagesender.h"
 
 #include <anp_threading.h> // johnny bigert?
@@ -15,7 +16,7 @@ namespace firc
 {
 	class PluginManager;
 	
-	class NetworkManager
+	class NetworkManager: public INetworkManagerFrontend
 	{
 	public:
 		NetworkManager(const int8 *host, const int8 *port,
@@ -34,7 +35,7 @@ namespace firc
 		// Should be private (interface? friend with wrapper?)
 		Result runMessageReceiver();
 		
-		Result sendMessage(const std::string &message);
+		void sendMessage(const std::string &message);
 		
 		// Network cache stuff
 		Result getBotNickName(int8 *destName,

@@ -3,7 +3,7 @@
 #include <basedefs.h>
 #include <core_api_cpp.h>
 #include <core_frontend.h>
-#include <networkmanager.h> // should be interfaced like core..
+#include <networkmanager_frontend.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	std::cout << "Successfully created the firc core object!"
 		<< std::endl;
 	
-	NetworkManager *chatJunkies =
+	INetworkManagerFrontend *chatJunkies =
 		core->createNetworkManager("irc.chatjunkies.de", "6667");
 	
 	anp::uint32 state = 0;
@@ -66,8 +66,6 @@ int main(int argc, char *argv[])
 	}
 	
 	// Quit
-	res = ircDisconnect(fircCore, chatJunkies,
-						"Time to go! See you ChatJunkies!");
 	core->destroyNetworkManager(chatJunkies,
 							    "Time to go! See you ChatJunkies!");
 	std::cout << "main.cpp: Successfully disconnected."	<< std::endl;

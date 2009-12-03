@@ -18,6 +18,11 @@ namespace firc
 		}
 	}
 	
+	PluginManager::~PluginManager()
+	{
+		unloadAllPlugins();
+	}
+	
 	void PluginManager::setFircCore(void *fircCore)
 	{
 		m_fircCore = fircCore; // extend
@@ -72,19 +77,7 @@ namespace firc
 		PF_irc_onJoin ioj = NULL;
 		PF_irc_onPrivMsg iopm = NULL;
 
-		Plugin *plugin = new Plugin;
-		
-		if ( NULL == plugin )
-		{
-			return RES_MEMALLOC_FAILED;
-		}
-		res = plugin->loadFromFile(m_fircCore, fileName, &ioj, &iopm);
-		if ( RES_OK != res )
-		{
-			delete plugin;
-			plugin = NULL;
-			return res;
-		}
+		Plugin *plugin = new Plugin(m_fircCore, fileName, &ioj, &iopm);
 		m_plugins.push_back(plugin);
 		
 		entry.plugin = plugin;
@@ -107,11 +100,8 @@ namespace firc
 	/**
 	 * @brief
 	 * Unloads all currently loaded plugins.
-	 * 
-	 * @return
-	 * Returns RES_OK on success or a specific error code on failure.
 	 */
-	Result PluginManager::unloadAllPlugins()
+	void PluginManager::unloadAllPlugins()
 	{
 		uint32 size = m_plugins.size();
 		Plugin *p = NULL;
@@ -124,7 +114,7 @@ namespace firc
 				continue;
 			} else
 			{
-				p->unload(0); // Revise '0'
+				p->setUnloadReason(0); // Revise '0'
 				delete p;
 				p = NULL;
 				m_plugins[i] = NULL;
@@ -132,6 +122,8 @@ namespace firc
 		}
 		m_plugins.clear();
 		m_pluginCount = 0;
+		
+		m_pluginsToBeUnloaded.clear();
 	}
 	
 	/**
@@ -160,16 +152,6 @@ namespace firc
 		
 		/// @todo Use reason parameter.
 		m_plugins[index]->setUnloading(TRUE);
-		
-/*		// Plugin list and memory cleanup
-		delete m_plugins[index];
-		m_plugins[index] = NULL; // List becomes fragmented :\
-		// assert m_pluginCount > 0 (todo)
-		--m_pluginCount;
-		
-		std::vector<Plugin *>::iterator i = m_plugins.begin()+index;
-		m_plugins.erase(i); // Not fragmented anymore
-		*/
 		return res;
 	}
 	

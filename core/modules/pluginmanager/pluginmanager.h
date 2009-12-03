@@ -27,12 +27,13 @@ namespace firc
 		};
 
 		PluginManager();
+		~PluginManager();
 
 		void setFircCore(void *fircCore); // Extend
 	
 		Result loadPlugins(uint32 count, const int8 *fileNames[]);
 		Result loadPlugin(const int8 *fileName);
-		Result unloadAllPlugins();
+		void unloadAllPlugins();
 		Result unloadPlugin(uint32 index, uint32 reason);
 		Result unloadPluginReally(uint32 index, uint32 reason);
 		Result getPluginCount(uint32 *count) const;

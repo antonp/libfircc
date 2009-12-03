@@ -19,7 +19,7 @@ namespace firc
 			   PF_irc_onPrivMsg *iopm);
 		~Plugin();
 		
-		Result unload(uint32 reason);
+		void setUnloadReason(uint32 reason);
 		void setUnloading(bool32 unloading);
 		bool32 isUnloading() const;
 		
@@ -47,6 +47,7 @@ namespace firc
 		// Execution
 		uint32				m_executionCount;
 		bool32				m_unloading;
+		uint32				m_unloadReason;
 		
 	};
 } // namespace firc

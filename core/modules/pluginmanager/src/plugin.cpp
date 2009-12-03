@@ -32,7 +32,8 @@ namespace firc
 		m_pf_irc_onJoin(NULL),
 		m_pf_irc_onPrivMsg(NULL),
 		m_executionCount(0),
-		m_unloading(FALSE)
+		m_unloading(FALSE),
+		m_unloadReason(0)
 	{
 		
 		std::cout << "Plugin::loadFromFile: " << fileName << std::endl;
@@ -80,22 +81,13 @@ namespace firc
 	
 	Plugin::~Plugin()
 	{
-		// Destructor should use another reason
-		unload(0);
+		m_pf_pluginDeinit(m_unloadReason);
 		dlclose(m_handle);
 	}
 	
-	void Plugin::callDeinit(uint32 reason)
+	void Plugin::setUnloadReason(uint32 reason)
 	{
-		if ( m_executionCount == 0 && m_pf_pluginDeinit != NULL )
-		{
-			m_pf_pluginDeinit(reason);
-			// Prevent pluginDeinit from being called twice
-			m_pf_pluginDeinit = NULL;
-		} else
-		{
-			// WTF!
-		}
+		m_unloadReason = reason;
 	}
 	
 	void Plugin::setUnloading(bool32 unloading)

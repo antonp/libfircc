@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
 namespace anp
 {
@@ -38,25 +39,38 @@ namespace firc
 	 * @param fileNames
 	 * Array of NULL-terminated ascii
 	 * strings representing the filenames.
-	 * 
-	 * @return
-	 * Returns RES_OK on success or a specific error code on failure.
 	 */
-	Result PluginManager::loadPlugins(uint32 count,
-										const int8 *fileNames[])
+	void PluginManager::loadPlugins(uint32 count,
+									const int8 *fileNames[],
+									bool32 acceptFailures)
 	{
-		Result res;
-		for ( uint32 i=0; i<count; ++i )
+		if ( acceptFailures )
 		{
-			std::cout << "loadPlugins: " << fileNames[i] << std::endl;
-			res = loadPlugin(fileNames[i]);
-			if ( RES_OK != res )
+			for ( uint32 i=0; i<count; ++i )
 			{
-				unloadAllPlugins();
-				return res;
+				//std::cout << "loadPlugins: " << fileNames[i] << std::endl;
+				try
+				{
+					loadPlugin(fileNames[i]);
+				} catch ( std::runtime_error &e )
+				{
+					// Drop exception silently..?
+				}
+			}
+		} else
+		{
+			for ( uint32 i=0; i<count; ++i )
+			{
+				try
+				{
+					loadPlugin(fileNames[i]);
+				} catch ( ... )
+				{
+					unloadAllPlugins();
+					throw;
+				}
 			}
 		}
-		return RES_OK;
 	}
 	
 	/**
@@ -65,11 +79,8 @@ namespace firc
 	 * 
 	 * @param fileName
 	 * NULL terminated string representing the fileName
-	 * 
-	 * @return
-	 * Returns RES_OK on success or a specific error code on failure.
 	 */
-	Result PluginManager::loadPlugin(const int8 *fileName)
+	void PluginManager::loadPlugin(const int8 *fileName)
 	{
 		Result res = RES_FAILED;
 		CallbackEntry entry = { NULL, NULL };
@@ -93,8 +104,6 @@ namespace firc
 			m_callbacks[IRC_PRIVMSG].push_back(entry);
 		}
 		++m_pluginCount;
-
-		return RES_OK;
 	}
 	
 	/**

@@ -31,8 +31,9 @@ namespace firc
 
 		void setFircCore(void *fircCore); // Extend
 	
-		Result loadPlugins(uint32 count, const int8 *fileNames[]);
-		Result loadPlugin(const int8 *fileName);
+		void loadPlugins(uint32 count, const int8 *fileNames[],
+						bool32 acceptFailures=false);
+		void loadPlugin(const int8 *fileName);
 		void unloadAllPlugins();
 		Result unloadPlugin(uint32 index, uint32 reason);
 		Result unloadPluginReally(uint32 index, uint32 reason);

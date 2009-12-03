@@ -9,15 +9,9 @@ namespace firc
 	Core::Core(uint8 pluginCount, const int8 *pluginNames[]):
 	ICoreFrontend()
 	{
-		Result res = RES_FAILED;
-		
 		m_pluginManager.setFircCore((void *)this);
-		res = m_pluginManager.loadPlugins(pluginCount,
+		m_pluginManager.loadPlugins(pluginCount,
 									pluginNames);
-		if ( RES_OK != res )
-		{
-			throw anp::ConstructionException("Failed to load plugins");
-		}
 	}
 	
 	Core::~Core()

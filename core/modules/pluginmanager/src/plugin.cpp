@@ -80,20 +80,21 @@ namespace firc
 	
 	Plugin::~Plugin()
 	{
+		// Destructor should use another reason
 		unload(0);
 		dlclose(m_handle);
 	}
 	
-	Result Plugin::unload(uint32 reason)
+	void Plugin::callDeinit(uint32 reason)
 	{
-		if ( m_executionCount == 0 )
+		if ( m_executionCount == 0 && m_pf_pluginDeinit != NULL )
 		{
 			m_pf_pluginDeinit(reason);
-			dlclose(m_handle);
-			return RES_OK;
+			// Prevent pluginDeinit from being called twice
+			m_pf_pluginDeinit = NULL;
 		} else
 		{
-			return RES_FAILED;
+			// WTF!
 		}
 	}
 	

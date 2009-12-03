@@ -13,12 +13,12 @@ namespace firc
 	class Plugin
 	{
 	public:
-		Plugin();
+		Plugin(void *fircCore,
+			   const int8 *fileName,
+			   PF_irc_onJoin *ioj,
+			   PF_irc_onPrivMsg *iopm);
 		~Plugin();
 		
-		Result loadFromFile(void *fircCore, const int8 *fileName,
-							PF_irc_onJoin *ioj,
-							PF_irc_onPrivMsg *iopm);
 		Result unload(uint32 reason);
 		void setUnloading(bool32 unloading);
 		bool32 isUnloading() const;
@@ -32,7 +32,7 @@ namespace firc
 		// Execution, status, reloading
 		void increaseExecutionCount();
 		void decreaseExecutionCount();
-	private:
+	private:	
 		void				*m_handle;
 		
 		PF_pluginDeinit		m_pf_pluginDeinit;

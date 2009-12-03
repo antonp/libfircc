@@ -4,3 +4,4 @@
 - maybe rename INetworkManagerFrontend -> INetworkManager
 - maybe get rid of "Core" ? At least rename it?
 	- only exists for the purpose of tying NetworkManagers and PluginManager together.
+- create a wrapper for dlopen/dlclose/dlsym/dlerror and use in plugin class to be raii

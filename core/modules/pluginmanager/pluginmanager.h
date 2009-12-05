@@ -4,6 +4,7 @@
 #include <basedefs.h>
 #include <plugin_functions.h>
 #include <anp_jobqueue.h>
+#include "pluginmanager_frontend.h"
 
 #include <vector> // johnny bigert this!
 #include <map>
@@ -15,17 +16,9 @@ namespace firc
 {
 	class Plugin;
 
-	class PluginManager
+	class PluginManager: public IPluginManagerFrontend
 	{
 	public:
-		enum CallbackType
-		{
-			IRC_JOIN,
-			IRC_PRIVMSG,
-			
-			IRC_MAX_CALLBACKS
-		};
-
 		PluginManager();
 		~PluginManager();
 
@@ -33,7 +26,6 @@ namespace firc
 
 		void loadPlugin(const int8 *fileName);
 		void unloadAllPlugins();
-		void unloadPlugin(uint32 index, uint32 reason);
 		void unloadPluginReally(uint32 index, uint32 reason);
 		uint32 getPluginCount() const;
 		void getPluginInfo(uint32 index,

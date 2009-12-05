@@ -2,6 +2,7 @@
 #define _PLUGINMANAGER_FRONTEND_H_
 
 #include <basedefs.h>
+#include "plugin_jobs.h"
 
 namespace anp
 {
@@ -12,12 +13,19 @@ namespace firc
 	class IPluginManagerFrontend
 	{
 	public:
-		IPluginManager() { };
-		virtual ~IPluginManager() { };
+		IPluginManagerFrontend() { };
+		virtual ~IPluginManagerFrontend() { };
+
+		enum CallbackType
+		{
+			IRC_JOIN,
+			IRC_PRIVMSG,
+			
+			IRC_MAX_CALLBACKS
+		};
 
 		virtual void loadPlugin(const int8 *fileName) = 0;
 		virtual void unloadAllPlugins() = 0;
-		virtual void unloadPlugin(uint32 index, uint32 reason) = 0;
 		virtual void unloadPluginReally(uint32 index, uint32 reason) = 0;
 		virtual uint32 getPluginCount() const = 0;
 		virtual void getPluginInfo(uint32 index,

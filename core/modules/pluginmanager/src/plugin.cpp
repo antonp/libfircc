@@ -100,17 +100,10 @@ namespace firc
 		return m_unloading;
 	}
 	
-	Result Plugin::getName(const std::string **name)
+	const std::string &Plugin::getName() const
 	{
-		Result res = RES_INVALID_PARAMETER;
-
-		if ( NULL != name )
-		{
-			// Trust that the caller respects the constness
-			*name = &m_name;
-			res = RES_OK;
-		}
-		return res;
+		// Trust that the caller respects the constness
+		return m_name;
 	}
 	
 	/////////////////////////

@@ -31,50 +31,6 @@ namespace firc
 	
 	/**
 	 * @brief
-	 * Load a set of plugins.
-	 * 
-	 * @param count
-	 * Number of filenames
-	 * 
-	 * @param fileNames
-	 * Array of NULL-terminated ascii
-	 * strings representing the filenames.
-	 */
-	void PluginManager::loadPlugins(uint32 count,
-									const int8 *fileNames[],
-									bool32 acceptFailures)
-	{
-		if ( acceptFailures )
-		{
-			for ( uint32 i=0; i<count; ++i )
-			{
-				//std::cout << "loadPlugins: " << fileNames[i] << std::endl;
-				try
-				{
-					loadPlugin(fileNames[i]);
-				} catch ( std::runtime_error &e )
-				{
-					// Drop exception silently..?
-				}
-			}
-		} else
-		{
-			for ( uint32 i=0; i<count; ++i )
-			{
-				try
-				{
-					loadPlugin(fileNames[i]);
-				} catch ( ... )
-				{
-					unloadAllPlugins();
-					throw;
-				}
-			}
-		}
-	}
-	
-	/**
-	 * @brief
 	 * Load a single plugin.
 	 * 
 	 * @param fileName
@@ -145,78 +101,58 @@ namespace firc
 	 * @param reason
 	 * Reason for unload. (Will introduce some predefined constants
 	 * for this parameter later, like RELOAD/UPGRADE/SHUTDOWN etc).
-	 * 
-	 * @return
-	 * Returns CERR_OK on success or an error code on failure.
 	 */
-	Result PluginManager::unloadPluginReally(uint32 index, uint32 reason)
+	void PluginManager::unloadPluginReally(uint32 index, uint32 reason)
 	{
 		using std::vector;
 		using std::pair;
-		Result res = RES_OK;
+
 		if ( index >= m_plugins.size() || NULL == m_plugins[index] )
 		{
-			return RES_INVALID_PARAMETER;
+			throw std::invalid_argument("index out-of-bounds");
 		}
 		
 		/// @todo Use reason parameter.
 		m_plugins[index]->setUnloading(TRUE);
-		return res;
 	}
 	
-	Result PluginManager::getPluginCount(uint32 *count) const
+	uint32 PluginManager::getPluginCount() const
 	{
-		if ( NULL != count )
-		{
-			*count = m_pluginCount;
-			return RES_OK;
-		} else
-		{
-			return RES_INVALID_PARAMETER;
-		}
+		return m_pluginCount;
 	}
 	
-	Result PluginManager::getPluginInfo(uint32 index,
+	void PluginManager::getPluginInfo(uint32 index,
 							int8 *name, uint32 nameLength)
 	{
-		Result res = RES_INVALID_PARAMETER;
 //		uint32 size = m_plugins.size();
 		uint32 size = m_pluginCount;
-		const std::string *n = NULL;
 		
 		if ( size > index && NULL != m_plugins[index] )
 		{
 			if ( NULL != name )
 			{
-				res = m_plugins[index]->getName(&n);
-				if ( RES_OK == res )
+				const std::string &n = m_plugins[index]->getName();
+				const int8 *temp = n.c_str();
+				uint32 tempSize = n.size();
+				uint32 i=0;
+				for ( ; i<nameLength && i<tempSize; ++i )
 				{
-					const int8 *temp = n->c_str();
-					uint32 tempSize = n->size();
-					uint32 i=0;
-					for ( ; i<nameLength && i<tempSize; ++i )
-					{
-						name[i] = temp[i];
-					}
-					if ( i < nameLength )
-					{
-						name[i] = 0; // Null-terminate
-					} else
-					{
-						name[nameLength-1] = 0; // Null-terminate
-					}
-					if ( i == tempSize )
-					{
-						res = RES_OK;
-					} else
-					{
-						// The name didn't fit in the supplied buffer
-						res = RES_BUFFER_TOO_SMALL;	
-					}
+					name[i] = temp[i];
+				}
+				if ( i < nameLength )
+				{
+					name[i] = 0; // Null-terminate
+				} else
+				{
+					name[nameLength-1] = 0; // Null-terminate
+				}
+				if ( i != tempSize )
+				{
+					// The name didn't fit in the supplied buffer
+					throw std::invalid_argument("buffer too small");
 				}
 			}
 		}
-		return res;
 	}
 
 	/**
@@ -268,21 +204,17 @@ namespace firc
 	 * 
 	 * @param func
 	 * The function to call when a PRIVMSG is received.
-	 * 
-	 * @return
-	 * Returns RES_OK on success or a specific error code on
-	 * failure.
 	 */
-	Result PluginManager::addCallbackOnPrivMsg(PF_irc_onPrivMsg func)
+	void PluginManager::addCallbackOnPrivMsg(PF_irc_onPrivMsg func)
 	{
-		Result res = RES_INVALID_PARAMETER;
 		if ( NULL != func )
 		{
 			CallbackEntry entry = { (void *)func, NULL };
 			m_callbacks[IRC_PRIVMSG].push_back(entry);
-			res = RES_OK;
+		} else
+		{
+			throw std::invalid_argument("func == NULL");
 		}
-		return res;
 	}
 	
 	void PluginManager::addPluginToUnloadList(Plugin *const plugin)
@@ -341,122 +273,6 @@ namespace firc
 			m_pluginCount--;
 		}
 		m_pluginsToBeUnloaded.clear();
-	}
-	
-	/* Native functions */
-	extern "C"
-	{
-		/**
-		 * @brief
-		 * Load a plugin.
-		 * 
-		 * @param pluginManager
-		 * Valid pointer to a (the) plugin manager object.
-		 * 
-		 * @param fileName
-		 * Filename of the plugin to load.
-		 * 
-		 * @return
-		 * RES_OK on success or a specific error code on failure.
-		 */
-		Result pluginLoad(void *pluginManager, const int8 *fileName)
-		{
-			Result res = RES_INVALID_PARAMETER;
-			
-			if ( NULL != pluginManager && NULL != fileName )
-			{
-				res = ((PluginManager *)pluginManager)->loadPlugin(
-															fileName);
-			}
-			return res;
-		}
-		
-		/**
-		 * @brief
-		 * Get the number of loaded plugins.
-		 * 
-		 * @param pluginManager
-		 * Valid pointer to a (the) plugin manager object.
-		 * 
-		 * @param[out] count
-		 * Valid pointer to an unsigned integer to receive the number.
-		 * 
-		 * @return
-		 * Returns RES_OK on success or a specific error code on
-		 * failure.
-		 */
-		Result pluginGetPluginCount(void *pluginManager, uint32 *count)
-		{
-			Result res = RES_INVALID_PARAMETER;
-			
-			if ( NULL != pluginManager && NULL != count )
-			{
-				res = ((PluginManager *)pluginManager)
-							->getPluginCount(count);
-			}
-			return res;
-		}
-
-		/**
-		 * @brief
-		 * Retrieve information about a loaded plugin.
-		 * 
-		 * @param pluginManager
-		 * Pointer to a plugin manager.
-		 * 
-		 * @param index
-		 * The location in the plugin manager's list.
-		 * 
-		 * @param[out] name
-		 * Pointer to a buffer which will receive the name.
-		 * 
-		 * @param nameLength
-		 * Maximum number of characters that the name buffer can hold.
-		 * 
-		 * @return
-		 * RES_OK on success or a specific error code on failure.
-		 */		
-		Result pluginGetPluginInfo(void *pluginManager, uint32 index,
-									int8 *name, uint32 nameLength)
-		{
-			Result res = RES_INVALID_PARAMETER;
-			
-			if ( NULL != pluginManager )
-			{
-				res = ((PluginManager *)pluginManager)->getPluginInfo(
-					index,
-					name, nameLength);
-			}
-			return res;
-		}
-		
-		/**
-		 * @brief 
-		 * Schedule a specific plugin for unloading.
-		 * 
-		 * @param pluginManager
-		 * Pointer to a plugin manager.
-		 * 
-		 * @param index
-		 * The location in the plugin manager's internal list.
-		 * 
-		 * @param reason
-		 * Reason for unload. (Will introduce some predefined constants
-		 * for this parameter later, like RELOAD/UPGRADE/SHUTDOWN etc).
-		 */
-		Result pluginUnload(void *pluginManager, uint32 index,
-							uint32 reason)
-		{
-			Result res = RES_INVALID_PARAMETER;
-			
-			if ( NULL != pluginManager )
-			{
-				res = ((PluginManager *)pluginManager)->
-					unloadPluginReally(index, reason);
-			}
-			
-			return res;
-		}
 	}
 } // namespace firc
 } // namespace anp

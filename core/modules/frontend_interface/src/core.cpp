@@ -10,8 +10,18 @@ namespace firc
 	ICoreFrontend()
 	{
 		m_pluginManager.setFircCore((void *)this);
-		m_pluginManager.loadPlugins(pluginCount,
-									pluginNames);
+									
+		for ( uint32 i=0; i<pluginCount; ++i )
+		{
+			try
+			{
+				m_pluginManager.loadPlugin(pluginNames[i]);
+			} catch ( ... )
+			{
+				m_pluginManager.unloadAllPlugins();
+				throw;
+			}
+		}
 	}
 	
 	Core::~Core()
@@ -64,11 +74,7 @@ namespace firc
 	{
 		if ( NULL != func )
 		{
-			Result res = m_pluginManager.addCallbackOnPrivMsg(func);
-			if ( res != RES_OK )
-			{
-				throw std::runtime_error("m_pluginManager.addCallbackOnPrivMsg(..) != RES_OK");
-			}
+			m_pluginManager.addCallbackOnPrivMsg(func);
 		} else
 		{
 			throw std::invalid_argument("func == NULL");

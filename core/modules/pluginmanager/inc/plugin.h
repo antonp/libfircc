@@ -23,7 +23,7 @@ namespace firc
 		void setUnloading(bool32 unloading);
 		bool32 isUnloading() const;
 		
-		Result getName(const std::string **name);
+		const std::string &getName() const;
 		
 		// Event handler get functions
 		Result getEventHandler(PF_irc_onJoin *dest) const;

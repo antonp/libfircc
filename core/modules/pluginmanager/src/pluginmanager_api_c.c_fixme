@@ -1,0 +1,115 @@
+	/* Native functions */
+	extern "C"
+	{
+		/**
+		 * @brief
+		 * Load a plugin.
+		 * 
+		 * @param pluginManager
+		 * Valid pointer to a (the) plugin manager object.
+		 * 
+		 * @param fileName
+		 * Filename of the plugin to load.
+		 * 
+		 * @return
+		 * RES_OK on success or a specific error code on failure.
+		 */
+		Result pluginLoad(void *pluginManager, const int8 *fileName)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager && NULL != fileName )
+			{
+				res = ((PluginManager *)pluginManager)->loadPlugin(
+															fileName);
+			}
+			return res;
+		}
+		
+		/**
+		 * @brief
+		 * Get the number of loaded plugins.
+		 * 
+		 * @param pluginManager
+		 * Valid pointer to a (the) plugin manager object.
+		 * 
+		 * @param[out] count
+		 * Valid pointer to an unsigned integer to receive the number.
+		 * 
+		 * @return
+		 * Returns RES_OK on success or a specific error code on
+		 * failure.
+		 */
+		Result pluginGetPluginCount(void *pluginManager, uint32 *count)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager && NULL != count )
+			{
+				res = ((PluginManager *)pluginManager)
+							->getPluginCount(count);
+			}
+			return res;
+		}
+
+		/**
+		 * @brief
+		 * Retrieve information about a loaded plugin.
+		 * 
+		 * @param pluginManager
+		 * Pointer to a plugin manager.
+		 * 
+		 * @param index
+		 * The location in the plugin manager's list.
+		 * 
+		 * @param[out] name
+		 * Pointer to a buffer which will receive the name.
+		 * 
+		 * @param nameLength
+		 * Maximum number of characters that the name buffer can hold.
+		 * 
+		 * @return
+		 * RES_OK on success or a specific error code on failure.
+		 */		
+		Result pluginGetPluginInfo(void *pluginManager, uint32 index,
+									int8 *name, uint32 nameLength)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager )
+			{
+				res = ((PluginManager *)pluginManager)->getPluginInfo(
+					index,
+					name, nameLength);
+			}
+			return res;
+		}
+		
+		/**
+		 * @brief 
+		 * Schedule a specific plugin for unloading.
+		 * 
+		 * @param pluginManager
+		 * Pointer to a plugin manager.
+		 * 
+		 * @param index
+		 * The location in the plugin manager's internal list.
+		 * 
+		 * @param reason
+		 * Reason for unload. (Will introduce some predefined constants
+		 * for this parameter later, like RELOAD/UPGRADE/SHUTDOWN etc).
+		 */
+		Result pluginUnload(void *pluginManager, uint32 index,
+							uint32 reason)
+		{
+			Result res = RES_INVALID_PARAMETER;
+			
+			if ( NULL != pluginManager )
+			{
+				res = ((PluginManager *)pluginManager)->
+					unloadPluginReally(index, reason);
+			}
+			
+			return res;
+		}
+	}

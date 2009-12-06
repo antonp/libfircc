@@ -2,6 +2,7 @@
 #define _PLUGIN_H_
 
 #include <basedefs.h>
+#include <anp_dynamic_library.h>
 #include "plugin_functions.h"
 
 #include <string>
@@ -33,7 +34,7 @@ namespace firc
 		void increaseExecutionCount();
 		void decreaseExecutionCount();
 	private:	
-		void				*m_handle;
+		DynamicLibrary		m_lib;
 		
 		PF_pluginDeinit		m_pf_pluginDeinit;
 		

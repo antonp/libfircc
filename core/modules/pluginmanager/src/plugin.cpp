@@ -1,9 +1,10 @@
 #include "../inc/plugin.h"
 
-#include <dlfcn.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <cassert>
+#include <anp_dynamic_library.h>
 
 namespace anp
 {
@@ -26,7 +27,7 @@ namespace firc
 				   const int8 *fileName,
 				   PF_irc_onJoin *ioj,
 				   PF_irc_onPrivMsg *iopm):
-		m_handle(NULL),
+		m_lib(fileName),
 		m_name("n/a"),
 		m_pf_pluginDeinit(NULL),
 		m_pf_irc_onJoin(NULL),
@@ -37,36 +38,22 @@ namespace firc
 	{
 		
 		std::cout << "Plugin::loadFromFile: " << fileName << std::endl;
-		m_handle = dlopen(fileName, RTLD_LAZY); // RTLD_NOW ?
-		if ( NULL == m_handle )
-		{
-			/// @todo Check if m_handle == any of the
-			///  previously loaded plugins
-			
-			std::stringstream errorMsg;
-			errorMsg << "dlopen failed:" << dlerror() << std::endl;
-			throw std::runtime_error(errorMsg.str());
-		}
 		
-		PF_pluginInit pf_pluginInit	= (PF_pluginInit)dlsym(m_handle,
+		PF_pluginInit pf_pluginInit	= (PF_pluginInit)m_lib.getSymbol(
 														"pluginInit");
-		m_pf_pluginDeinit			= (PF_pluginDeinit)dlsym(m_handle,
+		m_pf_pluginDeinit			= (PF_pluginDeinit)m_lib.getSymbol(
 														"pluginDeinit");
 		
-		if ( NULL == pf_pluginInit || NULL == m_pf_pluginDeinit )
-		{
-			std::stringstream errorMsg;
-			errorMsg << "pluginInit/pluginDeinit functions missing:"
-				<< dlerror() << std::endl;
-			dlclose(m_handle);
-			throw std::runtime_error(errorMsg.str());
-		}
+		// DynamicLibrary::getSymbol should throw an exception if
+		// any of the functoins cannot be found, so this should never
+		// happen.
+		assert(NULL != pf_pluginInit && NULL != m_pf_pluginDeinit);
 		
 		// Find all implemented event handlers
 		*ioj = m_pf_irc_onJoin =
-			(PF_irc_onJoin)dlsym(m_handle, "irc_onJoin");
+			(PF_irc_onJoin)m_lib.getSymbol("irc_onJoin");
 		*iopm = m_pf_irc_onPrivMsg =
-			(PF_irc_onPrivMsg)dlsym(m_handle, "irc_onPrivMsg");
+			(PF_irc_onPrivMsg)m_lib.getSymbol("irc_onPrivMsg");
 		
 		// Call init function
 		m_name = fileName;
@@ -74,7 +61,6 @@ namespace firc
 		if ( res == 0 )
 		{
 			std::cout << "pluginInit returned 0" << std::endl;
-			dlclose(m_handle);
 			throw std::runtime_error("pluginInit returned 0");
 		}
 	}
@@ -82,7 +68,6 @@ namespace firc
 	Plugin::~Plugin()
 	{
 		m_pf_pluginDeinit(m_unloadReason);
-		dlclose(m_handle);
 	}
 	
 	void Plugin::setUnloadReason(uint32 reason)

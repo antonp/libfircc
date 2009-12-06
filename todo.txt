@@ -25,6 +25,8 @@
 
 * Add antiflood mechanism (output queue + monitor)
 
+* Assertions: Add NDEBUG preprocessor definition for releasebuilds!
+
 Finalize:
 * Perhaps Johnny Bigert some includes, header cleanup
 * Remove all memory leaks (valgrind..?)

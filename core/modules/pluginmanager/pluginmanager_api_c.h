@@ -1,0 +1,6 @@
+#ifndef _PLUGINMANAGER_API_C_H_
+#define _PLUGINMANAGER_API_C_H_
+
+
+
+#endif // _PLUGINMANAGER_API_C_H_

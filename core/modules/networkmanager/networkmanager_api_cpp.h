@@ -8,7 +8,7 @@ namespace anp
 namespace firc
 {
 	class INetworkManagerFrontend;
-	class PluginManager;
+	class IPluginManagerFrontend;
 	
 	INetworkManagerFrontend *
 	networkmanager_create(const int8 *host, const int8 *port,

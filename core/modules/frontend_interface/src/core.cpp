@@ -9,7 +9,6 @@ namespace firc
 	Core::Core(uint8 pluginCount, const int8 *pluginNames[]):
 	ICoreFrontend()
 	{
-		m_pluginManager.setFircCore((void *)this);
 									
 		for ( uint32 i=0; i<pluginCount; ++i )
 		{

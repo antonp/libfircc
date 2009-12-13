@@ -22,8 +22,6 @@ namespace firc
 		PluginManager();
 		~PluginManager();
 
-		void setFircCore(void *fircCore); // Extend
-
 		void loadPlugin(const int8 *fileName);
 		void unloadAllPlugins();
 		void unloadPluginReally(uint32 index, uint32 reason);
@@ -44,7 +42,6 @@ namespace firc
 			Plugin *plugin;
 		};
 	
-		void							*m_fircCore; // Extend
 		uint32							m_pluginCount;
 		std::vector<Plugin *>			m_plugins;
 		std::vector<Plugin *>			m_pluginsToBeUnloaded;

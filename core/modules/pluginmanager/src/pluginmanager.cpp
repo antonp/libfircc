@@ -10,7 +10,6 @@ namespace anp
 namespace firc
 {
 	PluginManager::PluginManager():
-	m_fircCore(NULL),
 	m_pluginCount(0)
 	{
 		for ( uint32 i=0; i<IRC_MAX_CALLBACKS; ++i )
@@ -22,11 +21,6 @@ namespace firc
 	PluginManager::~PluginManager()
 	{
 		unloadAllPlugins();
-	}
-	
-	void PluginManager::setFircCore(void *fircCore)
-	{
-		m_fircCore = fircCore; // extend
 	}
 	
 	/**
@@ -44,7 +38,7 @@ namespace firc
 		PF_irc_onJoin ioj = NULL;
 		PF_irc_onPrivMsg iopm = NULL;
 
-		Plugin *plugin = new Plugin(m_fircCore, fileName, &ioj, &iopm);
+		Plugin *plugin = new Plugin(NULL, fileName, &ioj, &iopm);
 		m_plugins.push_back(plugin);
 		
 		entry.plugin = plugin;

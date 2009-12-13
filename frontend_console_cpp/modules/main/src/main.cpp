@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <basedefs.h>
+#include <pluginmanager.h>
 //#include <core_api_cpp.h>
 //#include <core_frontend.h>
 #include <networkmanager_frontend.h>
@@ -45,11 +46,11 @@ int main(int argc, char *argv[])
 //	std::cout << "Successfully created the firc core object!"
 //		<< std::endl;
 	
-	
+	PluginManager pluginManager;
 	
 	INetworkManagerFrontend *chatJunkies =
 		networkmanager_create("irc.chatjunkies.org", "6667",
-														pluginManager);
+												&pluginManager);
 	
 	anp::uint32 state = 0;
 	//core->addCallbackOnPrivMsg(irc_onPrivMsg);

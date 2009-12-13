@@ -1,9 +1,10 @@
 #include <iostream>
 
 #include <basedefs.h>
-#include <core_api_cpp.h>
-#include <core_frontend.h>
+//#include <core_api_cpp.h>
+//#include <core_frontend.h>
 #include <networkmanager_frontend.h>
+#include <networkmanager_api_cpp.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
 
@@ -37,20 +38,23 @@ int main(int argc, char *argv[])
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
-	ICoreFrontend *core = core_create(
-									sizeof(pluginNames)/sizeof(int8 *),
-									pluginNames);
+//	ICoreFrontend *core = core_create(
+//									sizeof(pluginNames)/sizeof(int8 *),
+//									pluginNames);
 	
-	std::cout << "Successfully created the firc core object!"
-		<< std::endl;
+//	std::cout << "Successfully created the firc core object!"
+//		<< std::endl;
+	
+	
 	
 	INetworkManagerFrontend *chatJunkies =
-		core->createNetworkManager("irc.chatjunkies.org", "6667");
+		networkmanager_create("irc.chatjunkies.org", "6667",
+														pluginManager);
 	
 	anp::uint32 state = 0;
-	core->addCallbackOnPrivMsg(irc_onPrivMsg);
+	//core->addCallbackOnPrivMsg(irc_onPrivMsg);
 
-	sleep(7);
+	sleep(9);
 	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");
 	chatJunkies->sendMessage("PRIVMSG #my-secret-botdev :Hello world!");	
 	sleep(20);
@@ -66,11 +70,10 @@ int main(int argc, char *argv[])
 	}
 	
 	// Quit
-	core->destroyNetworkManager(chatJunkies,
-							    "Time to go! See you ChatJunkies!");
+	//chatJunkies->setQuitMessage("Time to go! See you ChatJunkies!");
+	networkmanager_destroy(chatJunkies);
 	std::cout << "main.cpp: Successfully disconnected."	<< std::endl;
 	
-	core_destroy(core);
 	pthread_mutex_destroy(&g_stateMutex);
 	
 	return 0;

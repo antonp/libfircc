@@ -8,7 +8,8 @@ namespace firc
 	class ChannelCache
 	{
 	public:
-		int removeMe;
+		const std::string &name() const;
+	private:
 	};
 }
 }

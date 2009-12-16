@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 	
 	PluginManager pluginManager;
 	
-	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]) )
+	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
+			i++ )
 	{
 		pluginManager.loadPlugin(pluginNames[i]);
 	}

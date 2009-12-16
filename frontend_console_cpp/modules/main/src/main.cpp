@@ -48,6 +48,11 @@ int main(int argc, char *argv[])
 	
 	PluginManager pluginManager;
 	
+	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]) )
+	{
+		pluginManager.loadPlugin(pluginNames[i]);
+	}
+	
 	INetworkManagerFrontend *chatJunkies =
 		networkmanager_create("irc.chatjunkies.org", "6667",
 												&pluginManager);

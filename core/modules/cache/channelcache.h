@@ -5,11 +5,17 @@ namespace anp
 {
 namespace firc
 {
+	class ChannelCacheImpl;
+	
 	class ChannelCache
 	{
 	public:
+		ChannelCache(const std::string &name);
+		ChannelCache(const ChannelCache &channelCache);
+	
 		const std::string &name() const;
 	private:
+		ChannelCacheImpl *m_impl;
 	};
 }
 }

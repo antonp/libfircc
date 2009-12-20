@@ -7,13 +7,14 @@ namespace anp
 {
 namespace firc
 {
-	class ChannelCache;
 	
 	// pImpl object
 	class NetworkCacheImpl
 	{
 	public:
 		const ChannelCache *channel(const std::string &name) const;
+		const ChannelCache *getChannelCopy(
+										const std::string &name) const;
 	private:
 		uint32 getTableIndex(const std::string &name) const;
 		enum CONSTANTS
@@ -23,10 +24,12 @@ namespace firc
 		std::list<ChannelCache *> m_channelHashTable[HASHTABLE_SIZE];
 	};
 	
-	const ChannelCache *NetworkCacheImpl::channel(const std::string &name) const
+	const ChannelCache *NetworkCacheImpl::channel(
+										const std::string &name) const
 	{
 		uint32 index = getTableIndex(name);
-		const std::list<ChannelCache *> &list = m_channelHashTable[index];
+		const std::list<ChannelCache *> &list =
+											m_channelHashTable[index];
 		
 		std::list<ChannelCache *>::const_iterator i;
 		for ( i=list.begin(); i != list.end(); i++ )
@@ -40,7 +43,15 @@ namespace firc
 		return NULL;
 	}
 	
-	uint32 NetworkCacheImpl::getTableIndex(const std::string &name) const
+	const ChannelCache *NetworkCacheImpl::getChannelCopy(
+										const std::string &name) const
+	{
+		const ChannelCache *const srcChannel = this->channel(name);
+		return new ChannelCache(*srcChannel);
+	}
+	
+	uint32 NetworkCacheImpl::getTableIndex(
+										const std::string &name) const
 	{
 		uint32 length = name.length();
 		uint32 index = 0;

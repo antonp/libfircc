@@ -1,7 +1,9 @@
 #include <basedefs.h>
 #include <list>
 #include <string>
+#include <networkcache.h>
 #include <channelcache.h>
+#include <stdexcept>
 
 namespace anp
 {
@@ -40,6 +42,7 @@ namespace firc
 			}
 		}
 		
+		throw std::runtime_error("Unable to find channel.");
 		return NULL;
 	}
 	
@@ -64,5 +67,11 @@ namespace firc
 	}
 	
 	// Wrapper functions
+	
+	const ChannelCache *NetworkCache::getChannelCopy(
+										const std::string &name) const
+	{
+		return m_impl->getChannelCopy(name);
+	}
 }
 }

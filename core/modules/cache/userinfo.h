@@ -13,10 +13,17 @@ namespace firc
 		UserInfo(const std::string &name, const std::string &user,
 											const std::string &host);
 		const std::string &name() const;
+		const std::string &user() const;
+		const std::string &host() const;
+		const std::string &userString() const;
 	private:
+		void updateUserString() const;
+	
 		std::string m_name;
 		std::string m_user;
 		std::string m_host;
+		mutable std::string m_userString;
+		mutable bool32 m_userStringIsDirty;
 	};
 }
 }

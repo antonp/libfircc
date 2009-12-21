@@ -22,6 +22,7 @@ namespace firc
 		void setHost(const std::string &host);
 	private:
 		void updateUserString() const;
+		void invalidateUserString() const;
 	
 		std::string m_name;
 		std::string m_user;

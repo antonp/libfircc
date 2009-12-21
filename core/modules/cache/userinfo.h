@@ -16,6 +16,10 @@ namespace firc
 		const std::string &user() const;
 		const std::string &host() const;
 		const std::string &userString() const;
+		
+		void setName(const std::string &name);
+		void setUser(const std::string &user);
+		void setHost(const std::string &host);
 	private:
 		void updateUserString() const;
 	

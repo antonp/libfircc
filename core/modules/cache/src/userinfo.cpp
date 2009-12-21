@@ -33,8 +33,23 @@ namespace firc
 	
 	const std::string &UserInfo::userString() const
 	{
-		// assert(m_userStringIsDirty == false)
+		updateUserString();
 		return m_userString;
+	}
+	
+	void UserInfo::setName(const std::string &name)
+	{
+		m_name = name;
+	}
+	
+	void UserInfo::setUser(const std::string &user)
+	{
+		m_user = user;
+	}
+	
+	void UserInfo::setHost(const std::string &host)
+	{
+		m_host = host;
 	}
 	
 	void UserInfo::updateUserString() const

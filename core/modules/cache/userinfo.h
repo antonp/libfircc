@@ -10,9 +10,13 @@ namespace firc
 	class UserInfo
 	{
 	public:
+		UserInfo(const std::string &name, const std::string &user,
+											const std::string &host);
 		const std::string &name() const;
 	private:
 		std::string m_name;
+		std::string m_user;
+		std::string m_host;
 	};
 }
 }

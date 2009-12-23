@@ -3,7 +3,7 @@
 
 #include <basedefs.h>
 #include <tcpconnection.h>
-#include <ircnetworkcache.h>
+#include <networkcache.h>
 #include "networkmanager_frontend.h"
 #include "inc/messagesender.h"
 
@@ -62,8 +62,7 @@ namespace firc
 		std::auto_ptr<MessageSender> m_messageSender;
 		
 		PluginManager *m_pluginManager;
-		
-		irc::NetworkCache m_networkCache;
+		NetworkCache m_networkCache;
 	};
 } // namespace firc
 } // namespace anp

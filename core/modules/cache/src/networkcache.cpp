@@ -73,5 +73,23 @@ namespace firc
 	{
 		return m_impl->getChannelCopy(name);
 	}
+	
+	void NetworkCache::addUserToChannel(const std::string &name,
+							  const std::string &user,
+							  const std::string &host,
+							  const std::string &channelName)
+	{
+		ChannelCache *channel = m_impl->channel(channelName);
+		UserInfo *userInfo = NULL;
+		try
+		{
+			userInfo = m_impl->userByName(name);
+		} catch ( std::runtime_error &e )
+		{
+			userInfo = new UserInfo(name, user, host);
+		}
+		channel->addUser(userInfo);
+		userInfo->addChannel(channel);
+	}
 }
 }

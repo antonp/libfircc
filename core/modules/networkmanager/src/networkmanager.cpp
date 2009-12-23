@@ -58,7 +58,8 @@ namespace firc
 			+std::string("\r\n");
 		m_connection.send(m_outStr);
 		
-		m_networkCache.init(host, "fircbot09");
+		//m_networkCache.init(host, "fircbot09");
+		
 		
 		m_state = CONNECTED;
 			
@@ -206,6 +207,11 @@ namespace firc
 											  temp2,
 											  prefix,
 											  currentMessage);
+
+						m_networkCache.addUserToChannel(temp1, temp2,
+												prefix, currentMessage);
+						
+						
 						JoinJob joinJob(NULL,
 										(void *)this,
 										currentMessage.c_str(),

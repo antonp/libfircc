@@ -3,6 +3,7 @@
 #include <string>
 #include <networkcache.h>
 #include <channelcache.h>
+#include <userinfo.h>
 #include <stdexcept>
 
 namespace anp
@@ -15,8 +16,11 @@ namespace firc
 	{
 	public:
 		const ChannelCache *channel(const std::string &name) const;
+		ChannelCache *channel(const std::string &name);
 		const ChannelCache *getChannelCopy(
 										const std::string &name) const;
+		
+		UserInfo *userByName(const std::string &name);
 	private:
 		uint32 getTableIndex(const std::string &name) const;
 		enum CONSTANTS
@@ -24,6 +28,7 @@ namespace firc
 			HASHTABLE_SIZE=40
 		};
 		std::list<ChannelCache *> m_channelHashTable[HASHTABLE_SIZE];
+		std::list<UserInfo *> m_userHashTable[HASHTABLE_SIZE];
 	};
 	
 	const ChannelCache *NetworkCacheImpl::channel(
@@ -45,12 +50,36 @@ namespace firc
 		throw std::runtime_error("Unable to find channel.");
 		return NULL;
 	}
+
+	ChannelCache *NetworkCacheImpl::channel(
+										const std::string &name)
+	{
+		uint32 index = getTableIndex(name);
+		std::list<ChannelCache *> &list = m_channelHashTable[index];
+		
+		std::list<ChannelCache *>::iterator i;
+		for ( i=list.begin(); i != list.end(); i++ )
+		{
+			if ( (*i)->name() == name )
+			{
+				return (*i);
+			}
+		}
+		
+		throw std::runtime_error("Unable to find channel.");
+		return NULL;
+	}
+	
 	
 	const ChannelCache *NetworkCacheImpl::getChannelCopy(
 										const std::string &name) const
 	{
 		const ChannelCache *const srcChannel = this->channel(name);
 		return new ChannelCache(*srcChannel);
+	}
+
+	UserInfo *NetworkCacheImpl::userByName(const std::string &name) {
+		// ..
 	}
 	
 	uint32 NetworkCacheImpl::getTableIndex(
@@ -80,7 +109,7 @@ namespace firc
 							  const std::string &channelName)
 	{
 		ChannelCache *channel = m_impl->channel(channelName);
-		UserInfo *userInfo = NULL;
+		const UserInfo *userInfo = NULL;
 		try
 		{
 			userInfo = m_impl->userByName(name);

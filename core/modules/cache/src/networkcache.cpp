@@ -1,5 +1,5 @@
 #include <basedefs.h>
-#include <list>
+#include <vector>
 #include <string>
 #include <networkcache.h>
 #include <channelcache.h>
@@ -22,52 +22,26 @@ namespace firc
 		
 		UserInfo *userByName(const std::string &name);
 	private:
-		uint32 getTableIndex(const std::string &name) const;
-		enum CONSTANTS
-		{
-			HASHTABLE_SIZE=40
-		};
-		std::list<ChannelCache *> m_channelHashTable[HASHTABLE_SIZE];
-		std::list<UserInfo *> m_userHashTable[HASHTABLE_SIZE];
+		uint32 getChannelIndex(const std::string &name) const;
+		uint32 getUserIndex(const std::string &name) const;
+		std::vector<ChannelCache *> m_channels;
+		std::vector<UserInfo *> m_users;
 	};
-	
+
 	const ChannelCache *NetworkCacheImpl::channel(
 										const std::string &name) const
 	{
-		uint32 index = getTableIndex(name);
-		const std::list<ChannelCache *> &list =
-											m_channelHashTable[index];
+		uint32 index = getChannelIndex(name);
 		
-		std::list<ChannelCache *>::const_iterator i;
-		for ( i=list.begin(); i != list.end(); i++ )
-		{
-			if ( (*i)->name() == name )
-			{
-				return (*i);
-			}
-		}
-		
-		throw std::runtime_error("Unable to find channel.");
-		return NULL;
+		return m_channels[index];
 	}
 
 	ChannelCache *NetworkCacheImpl::channel(
 										const std::string &name)
 	{
-		uint32 index = getTableIndex(name);
-		std::list<ChannelCache *> &list = m_channelHashTable[index];
+		uint32 index = getChannelIndex(name);
 		
-		std::list<ChannelCache *>::iterator i;
-		for ( i=list.begin(); i != list.end(); i++ )
-		{
-			if ( (*i)->name() == name )
-			{
-				return (*i);
-			}
-		}
-		
-		throw std::runtime_error("Unable to find channel.");
-		return NULL;
+		return m_channels[index];
 	}
 	
 	
@@ -82,19 +56,66 @@ namespace firc
 		// ..
 	}
 	
-	uint32 NetworkCacheImpl::getTableIndex(
+	uint32 NetworkCacheImpl::getChannelIndex(
 										const std::string &name) const
 	{
-		uint32 length = name.length();
-		uint32 index = 0;
-		for ( uint32 i=0; i<length; ++i )
+		// Perform a binary search
+		uint32 upper = m_channels.size();
+		uint32 lower = 0;
+		uint32 pivot = 0;
+		uint32 diff = 0;
+		while ( true )
 		{
-			index = name[i]*2 - name[i];
+			pivot = (upper-lower)/2;
+			diff=name.compare(m_channels[pivot]->name());
+			if ( diff < 0 )
+			{
+				upper = pivot;
+			} else if ( diff > 0 )
+			{
+				lower = pivot;
+			} else // diff = 0
+			{
+				// Match
+				return pivot;
+			}
+			// TODO: If (upper-lower) is small, what happens?
+			// Will all positions be examined?
+			// Do we need to roundup pivot calculation?
 		}
-		index = index % HASHTABLE_SIZE;
-		return index;
+		throw std::runtime_error("Unable to find channel.");
 	}
-	
+
+	uint32 NetworkCacheImpl::getUserIndex(
+										const std::string &name) const
+	{
+		// Perform a binary search
+		uint32 upper = m_users.size();
+		uint32 lower = 0;
+		uint32 pivot = 0;
+		uint32 diff = 0;
+		while ( true )
+		{
+			pivot = (upper-lower)/2;
+			diff=name.compare(m_users[pivot]->name());
+			if ( diff < 0 )
+			{
+				upper = pivot;
+			} else if ( diff > 0 )
+			{
+				lower = pivot;
+			} else // diff = 0
+			{
+				// Match
+				return pivot;
+			}
+			// TODO: If (upper-lower) is small, what happens?
+			// Will all positions be examined?
+			// Do we need to roundup pivot calculation?
+		}
+		throw std::runtime_error("Unable to find channel.");
+	}
+
 	// Wrapper functions
 	
 	const ChannelCache *NetworkCache::getChannelCopy(

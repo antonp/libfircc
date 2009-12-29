@@ -2,7 +2,9 @@
 #include <string>
 #include "../channelcache.h"
 #include "../userinfo.h"
-#include <list>
+#include "../inc/utilities.h"
+#include <vector>
+#include <algorithm>
 #include <stdexcept>
 
 namespace anp
@@ -16,14 +18,9 @@ namespace firc
 		ChannelCacheImpl(const ChannelCacheImpl &impl);
 		
 		const std::string &name() const;
-		const UserInfo *userInfo(const std::string &name) const;
+		
+		std::string m_topic;
 	private:
-		uint32 getTableIndex(const std::string &name) const;
-		enum CONSTANTS
-		{
-			HASHTABLE_SIZE = 40
-		};
-		std::list<UserInfo *> m_userHashTable[HASHTABLE_SIZE];
 		std::string m_name;
 	};
 	
@@ -44,41 +41,8 @@ namespace firc
 		return m_name;
 	}
 	
-	const UserInfo *ChannelCacheImpl::userInfo(
-										const std::string &name) const
-	{
-		uint32 index = this->getTableIndex(name);
-		const std::list<UserInfo *> &list =
-											m_userHashTable[index];
-		
-		std::list<UserInfo *>::const_iterator i;
-		for ( i=list.begin(); i != list.end(); i++ )
-		{
-			if ( (*i)->name() == name )
-			{
-				return (*i);
-			}
-		}
-		
-		throw std::runtime_error("Unable to find channel.");
-		return NULL;
-	}
+	// Wrappers/publics
 
-	uint32 ChannelCacheImpl::getTableIndex(
-										const std::string &name) const
-	{
-		uint32 length = name.length();
-		uint32 index = 0;
-		for ( uint32 i=0; i<length; ++i )
-		{
-			index = name[i]*2 - name[i];
-		}
-		index = index % HASHTABLE_SIZE;
-		return index;
-	}
-	
-	
-	
 	ChannelCache::ChannelCache(const std::string &name):
 	m_impl(new ChannelCacheImpl(name))
 	{
@@ -94,6 +58,11 @@ namespace firc
 	const std::string &ChannelCache::name() const
 	{
 		return m_impl->name();
+	}
+
+	void ChannelCache::setTopic(const std::string &topic)
+	{
+		m_impl->m_topic = topic;
 	}
 }
 }

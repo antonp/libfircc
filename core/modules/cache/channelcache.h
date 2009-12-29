@@ -1,6 +1,8 @@
 #ifndef _CHANNELCACHE_H_
 #define _CHANNELCACHE_H_
 
+#include <string>
+
 namespace anp
 {
 namespace firc
@@ -14,6 +16,7 @@ namespace firc
 		ChannelCache(const ChannelCache &channelCache);
 	
 		const std::string &name() const;
+		void setTopic(const std::string &topic);
 	private:
 		ChannelCacheImpl *m_impl;
 	};

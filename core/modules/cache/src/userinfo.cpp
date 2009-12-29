@@ -7,69 +7,84 @@ namespace anp
 {
 namespace firc
 {
+	struct UserInfoImpl
+	{
+		UserInfoImpl(const std::string &name, const std::string &user,
+												const std::string &host):
+		m_name(name),
+		m_user(user),
+		m_host(host),
+		m_userStringIsDirty(true)
+		{
+		}
+		
+		void updateUserString() const
+		{
+			if ( m_userStringIsDirty )
+			{
+				std::stringstream ss;
+				ss << m_name << '!' << m_user << '@' << m_host;
+				m_userString = ss.str();
+				m_userStringIsDirty = false;
+			}
+		}
+	
+		void invalidateUserString() const
+		{
+			m_userStringIsDirty = true;
+		}
+
+		std::string m_name;
+		std::string m_user;
+		std::string m_host;
+		mutable std::string m_userString;
+		mutable bool32 m_userStringIsDirty;
+	};
+
 	UserInfo::UserInfo(const std::string &name, const std::string &user,
 											const std::string &host):
-	m_name(name),
-	m_user(user),
-	m_host(host),
-	m_userStringIsDirty(true)
+	m_impl(new UserInfoImpl(name, user, host))
 	{
-		updateUserString();
+		m_impl->updateUserString();
 	}
 	
 	const std::string &UserInfo::name() const
 	{
-		return m_name;
+		return m_impl->m_name;
 	}
 	
 	const std::string &UserInfo::user() const
 	{
-		return m_user;
+		return m_impl->m_user;
 	}
 	
 	const std::string &UserInfo::host() const
 	{
-		return m_host;
+		return m_impl->m_host;
 	}
 	
 	const std::string &UserInfo::userString() const
 	{
-		updateUserString();
-		return m_userString;
+		m_impl->updateUserString();
+		return m_impl->m_userString;
 	}
 	
 	void UserInfo::setName(const std::string &name)
 	{
-		m_name = name;
-		invalidateUserString();
+		m_impl->m_name = name;
+		m_impl->invalidateUserString();
 	}
 	
 	void UserInfo::setUser(const std::string &user)
 	{
-		m_user = user;
-		invalidateUserString();
+		m_impl->m_user = user;
+		m_impl->invalidateUserString();
 	}
 	
 	void UserInfo::setHost(const std::string &host)
 	{
-		m_host = host;
-		invalidateUserString();
-	}
-	
-	void UserInfo::updateUserString() const
-	{
-		if ( m_userStringIsDirty )
-		{
-			std::stringstream ss;
-			ss << m_name << '!' << m_user << '@' << m_host;
-			m_userString = ss.str();
-			m_userStringIsDirty = false;
-		}
-	}
-	
-	void UserInfo::invalidateUserString() const
-	{
-		m_userStringIsDirty = true;
+		m_impl->m_host = host;
+		m_impl->invalidateUserString();
 	}
 }
 }

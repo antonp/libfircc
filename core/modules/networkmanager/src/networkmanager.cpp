@@ -203,10 +203,10 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_networkCache.onJoin(temp1,
-											  temp2,
-											  prefix,
-											  currentMessage);
+						//m_networkCache.onJoin(temp1,
+						//					  temp2,
+						//					  prefix,
+						//					  currentMessage);
 
 						m_networkCache.addUserToChannel(temp1, temp2,
 												prefix, currentMessage);
@@ -230,10 +230,14 @@ namespace firc
 						tokenize(temp2, prefix, '@'); // user
 						// prefix now only holds the host
 
-						m_networkCache.onPart(temp1,
-											  temp2,
-											  prefix,
-											  currentMessage);
+						//m_networkCache.onPart(temp1,
+						//					  temp2,
+						//					  prefix,
+						//					  currentMessage);
+
+						m_networkCache.removeUserFromChannel(temp1,
+														currentMessage);
+
 						//#m_pluginManager->onPart(temp1,
 						// currentMessage);
 					} else if ( command == "TOPIC" ) {
@@ -294,7 +298,9 @@ namespace firc
 							default:
 								break;
 							}
-							m_networkCache.addUser(temp2, temp3);
+							//m_networkCache.addUser(temp2, temp3);
+							m_networkCache.addUserToChannel(temp3, "", "",
+																 temp2);
 						}
 					}
 				} else {
@@ -326,132 +332,6 @@ namespace firc
 		
 		m_connection.send(message);
 	}
-	
-	Result NetworkManager::getBotNickName(int8 *destName,
-								uint32 maxNameLength) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != destName
-			 && maxNameLength > 0 )
-		{
-			std::string tempName;
-			uint32 i = 0;
-			m_networkCache.getBotNickName(&tempName);
-			
-			for ( i=0; i<maxNameLength && tempName.size(); ++i )
-			{
-				destName[i] = tempName[i];
-			}
-			destName[i] = 0;
-			res = RES_OK;
-		}
-		
-		return res;
-	}
-	
-	Result NetworkManager::getTopic(const int8 *channel,
-									int8 *destTopic,
-									uint32 maxTopicSize) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		int32 ret = 0;
-		
-		if ( NULL != channel && NULL != destTopic && maxTopicSize > 0 )
-		{
-			std::string topic;
-			uint32 i = 0;
-			ret = m_networkCache.getTopic(&topic, channel);
-			if ( -1 != ret )
-			{
-				for ( i=0; i<maxTopicSize-1 && i<topic.size(); ++i )
-				{
-					destTopic[i] = topic[i];
-				}
-				destTopic[i] = 0;
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-		
-		return res;
-	}
-	
-	Result NetworkManager::getChannelUserCount(const int8 *channel,
-							uint32 *destChannelUserCount) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != channel
-			 && NULL != destChannelUserCount )
-		{
-			if ( -1 != m_networkCache.getChannelUserCount(
-												destChannelUserCount,
-												channel) )
-			{
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-	
-		return res;	
-	}
-	
-	Result NetworkManager::isUserInChannel(const int8 *channel,
-						const int8 *nickName,
-						bool32 *userIsInChannel) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != channel
-			&& NULL != nickName
-			&& NULL != userIsInChannel )
-		{
-			switch ( m_networkCache.isUserInChannel(channel, nickName) )
-			{
-			case -1:
-				res = RES_NOTFOUND;
-				break;
-			case 0:
-				res = RES_OK;
-				*userIsInChannel = FALSE;
-				break;
-			case 1:
-				res = RES_OK;
-				*userIsInChannel = TRUE;
-				break;
-			default:
-				res = RES_INTERNALERROR;
-				break;
-			}
-		}
-		
-		return res;
-	}
-	
-	Result NetworkManager::getChannelInfo(void *network,
-							const int8 *channel,
-							const void **channelInfo) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != network
-			&& NULL != channel
-			&& NULL != channelInfo )
-		{
-			// Make the call
-			res = m_networkCache.createChannelInfoFromChannelName(
-				channel,
-				channelInfo);
-		}
-		
-		return res;
-	}
-	
 	
 	/////////////////////////////
 	// Native functions below

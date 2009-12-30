@@ -7,6 +7,8 @@ namespace anp
 {
 namespace firc
 {
+	class NetworkCacheUserInterface;
+
 	class INetworkManagerFrontend
 	{
 	public:
@@ -16,6 +18,8 @@ namespace firc
 		virtual void sendMessage(const std::string &message) = 0;
 		
 		// Network cache stuff (getCache() instead ?)
+
+		virtual const NetworkCacheUserInterface &networkCache() const = 0;
 	};
 }
 }

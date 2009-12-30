@@ -38,6 +38,7 @@ namespace firc
 		void sendMessage(const std::string &message);
 		
 		// Network cache stuff
+		const NetworkCacheUserInterface &networkCache() const;
 		Result getBotNickName(int8 *destName,
 								uint32 maxNameLength) const;
 		Result getTopic(const int8 *channel, int8 *destTopic,

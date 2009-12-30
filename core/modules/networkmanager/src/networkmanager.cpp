@@ -323,7 +323,7 @@ namespace firc
 		return RES_OK;
 	}
 	
-	void  NetworkManager::sendMessage(const std::string &message)
+	void NetworkManager::sendMessage(const std::string &message)
 	{
 		/** @todo
 		Create a message sender which can run in it's own thread
@@ -332,5 +332,11 @@ namespace firc
 		
 		m_connection.send(message);
 	}
+
+	const NetworkCacheUserInterface &NetworkManager::networkCache() const
+	{
+		return m_networkCache;
+	}
+
 } // namespace firc
 } // namespace anp

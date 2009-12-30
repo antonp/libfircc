@@ -39,13 +39,6 @@ int main(int argc, char *argv[])
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
-//	ICoreFrontend *core = core_create(
-//									sizeof(pluginNames)/sizeof(int8 *),
-//									pluginNames);
-	
-//	std::cout << "Successfully created the firc core object!"
-//		<< std::endl;
-	
 	PluginManager pluginManager;
 	
 	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
@@ -57,9 +50,10 @@ int main(int argc, char *argv[])
 	INetworkManagerFrontend *chatJunkies =
 		networkmanager_create("irc.chatjunkies.org", "6667",
 												&pluginManager);
+
 	
 	anp::uint32 state = 0;
-	//core->addCallbackOnPrivMsg(irc_onPrivMsg);
+	pluginManager.addCallbackOnPrivMsg(irc_onPrivMsg);
 
 	sleep(9);
 	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");

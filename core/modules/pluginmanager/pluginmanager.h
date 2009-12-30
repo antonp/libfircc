@@ -6,6 +6,7 @@
 #include <anp_jobqueue.h>
 #include "pluginmanager_frontend.h"
 
+// TODO: Maybe pImpl this
 #include <vector> // johnny bigert this!
 #include <map>
 #include "plugin_jobs.h" // remove this dependency by moving the stuff in this header to another

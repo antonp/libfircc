@@ -1,7 +1,7 @@
 #ifndef _NETWORKCACHE_H_
 #define _NETWORKCACHE_H_
 
-#include "networkcache_public.h"
+#include "networkcache_userinterface.h"
 
 namespace anp
 {
@@ -9,7 +9,7 @@ namespace firc
 {
 	class NetworkCacheImpl;
 	
-	class NetworkCache: public INetworkCachePublic
+	class NetworkCache: public NetworkCacheUserInterface
 	{
 	public:
 		NetworkCache();

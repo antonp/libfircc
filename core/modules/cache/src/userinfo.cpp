@@ -47,6 +47,11 @@ namespace firc
 	{
 		m_impl->updateUserString();
 	}
+
+	UserInfo::~UserInfo()
+	{
+		delete m_impl;
+	}
 	
 	const std::string &UserInfo::name() const
 	{

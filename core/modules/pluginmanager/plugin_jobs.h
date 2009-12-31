@@ -51,14 +51,14 @@ namespace firc
 	{
 	public:
 		PrivMsgJob(Plugin *plugin,
-					void *network,
+					INetworkManagerFrontend &network,
 					const int8 *sender,
 					const int8 *target,
 					const int8 *message);
 		
 		virtual ~PrivMsgJob();
 	protected:
-		void *m_network;
+		INetworkManagerFrontend &m_network;
 		std::string m_sender;
 		std::string m_target;
 		std::string m_message;

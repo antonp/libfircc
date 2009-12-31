@@ -15,7 +15,7 @@ namespace firc
 		NetworkCache();
 		~NetworkCache();
 		
-		const ChannelCache *getChannelCopy(
+		const ChannelCache *getChannel(
 									const std::string &name) const;
 									
 		void addUserToChannel(const std::string &name,
@@ -26,6 +26,8 @@ namespace firc
 									const std::string &channelName);
 		void setTopic(const std::string &channelName,
 						const std::string &topic);
+		void setClientNickName(const std::string &clientNickName);
+		void getClientNickName(std::string &clientNickName) const;
 	private:
 		NetworkCacheImpl *m_impl;
 	};

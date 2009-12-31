@@ -44,6 +44,7 @@ namespace firc
 		
 		UserInfo *userByName(const std::string &name);
 		std::vector<ChannelUserRelation> m_cuRelations;
+		std::string m_clientNickName;
 	private:
 		uint32 getChannelIndex(const std::string &name) const;
 		uint32 getUserIndex(const std::string &name) const;
@@ -54,9 +55,21 @@ namespace firc
 	const ChannelCache *NetworkCacheImpl::channel(
 										const std::string &name) const
 	{
-		uint32 index = getChannelIndex(name);
-		
-		return m_channels[index];
+//		uint32 index = getChannelIndex(name);
+		ChannelCache tempChan(name);
+		std::vector<ChannelCache *>::const_iterator i = std::lower_bound(
+			m_channels.begin(), m_channels.end(), &tempChan,
+
+		channelinfo_compare);
+		if ( i != m_channels.end() )
+		{
+			return (*i);
+		} else
+		{
+			throw std::runtime_error("Unable to find channel.");
+		}
+		throw std::logic_error("Reached an unreachable point in code.");
+		return NULL; // Should never happen
 	}
 
 	ChannelCache *NetworkCacheImpl::channel(
@@ -71,6 +84,7 @@ namespace firc
 	const ChannelCache *NetworkCacheImpl::getChannelCopy(
 										const std::string &name) const
 	{
+		// TODO: Maybe take a ChannelCache ref to avoid memalloc?
 		const ChannelCache *const srcChannel = this->channel(name);
 		return new ChannelCache(*srcChannel);
 	}
@@ -163,7 +177,7 @@ namespace firc
 		delete m_impl;
 	}
 	
-	const ChannelCache *NetworkCache::getChannelCopy(
+	const ChannelCache *NetworkCache::getChannel(
 										const std::string &name) const
 	{
 		return m_impl->getChannelCopy(name);
@@ -230,6 +244,18 @@ namespace firc
 	{
 		ChannelCache *channel = m_impl->channel(channelName);
 		channel->setTopic(topic);
+	}
+
+	void NetworkCache::setClientNickName(
+							const std::string &clientNickName)
+	{
+		m_impl->m_clientNickName = clientNickName;
+	}
+
+	void NetworkCache::getClientNickName(
+							std::string &clientNickName) const
+	{
+		clientNickName = m_impl->m_clientNickName;
 	}
 }
 }

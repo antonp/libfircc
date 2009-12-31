@@ -61,7 +61,7 @@ namespace firc
 	// PrivMsg
 	PrivMsgJob::PrivMsgJob(
 					Plugin *plugin,
-					void *network,
+					INetworkManagerFrontend &network,
 					const int8 *sender,
 					const int8 *target,
 					const int8 *message):

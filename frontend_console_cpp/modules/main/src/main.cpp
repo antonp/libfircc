@@ -6,13 +6,18 @@
 //#include <core_frontend.h>
 #include <networkmanager_frontend.h>
 #include <networkmanager_api_cpp.h>
+#include <networkcache_userinterface.h>
+#include <channelcache.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
+#include <sstream>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
+using namespace anp;
+using namespace firc;
 
-void irc_onPrivMsg(void *network,
+void irc_onPrivMsg(INetworkManagerFrontend &network,
 					const anp::int8 *sender,
 					const anp::int8 *receiver,
 					const anp::int8 *message)
@@ -26,6 +31,14 @@ void irc_onPrivMsg(void *network,
 		g_state = 1; // QUIT
 		pthread_mutex_unlock(&g_stateMutex);
 	}
+
+	const NetworkCacheUserInterface &cache = network.networkCache();
+	const ChannelCache *channel = cache.getChannel(receiver);
+	
+	std::stringstream ss;
+	ss << "The topic for " << channel->name() << " is " << channel->topic()
+		<< '.';
+	network.sendMessage(ss.str());
 }
 
 int main(int argc, char *argv[])
@@ -34,7 +47,7 @@ int main(int argc, char *argv[])
 	using namespace anp::firc;
 	
 	const int8 *pluginNames[] = {
-		"./libpluginTest1.so"
+	//	"./libpluginTest1.so"
 	};
 	
 	pthread_mutex_init(&g_stateMutex, NULL);

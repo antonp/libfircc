@@ -17,6 +17,7 @@ namespace firc
 	
 		const std::string &name() const;
 		void setTopic(const std::string &topic);
+		const std::string &topic() const;
 	private:
 		ChannelCacheImpl *m_impl;
 	};

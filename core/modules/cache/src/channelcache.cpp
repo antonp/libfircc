@@ -64,5 +64,10 @@ namespace firc
 	{
 		m_impl->m_topic = topic;
 	}
+
+	const std::string &ChannelCache::topic() const
+	{
+		return m_impl->m_topic;
+	}
 }
 }

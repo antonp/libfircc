@@ -12,8 +12,9 @@ namespace firc
 	public:
 		virtual ~NetworkCacheUserInterface() { }
 
-		virtual const ChannelCache *getChannelCopy(
+		virtual const ChannelCache *getChannel(
 									const std::string &name) const = 0;
+		virtual void getClientNickName(std::string &clientNickName) const;
 	};
 }
 }

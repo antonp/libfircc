@@ -181,7 +181,7 @@ namespace firc
 							<< currentMessage << std::endl;
 
 						PrivMsgJob job(	NULL,
-										(void *)this,
+										*this,
 										prefix.c_str(),
 										target.c_str(),
 										currentMessage.c_str());

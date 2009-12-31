@@ -132,7 +132,7 @@ core = buildLibrary(
 frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	'frontend_console_cpp',
-	['basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'core/modules/anp_workerthreads', 'core/modules/anp_threading'],
+	['basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'core/modules/anp_workerthreads', 'core/modules/anp_threading', 'core/modules/cache'],
 	['core', 'pthread', 'dl'],
 	['-rdynamic']
 )

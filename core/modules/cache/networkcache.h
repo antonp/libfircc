@@ -17,13 +17,16 @@ namespace firc
 		
 		const ChannelCache *getChannel(
 									const std::string &name) const;
-									
+
+		void addChannel(const std::string &channel);
+
 		void addUserToChannel(const std::string &name,
 							  const std::string &user,
 							  const std::string &host,
 							  const std::string &channelName);
 		void removeUserFromChannel(const std::string &name,
 									const std::string &channelName);
+
 		void setTopic(const std::string &channelName,
 						const std::string &topic);
 		void setClientNickName(const std::string &clientNickName);

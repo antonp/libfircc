@@ -32,13 +32,16 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 		pthread_mutex_unlock(&g_stateMutex);
 	}
 
-	const NetworkCacheUserInterface &cache = network.networkCache();
-	const ChannelCache *channel = cache.getChannel(receiver);
+	if ( receiver[0] == '#' )
+	{
+		const NetworkCacheUserInterface &cache = network.networkCache();
+		const ChannelCache *channel = cache.getChannel(receiver);
 	
-	std::stringstream ss;
-	ss << "The topic for " << channel->name() << " is " << channel->topic()
-		<< '.';
-	network.sendMessage(ss.str());
+		std::stringstream ss;
+		ss << "PRIVMSG " << channel->name() << " :The topic for "
+			<< channel->name() << " is " << channel->topic() << ".\r\n";
+		network.sendMessage(ss.str());
+	}
 }
 
 int main(int argc, char *argv[])
@@ -70,7 +73,8 @@ int main(int argc, char *argv[])
 
 	sleep(9);
 	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");
-	chatJunkies->sendMessage("PRIVMSG #my-secret-botdev :Hello world!");	
+	chatJunkies->sendMessage(
+					"PRIVMSG #my-secret-botdev :Hello world!\r\n");
 	sleep(20);
 	
 	// When the quit command has been received, state will equal 1.

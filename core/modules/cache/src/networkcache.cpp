@@ -43,12 +43,12 @@ namespace firc
 										const std::string &name) const;
 		
 		UserInfo *userByName(const std::string &name);
+		std::vector<ChannelCache *> m_channels;
 		std::vector<ChannelUserRelation> m_cuRelations;
 		std::string m_clientNickName;
 	private:
 		uint32 getChannelIndex(const std::string &name) const;
 		uint32 getUserIndex(const std::string &name) const;
-		std::vector<ChannelCache *> m_channels;
 		std::vector<UserInfo *> m_users;
 	};
 
@@ -75,12 +75,22 @@ namespace firc
 	ChannelCache *NetworkCacheImpl::channel(
 										const std::string &name)
 	{
-		uint32 index = getChannelIndex(name);
-		
-		return m_channels[index];
+		ChannelCache tempChan(name);
+		std::vector<ChannelCache *>::iterator i = std::lower_bound(
+			m_channels.begin(), m_channels.end(), &tempChan,
+
+		channelinfo_compare);
+		if ( i != m_channels.end() )
+		{
+			return (*i);
+		} else
+		{
+			throw std::runtime_error("Unable to find channel.");
+		}
+		throw std::logic_error("Reached an unreachable point in code.");
+		return NULL; // Should never happen
 	}
-	
-	
+
 	const ChannelCache *NetworkCacheImpl::getChannelCopy(
 										const std::string &name) const
 	{
@@ -182,7 +192,17 @@ namespace firc
 	{
 		return m_impl->getChannelCopy(name);
 	}
-	
+
+	void NetworkCache::addChannel(const std::string &channel)
+	{
+		// TODO: Cache this channel here, since "addUserToChannel" will
+		// likely be called next, upon some RPL_NAMREPLY
+		ChannelCache *temp = new ChannelCache(channel);
+		std::vector<ChannelCache *> &list = m_impl->m_channels;
+		list.insert(std::lower_bound(list.begin(),
+			list.end(), temp, channelinfo_compare), temp);
+	}
+
 	void NetworkCache::addUserToChannel(const std::string &name,
 							  const std::string &user,
 							  const std::string &host,

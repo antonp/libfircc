@@ -59,6 +59,7 @@ namespace firc
 		m_connection.send(m_outStr);
 		
 		//m_networkCache.init(host, "fircbot09");
+		m_networkCache.setClientNickName("fircbot09");
 		
 		
 		m_state = CONNECTED;
@@ -207,9 +208,16 @@ namespace firc
 						//					  temp2,
 						//					  prefix,
 						//					  currentMessage);
-
-						m_networkCache.addUserToChannel(temp1, temp2,
+						std::string clientNick;
+						m_networkCache.getClientNickName(clientNick);
+						if ( temp1 == clientNick )
+						{
+							m_networkCache.addChannel(currentMessage);
+						} else
+						{
+							m_networkCache.addUserToChannel(temp1, temp2,
 												prefix, currentMessage);
+						}
 						
 						
 						JoinJob joinJob(NULL,
@@ -218,6 +226,7 @@ namespace firc
 										temp1.c_str());
 						m_pluginManager->performJob(&joinJob,
 											PluginManager::IRC_JOIN);
+						std::cout << "Join command handled successfully." << std::endl;
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
 						 	// Remove ':' in front of the channel name

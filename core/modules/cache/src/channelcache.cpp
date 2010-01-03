@@ -31,7 +31,8 @@ namespace firc
 	}
 	
 	ChannelCacheImpl::ChannelCacheImpl(const ChannelCacheImpl &impl):
-	m_name(impl.m_name)
+	m_name(impl.m_name),
+	m_topic(impl.m_topic)
 	{
 		// ...
 	}

@@ -10,9 +10,11 @@ namespace firc
 		return u1->name().compare(u2->name());
 	}
 
-	int channelinfo_compare(const ChannelCache *c1, const ChannelCache *c2)
+	bool channelinfo_compare(const ChannelCache *c1, const ChannelCache *c2)
 	{
-		return c1->name().compare(c2->name());
+		int cmp = c1->name().compare(c2->name());
+
+		return (cmp < 0);
 	}
 }
 }

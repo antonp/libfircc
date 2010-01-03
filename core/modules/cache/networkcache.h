@@ -17,6 +17,8 @@ namespace firc
 		
 		const ChannelCache *getChannel(
 									const std::string &name) const;
+		void getChannel(const std::string &name,
+										ChannelCache &dest) const;
 
 		void addChannel(const std::string &channel);
 

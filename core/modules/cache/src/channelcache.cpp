@@ -14,9 +14,10 @@ namespace firc
 	class ChannelCacheImpl
 	{
 	public:
-		ChannelCacheImpl(const std::string &name);
+		ChannelCacheImpl(const std::string &name,
+						const std::string &topic);
 		ChannelCacheImpl(const ChannelCacheImpl &impl);
-		
+
 		const std::string &name() const;
 		
 		std::string m_topic;
@@ -24,8 +25,10 @@ namespace firc
 		std::string m_name;
 	};
 	
-	ChannelCacheImpl::ChannelCacheImpl(const std::string &name):
-	m_name(name)
+	ChannelCacheImpl::ChannelCacheImpl(const std::string &name,
+										const std::string &topic):
+	m_name(name),
+	m_topic(topic)
 	{
 		// ...
 	}
@@ -44,10 +47,11 @@ namespace firc
 	
 	// Wrappers/publics
 
-	ChannelCache::ChannelCache(const std::string &name):
-	m_impl(new ChannelCacheImpl(name))
+	ChannelCache::ChannelCache(const std::string &name,
+								const std::string &topic):
+	m_impl(new ChannelCacheImpl(name, topic))
 	{
-		// ...
+
 	}
 	
 	ChannelCache::ChannelCache(const ChannelCache &channelCache):

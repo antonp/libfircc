@@ -12,7 +12,8 @@ namespace firc
 	class ChannelCache
 	{
 	public:
-		ChannelCache(const std::string &name);
+		ChannelCache(const std::string &name="",
+						const std::string &topic="");
 		ChannelCache(const ChannelCache &channelCache);
 	
 		const std::string &name() const;

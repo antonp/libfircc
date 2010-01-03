@@ -41,6 +41,8 @@ namespace firc
 		ChannelCache *channel(const std::string &name);
 		const ChannelCache *getChannelCopy(
 										const std::string &name) const;
+		void getChannelCopy(const std::string &name,
+												ChannelCache &dest) const;
 		
 		UserInfo *userByName(const std::string &name);
 		std::vector<ChannelCache *> m_channels;
@@ -97,6 +99,12 @@ namespace firc
 		// TODO: Maybe take a ChannelCache ref to avoid memalloc?
 		const ChannelCache *const srcChannel = this->channel(name);
 		return new ChannelCache(*srcChannel);
+	}
+
+	void NetworkCacheImpl::getChannelCopy(const std::string &name,
+									ChannelCache &dest) const
+	{
+		dest = *this->channel(name);
 	}
 
 	UserInfo *NetworkCacheImpl::userByName(const std::string &name) {
@@ -191,6 +199,12 @@ namespace firc
 										const std::string &name) const
 	{
 		return m_impl->getChannelCopy(name);
+	}
+
+	void NetworkCache::getChannel(const std::string &name,
+									ChannelCache &dest) const
+	{
+		m_impl->getChannelCopy(name, dest);
 	}
 
 	void NetworkCache::addChannel(const std::string &channel)

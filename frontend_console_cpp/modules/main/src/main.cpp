@@ -35,11 +35,12 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 	if ( receiver[0] == '#' )
 	{
 		const NetworkCacheUserInterface &cache = network.networkCache();
-		const ChannelCache *channel = cache.getChannel(receiver);
+		ChannelCache channel;
+		cache.getChannel(receiver, channel);
 	
 		std::stringstream ss;
-		ss << "PRIVMSG " << channel->name() << " :The topic for "
-			<< channel->name() << " is " << channel->topic() << ".\r\n";
+		ss << "PRIVMSG " << channel.name() << " :The topic for "
+			<< channel.name() << " is " << channel.topic() << ".\r\n";
 		network.sendMessage(ss.str());
 	}
 }

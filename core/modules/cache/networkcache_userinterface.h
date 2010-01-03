@@ -14,6 +14,8 @@ namespace firc
 
 		virtual const ChannelCache *getChannel(
 									const std::string &name) const = 0;
+		virtual void getChannel(const std::string &name,
+										ChannelCache &dest) const = 0;
 		virtual void getClientNickName(std::string &clientNickName)
 															const = 0;
 	};

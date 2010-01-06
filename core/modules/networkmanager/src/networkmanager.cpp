@@ -230,8 +230,13 @@ namespace firc
 															<< std::endl;
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
+						{
 						 	// Remove ':' in front of the channel name
 							currentMessage.erase(0, 1);
+						}
+						// Store channelname into temp3
+						// currentMessage will hold part message, if any
+						tokenize(temp3, currentMessage, " :");
 
 						// Separate the prefix into nickname, user
 						// and host (UNNECESSARY FOR PART MESSAGE !?
@@ -246,7 +251,7 @@ namespace firc
 						//					  currentMessage);
 
 						m_networkCache.removeUserFromChannel(temp1,
-														currentMessage);
+														temp3);
 
 						//#m_pluginManager->onPart(temp1,
 						// currentMessage);

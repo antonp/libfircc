@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <networkcache.h>
 #include <channelcache.h>
 #include <userinfo.h>
@@ -269,7 +270,9 @@ namespace firc
 			}
 		} else
 		{
-			throw std::runtime_error("Unable to find channel.");
+			std::stringstream ss;
+			ss << "Unable to find channel '" << channelName << "'.";
+			throw std::runtime_error(ss.str());
 		}
 	}
 

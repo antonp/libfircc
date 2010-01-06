@@ -19,11 +19,11 @@
 
 * Write a parser for the numeric reply 005 (RPL_BOUNCE acc to rfc, but seems to be used as RPL_ISUPPORT by all irc servers nowadays) and store info in cache
 
-* Perhaps look over the network cache code and adjust it to be more like the rest of the project.
+(Done) * Perhaps look over the network cache code and adjust it to be more like the rest of the project.
 
 * Add handlers for more irc events than join and privmsg.
 
-* Add antiflood mechanism (output queue + monitor)
+(WorkInProgress) * Add antiflood mechanism (output queue + monitor)
 
 * Assertions: Add NDEBUG preprocessor definition for releasebuilds!
 

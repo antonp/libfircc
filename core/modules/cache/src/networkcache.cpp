@@ -218,6 +218,20 @@ namespace firc
 			list.end(), temp, channelinfo_compare), temp);
 	}
 
+	void NetworkCache::removeChannel(const std::string &channel)
+	{
+		ChannelCache temp(channel);
+		std::vector<ChannelCache *> &list = m_impl->m_channels;
+		std::vector<ChannelCache *>::iterator i = 
+		i = std::lower_bound(list.begin(),
+			list.end(), &temp, channelinfo_compare);
+		if ( i != list.end() )
+		{
+			delete (*i);
+			list.erase(i);
+		}
+	}
+
 	void NetworkCache::addUserToChannel(const std::string &name,
 							  const std::string &user,
 							  const std::string &host,

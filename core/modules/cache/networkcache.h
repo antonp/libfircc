@@ -21,6 +21,7 @@ namespace firc
 										ChannelCache &dest) const;
 
 		void addChannel(const std::string &channel);
+		void removeChannel(const std::string &channel);
 
 		void addUserToChannel(const std::string &name,
 							  const std::string &user,

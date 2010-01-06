@@ -213,13 +213,10 @@ namespace firc
 						if ( temp1 == clientNick )
 						{
 							m_networkCache.addChannel(currentMessage);
-						} else
-						{
-							m_networkCache.addUserToChannel(temp1, temp2,
-												prefix, currentMessage);
 						}
-						
-						
+						m_networkCache.addUserToChannel(temp1, temp2,
+												prefix, currentMessage);
+												
 						JoinJob joinJob(NULL,
 										(void *)this,
 										currentMessage.c_str(),
@@ -251,7 +248,13 @@ namespace firc
 						//					  currentMessage);
 
 						m_networkCache.removeUserFromChannel(temp1,
-														temp3);
+																temp3);
+						std::string clientNick;
+						m_networkCache.getClientNickName(clientNick);
+						if ( temp1 == clientNick )
+						{
+							m_networkCache.removeChannel(currentMessage);
+						}
 
 						//#m_pluginManager->onPart(temp1,
 						// currentMessage);

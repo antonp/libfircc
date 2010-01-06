@@ -226,7 +226,8 @@ namespace firc
 										temp1.c_str());
 						m_pluginManager->performJob(&joinJob,
 											PluginManager::IRC_JOIN);
-						std::cout << "Join command handled successfully." << std::endl;
+						std::cout << "Join command handled successfully."
+															<< std::endl;
 					} else if ( command == "PART" ) {
 						if ( currentMessage[0] == ':' )
 						 	// Remove ':' in front of the channel name

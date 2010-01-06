@@ -21,6 +21,8 @@
 
 (Done) * Perhaps look over the network cache code and adjust it to be more like the rest of the project.
 
+* Refactor message parsing
+
 * Add handlers for more irc events than join and privmsg.
 
 (WorkInProgress) * Add antiflood mechanism (output queue + monitor)

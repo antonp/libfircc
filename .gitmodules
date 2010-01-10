@@ -1,0 +1,3 @@
+[submodule "anpcommon.git"]
+	path = anpcommon.git
+	url = ssh://antonp@helghan/var/git-repos/anpcommon.git

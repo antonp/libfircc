@@ -11,11 +11,34 @@
 #include <unistd.h> // for Sleep
 #include <string.h>
 #include <sstream>
+#include <log.h>
+#include <fstream>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
 using namespace anp;
 using namespace firc;
+
+class LogFileWriter: public ILogInterface
+{
+public:
+	LogFileWriter(const std::string &filename):
+	m_filename(filename)
+	{
+	}
+	void present(const anp::dstring &message)
+	{
+		std::ofstream fout(m_filename.c_str(),
+							std::ios_base::app | std::ios_base::out);
+		if ( fout.is_open() )
+		{
+			fout << message << std::endl;
+			fout.close();
+		}
+	}
+private:
+	std::string m_filename;
+};
 
 void irc_onPrivMsg(INetworkManagerFrontend &network,
 					const anp::int8 *sender,
@@ -23,6 +46,7 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 					const anp::int8 *message)
 {
 	std::cout << "main.cpp: Received a PRIVMSG!" << std::endl;
+
 
 	if ( 0 == strcmp(message, "die") )
 	{
@@ -53,6 +77,11 @@ int main(int argc, char *argv[])
 	const int8 *pluginNames[] = {
 	//	"./libpluginTest1.so"
 	};
+
+	LogFileWriter logFileWriter("frontend_cpp.log");
+	Log log;
+	log.addLogInterface(&logFileWriter);
+	log.addMessage("Log initialized.");
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
@@ -91,7 +120,7 @@ int main(int argc, char *argv[])
 	// Quit
 	//chatJunkies->setQuitMessage("Time to go! See you ChatJunkies!");
 	networkmanager_destroy(chatJunkies);
-	std::cout << "main.cpp: Successfully disconnected."	<< std::endl;
+	log.addMessage("main.cpp: Successfully disconnected.");
 	
 	pthread_mutex_destroy(&g_stateMutex);
 	

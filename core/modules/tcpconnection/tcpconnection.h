@@ -12,13 +12,6 @@
 
 #define MAX_HOST_LENGTH 256
 #define MAX_DATA_LENGTH 2048
-#define N_ERROR_HOSTNAME_TOO_LONG -1
-#define N_ERROR_INVALID_HOST -2
-#define N_ERROR_SOCKET_INVALID -3
-#define N_ERROR_PORT_NOT_SET -4
-#define N_ERROR_CONNECTION_FAILED -5
-#define N_CONNECTION_CLOSED -6
-#define N_OK 1
 
 namespace anp
 {

@@ -1,6 +1,5 @@
 #include "../tcpconnection.h"
 
-#include <iostream> // TODO remove this!!!!
 #include <string.h> // for memset
 #include <netdb.h>
 #include <stdexcept>
@@ -67,12 +66,9 @@ namespace firc
 			{
 				// Failed to connect
 				throw NetworkException("Failed to connect");
-			} else
-			{
-				// Successfully connected
-				std::cout << "TCPConnection CONNECTED!!!" << std::endl;
 			}
 		}
+		// Success
 	}
 
 	Result TCPConnection::send(const std::string &buffer)

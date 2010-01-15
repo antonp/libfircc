@@ -74,6 +74,15 @@ int main(int argc, char *argv[])
 	using namespace anp;
 	using namespace anp::firc;
 	
+	std::string serverAddress = "irc.chatjunkies.org",
+				serverPort = "6667";
+
+	if ( argc >= 3 )
+	{
+		serverAddress = argv[1];
+		serverPort = argv[2];
+	}
+
 	const int8 *pluginNames[] = {
 	//	"./libpluginTest1.so"
 	};
@@ -94,8 +103,8 @@ int main(int argc, char *argv[])
 	}
 	
 	INetworkManagerFrontend *chatJunkies =
-		networkmanager_create("irc.chatjunkies.org", "6667",
-												&pluginManager);
+		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
+													&pluginManager);
 
 	
 	anp::uint32 state = 0;

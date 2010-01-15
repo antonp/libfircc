@@ -124,7 +124,7 @@ core = buildLibrary(
 frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	['frontend_console_cpp/modules'],
-	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'core/modules/anp_workerthreads', 'core/modules/anp_threading', 'core/modules/cache'],
+	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'anpcommon.git/anp_workerthreads', 'anppfindep.git/anp_threading', 'core/modules/cache'],
 	['core', 'pthread', 'dl'],
 	['-rdynamic']
 )
@@ -139,15 +139,15 @@ frontend_console_cpp = buildProgram(
 
 test_threading = buildProgram(
 	'test_threading',
-	['test_threading'],
-	['anpbase.git/anp_basecode', 'core/modules/anp_threading', 'core/modules/anp_workerthreads'],
+	['test_threading/modules'],
+	['anpbase.git/anp_basecode', 'anppfindep.git/anp_threading', 'anpcommon.git/anp_workerthreads'],
 	['core', 'pthread', 'dl'], # core because anp_workerthreads is compiled into it...
 	['-rdynamic'] #beacuse of dynamic linking
 )
 
 # Plugins
-pluginTest1 = buildSharedLibrary('pluginTest1', ['plugindev/pluginTest1'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
-pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
+pluginTest1 = buildSharedLibrary('pluginTest1', ['plugindev/pluginTest1/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
+pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
 
 Depends(pluginTest1, [core])
 # Depends(frontend_console_c, [core])

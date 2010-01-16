@@ -32,6 +32,8 @@ namespace firc
 		virtual ~TCPConnection();
 		Result send(const std::string &buffer);
 		Result receive(int8 *buffer, uint32 bufferSize);
+		bool32 waitForSocket(uint32 timeoutSeconds,
+					uint32 timeoutMicroseconds);
 	private:
 		void connect(const std::string &hostname,
 					 const std::string &port);

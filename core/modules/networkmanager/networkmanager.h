@@ -32,7 +32,9 @@ namespace firc
 			SHUTTING_DOWN,
 			UNKNOWN
 		};
-		// Should be private (interface? friend with wrapper?)
+		// Non-blocking, creates a thread on it's own
+		void runMessageReceiverInThread();
+		// Blocking
 		Result runMessageReceiver();
 		
 		void sendMessage(const std::string &message);
@@ -59,7 +61,7 @@ namespace firc
 		
 		TCPConnection m_connection;
 		
-		threading::Thread m_receiverThread;
+		std::auto_ptr<threading::Thread> m_receiverThread;
 		std::auto_ptr<MessageSender> m_messageSender;
 		
 		PluginManager *m_pluginManager;

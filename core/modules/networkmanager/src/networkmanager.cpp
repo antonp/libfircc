@@ -33,13 +33,12 @@ namespace firc
 	}
 	
 	NetworkManager::NetworkManager(const int8 *host, const int8 *port,
-									PluginManager *pluginManager):
+					PluginManager *pluginManager):
 	m_state(CONNECTING),
 	m_connection(host, port),
 	m_messageSender(new MessageSender(m_connection)),
 	m_pluginManager(pluginManager)
 	{
-		Result res = RES_FAILED;
 		std::string m_outStr;
 		
 		std::cout << "Successfully connected." << std::endl;
@@ -63,14 +62,20 @@ namespace firc
 		
 		
 		m_state = CONNECTED;
-			
-		m_receiverThread.create(NULL,	threadRunMessageReceiver,
-								(void *)this);
 	}
 	
 	NetworkManager::~NetworkManager()
 	{
-
+		if ( NULL != m_receiverThread.get() )
+		{
+			// Ask the thread to exit
+			m_stateMutex.lock();
+			m_state = SHUTTING_DOWN;
+			m_stateMutex.unlock();
+			// Now just wait for it to finnish
+			m_receiverThread->join(NULL);
+			// (Implicitly) kill the connection
+		}
 	}
 	
 	void NetworkManager::deinit(const int8 *message)
@@ -85,10 +90,26 @@ namespace firc
 		m_connection.send(quitMessage);
 		
 		std::cout << "NetworkManager: pthread_join..." << std::endl;
-		m_receiverThread.join(NULL);
+		m_receiverThread->join(NULL);
 		std::cout << "NetworkManager: receiver thread dead..." << std::endl;
 	}
+
+	/**
+	Creates a thread to be able to run the message receiver
+	without blocking.
+
+	Throws an exception if the thread cannot be created.
+	*/
+	void NetworkManager::runMessageReceiverInThread()
+	{
+		m_receiverThread.reset(new threading::Thread);
+		m_receiverThread->create(NULL,	threadRunMessageReceiver,
+								(void *)this);
+	}
 	
+	/**
+	Runs the message receiver, doesn't return until disconnected.
+	*/
 	Result NetworkManager::runMessageReceiver()
 	{
 		using tokenizer::tokenize;
@@ -128,13 +149,21 @@ namespace firc
 			/////////////////////////////////////////
 
 			// 1. Receive a message
-			if ( RES_CONNECTION_CLOSED == m_connection.receive(buffer,
-				 sizeof(buffer)/sizeof(buffer[0])) )
+			if ( m_connection.waitForSocket(0, 500000) )
 			{
-				// The server closed the connection
-				// Flag we're not connected anymore, and exit thread
-				connected = FALSE;
-				return RES_CONNECTION_CLOSED;
+				if ( RES_CONNECTION_CLOSED == m_connection.receive(
+						buffer, sizeof(buffer)/sizeof(buffer[0])) )
+				{
+					// The server closed the connection
+					// Flag we're not connected anymore, and exit thread
+					connected = FALSE;
+					return RES_CONNECTION_CLOSED;
+				}
+			} else
+			{
+				// There was no data available from the server
+				// check again
+				continue;
 			}
 			in = buffer; // optimize..?
 			std::cout << "recv:    " << in << std::endl;

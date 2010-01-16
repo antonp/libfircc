@@ -87,5 +87,23 @@ namespace firc
 		}
 		return RES_OK;
 	}
+
+	bool32 TCPConnection::waitForSocket(uint32 timeoutSeconds,
+										uint32 timeoutMicroseconds)
+	{
+		timeval timeout;
+		timeout.tv_sec = timeoutSeconds;
+		timeout.tv_usec = timeoutMicroseconds;
+		fd_set readFileDescriptorSet;
+		FD_ZERO(&readFileDescriptorSet);
+		FD_SET(m_socket, &readFileDescriptorSet);
+		if ( (-1) == ::select(m_socket+1, &readFileDescriptorSet,
+						NULL, NULL, &timeout) )
+		{
+			throw NetworkException("select() returned -1");
+		}
+		return FD_ISSET(m_socket, &readFileDescriptorSet);
+	}
+
 } // namespace firc
 } // namespace anp

@@ -16,6 +16,8 @@ namespace firc
 		virtual ~INetworkManagerFrontend() { }
 
 		virtual void sendMessage(const std::string &message) = 0;
+
+		virtual void runMessageReceiverInThread() = 0;
 		
 		// Network cache stuff (getCache() instead ?)
 

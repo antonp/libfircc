@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
 		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
 													&pluginManager);
 
+	chatJunkies->runMessageReceiverInThread();
 	
 	anp::uint32 state = 0;
 	pluginManager.addCallbackOnPrivMsg(irc_onPrivMsg);

@@ -22,20 +22,29 @@ namespace firc
 		{
 			throw std::invalid_argument("'Invalid MessageSender'");
 		}
-		ms->monitor();
-		std::cout << "MessageSender: closing thread." << std::endl;
+		try
+		{
+			ms->monitor();
+			std::cout << "MessageSender: closing thread." << std::endl;
+		} catch ( std::exception &e )
+		{
+			std::cout << "MessageSender: Exception occured: " 
+				<< e.what()	<< std::endl;
+		}
 		pthread_exit(0);
 	}
 	
 	MessageSender::MessageSender(TCPConnection &connection):
 	m_connection(connection)
 	{
-		
+		m_isDying.set(false);
+		m_thread.create(NULL, threadRunMessageSender, (void *)this);
 	}
 	
 	MessageSender::~MessageSender()
 	{
 		stop();
+		m_thread.join(NULL);
 	}
 	
 	void MessageSender::addMessage(const std::string &message)
@@ -61,6 +70,11 @@ namespace firc
 		{
 			bool32 isDying = true;
 			m_isDying.get(isDying);
+
+			if ( isDying )
+			{
+				break;
+			}
 			
 			m_newMessage.wait();
 						
@@ -69,7 +83,7 @@ namespace firc
 			{
 				if ( isDying )
 				{
-					break;
+					return;
 				}
 				
 				uint32 cooldown = 0;

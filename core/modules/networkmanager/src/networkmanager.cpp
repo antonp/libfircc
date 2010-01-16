@@ -386,7 +386,8 @@ namespace firc
 		and work as an anti-flood mechanism.
 		*/
 		
-		m_connection.send(message);
+		//m_connection.send(message);
+		m_messageSender->addMessage(message);
 	}
 
 	const NetworkCacheUserInterface &NetworkManager::networkCache() const

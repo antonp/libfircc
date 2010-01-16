@@ -15,6 +15,8 @@ namespace firc
 		INetworkManagerFrontend() { }
 		virtual ~INetworkManagerFrontend() { }
 
+		virtual void deinit(const std::string &message) = 0;
+
 		virtual void sendMessage(const std::string &message) = 0;
 
 		virtual void runMessageReceiverInThread() = 0;

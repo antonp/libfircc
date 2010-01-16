@@ -78,7 +78,14 @@ namespace firc
 		}
 	}
 	
-	void NetworkManager::deinit(const int8 *message)
+	/**
+	Sends the QUIT message to the server and waits (blocking)
+	for the receiver thread to finish.
+
+	You still need to destroy the NetworkManager object
+	after calling this function.
+	*/
+	void NetworkManager::deinit(const std::string &message)
 	{
 		m_stateMutex.lock();
 		m_state = SHUTTING_DOWN;
@@ -89,9 +96,11 @@ namespace firc
 		quitMessage += "\r\n";
 		m_connection.send(quitMessage);
 		
-		std::cout << "NetworkManager: pthread_join..." << std::endl;
-		m_receiverThread->join(NULL);
-		std::cout << "NetworkManager: receiver thread dead..." << std::endl;
+		if ( NULL != m_receiverThread.get() )
+		{
+			m_receiverThread->join(NULL);
+			m_receiverThread.reset(NULL);
+		}
 	}
 
 	/**

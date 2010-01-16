@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	}
 	
 	// Quit
-	//chatJunkies->setQuitMessage("Time to go! See you ChatJunkies!");
+	chatJunkies->deinit("Time to go! See you!");
 	networkmanager_destroy(chatJunkies);
 	log.addMessage("main.cpp: Successfully disconnected.");
 	

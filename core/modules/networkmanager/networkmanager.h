@@ -23,7 +23,7 @@ namespace firc
 						PluginManager *m_pluginManager);
 		~NetworkManager();
 		
-		void deinit(const int8 *message);
+		void deinit(const std::string &message);
 		enum State
 		{
 			CONNECTING=0,

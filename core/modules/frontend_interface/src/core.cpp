@@ -53,7 +53,10 @@ namespace firc
 			{
 				if ( m_networkManagers[i] == networkManager )
 				{
-					m_networkManagers[i]->deinit(message);
+					// This is fine, however the function has changed
+					// and the core module isn't being maintained
+					// anymore.
+					//m_networkManagers[i]->deinit(message);
 					
 					delete networkManager;
 					m_networkManagers.erase(

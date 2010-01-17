@@ -125,7 +125,7 @@ frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	['frontend_console_cpp/modules'],
 	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'anpcommon.git/anp_workerthreads', 'anppfindep.git/anp_threading', 'core/modules/cache', 'anpcommon.git/anp_log'],
-	['core', 'pthread', 'dl'],
+	['core', 'pthread', 'dl', 'pcrecpp'],
 	['-rdynamic']
 )
 
@@ -143,6 +143,14 @@ test_threading = buildProgram(
 	['anpbase.git/anp_basecode', 'anppfindep.git/anp_threading', 'anpcommon.git/anp_workerthreads'],
 	['core', 'pthread', 'dl'], # core because anp_workerthreads is compiled into it...
 	['-rdynamic'] #beacuse of dynamic linking
+)
+
+test_parsing = buildProgram(
+	'test_parsing',
+	['test_parsing/modules'],
+	[],
+	['pcrecpp'],
+	[]
 )
 
 # Plugins

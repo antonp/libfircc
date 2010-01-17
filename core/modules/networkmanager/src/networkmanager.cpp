@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <memory>
+#include <pcrecpp.h>
 
 namespace anp
 {
@@ -189,7 +190,8 @@ namespace firc
 						currentMessage = leftOvers + currentMessage;
 						leftOvers.erase();
 					}
-
+					parseMessage(currentMessage);
+					/*
 					// Reset old vars as needed
 					prefix.erase();
 					// Start parsing the current message
@@ -358,7 +360,7 @@ namespace firc
 							m_networkCache.addUserToChannel(temp3, "", "",
 																 temp2);
 						}
-					}
+					}*/
 				} else {
 					// The message isn't complete, so save it and
 					// add the rest when it arrives [todo]
@@ -377,6 +379,20 @@ namespace firc
 			}			
 		}
 		return RES_OK;
+	}
+
+	void NetworkManager::parseMessage(const std::string &message)
+	{
+		using pcrecpp::RE;
+
+		std::string prefix, command, parameters;
+		RE pattern("^:(.+?) (.+?)");
+
+		std::cout << "FullMatch returned: " <<
+			pattern.FullMatch(":bail join", &prefix, &command)
+			<< ", prefix: '" << prefix
+			<< "', command: '" << command << "'." << std::endl;
+
 	}
 	
 	void NetworkManager::sendMessage(const std::string &message)

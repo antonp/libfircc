@@ -9,7 +9,7 @@
 		std::string prefix, command, firstParam, parameters;
 
 		//RE pattern("^(:(\\S+?))?\\s(\\S+?)\\s:?(\\S*)\\s?:?(.*)$");
-		RE pattern("^(:(\\S+?))?\\s(\\S+?)\\s:?((\\S*)\\s?:?.*)$");
+		RE pattern("^(:(\\S+?)\\s)?(\\S+?)\\s:?((\\S*)\\s?:?.*)$");
 		// There is a prefix
 		//RE pattern("^:(\\S+?)\\s(\\S+?)\\s.+");
 

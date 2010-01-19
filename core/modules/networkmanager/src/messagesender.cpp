@@ -88,6 +88,7 @@ namespace firc
 				
 				uint32 cooldown = 0;
 				std::string &message = m_queue.front();
+				std::cout << "-> " << message << std::endl;
 				
 				m_connection.send(message);
 				m_queue.pop();

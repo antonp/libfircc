@@ -176,7 +176,7 @@ namespace firc
 				continue;
 			}
 			in = buffer; // optimize..?
-			std::cout << "recv:    " << in << std::endl;
+			//std::cout << "<- " << in << std::endl;
 
 			// 2. Tokenize it and parse it
 			// Start by dividing it up into several messages
@@ -190,6 +190,7 @@ namespace firc
 						currentMessage = leftOvers + currentMessage;
 						leftOvers.erase();
 					}
+					std::cout << "<- " << currentMessage << std::endl;
 					parseMessage(currentMessage);
 					/*
 					// Reset old vars as needed
@@ -385,14 +386,60 @@ namespace firc
 	{
 		using pcrecpp::RE;
 
-		std::string prefix, command, parameters;
-		RE pattern("^:(.+?) (.+?)");
+		std::string prefix, command, firstParam, parameters;
+		std::string nick, user, host;
 
-		std::cout << "FullMatch returned: " <<
-			pattern.FullMatch(":bail join", &prefix, &command)
-			<< ", prefix: '" << prefix
-			<< "', command: '" << command << "'." << std::endl;
+		static
+		RE ircMsgPattern("^(:(\\S+?)\\s)?(\\S+?)\\s:?((\\S*)\\s?:?.*)$");
+		static
+		RE prefixPattern("^(\\S+?)!(\\S+?)@(\\S+?)$");
 
+		bool32 validMessage = ircMsgPattern.FullMatch(message, (void *)0,
+													&prefix, &command,
+													&parameters,
+													&firstParam);
+		if ( validMessage )
+		{
+			if ( command == "PING" )
+			{
+				std::string pong = "PONG :";
+				pong += firstParam + "\r\n";
+				std::cout << "-> " << pong << std::endl;
+				m_connection.send(pong);
+			}
+			if ( command == "JOIN" )
+			{
+				bool32 validUser = prefixPattern.FullMatch(prefix,
+														&nick,
+														&user,
+														&host);
+
+				// if validUser?
+
+				const std::string &channel = firstParam;
+				std::string clientNick;
+				m_networkCache.getClientNickName(clientNick);
+				if ( nick == clientNick )
+				{
+					m_networkCache.addChannel(firstParam);
+				}
+				m_networkCache.addUserToChannel(nick, user,
+										host, channel);
+										
+				JoinJob joinJob(NULL,
+								(void *)this,
+								channel.c_str(),
+								nick.c_str());
+				m_pluginManager->performJob(&joinJob,
+									PluginManager::IRC_JOIN);
+			}
+		} else
+		{
+			std::cout << "Invalid IRC message: " << message
+				<< "(" << "p=" << prefix << "c=" << command << "pa="
+				<< parameters << ")" << std::endl;
+			// unknownMessageHandler()!
+		}
 	}
 	
 	void NetworkManager::sendMessage(const std::string &message)

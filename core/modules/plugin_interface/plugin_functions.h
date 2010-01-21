@@ -21,8 +21,25 @@ namespace firc
 	// void irc_onJoin(void *network, const int8 *channel, const int8 *user)
 	typedef void (*PF_irc_onJoin)(void *, const int8 *, const int8 *);
 	
-	// void irc_onPrivMsg(void *network, const int8 *sender, const int8 *receiver, const int8 *message)
-	typedef void (*PF_irc_onPrivMsg)(INetworkManagerFrontend &, const int8 *, const int8 *, const int8 *);
+	/* void irc_onPrivMsg(	void *network,
+							const int8 *nick,
+							const int8 *user,
+							const int8 *host,
+							const int8 *target,
+							const int8 *message)*/
+	typedef void (*PF_irc_onPrivMsg)(INetworkManagerFrontend &,
+									const int8 *,
+									const int8 *,
+									const int8 *,
+									const int8 *,
+									const int8 *);
+
+	typedef void (*PF_irc_onTopic)(INetworkManagerFrontend &,
+									const int8 *,
+									const int8 *,
+									const int8 *,
+									const int8 *,
+									const int8 *);
 } // namespace firc
 } // namespace anp
 

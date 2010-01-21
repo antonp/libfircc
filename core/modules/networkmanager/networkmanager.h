@@ -54,10 +54,27 @@ namespace firc
 		Result getChannelInfo(void *network, const int8 *channel,
 								const void **userList) const;
 	private:
-	// Temp messy so I won't forget to remove
-	public:
 		void parseMessage(const std::string &message);
-	private:
+		void msgPingHandle(const std::string &server1,
+							const std::string &server2);
+		void msgJoinHandle(const std::string &channel,
+							const std::string &nick,
+							const std::string &user,
+							const std::string &host);
+		void msgPartHandle(const std::string &channel,
+							const std::string &nick,
+							const std::string &user,
+							const std::string &host);
+		void msgPrivMsgHandle(	const std::string &nick,
+								const std::string &user,
+								const std::string &host,
+								const std::string &target,
+								const std::string &message);
+		void msgTopicHandle(const std::string &nick,
+							const std::string &user,
+							const std::string &host,
+							const std::string &channel,
+							const std::string &topic);
 	
 		State m_state;
 		//pthread_mutex_t m_stateMutex;

@@ -52,19 +52,46 @@ namespace firc
 	public:
 		PrivMsgJob(Plugin *plugin,
 					INetworkManagerFrontend &network,
-					const int8 *sender,
+					const int8 *nick,
+					const int8 *user,
+					const int8 *host,
 					const int8 *target,
 					const int8 *message);
 		
 		virtual ~PrivMsgJob();
 	protected:
 		INetworkManagerFrontend &m_network;
-		std::string m_sender;
+		std::string m_nick;
+		std::string m_user;
+		std::string m_host;
 		std::string m_target;
 		std::string m_message;
 
 		void executeCustom();
 	};
+
+	class TopicJob: public PluginJob
+	{
+	public:
+		TopicJob(	Plugin *plugin,
+					INetworkManagerFrontend &network,
+					const std::string &nick,
+					const std::string &user,
+					const std::string &host,
+					const std::string &channel,
+					const std::string &topic);
+		virtual ~TopicJob();
+	protected:
+		INetworkManagerFrontend &m_network;
+		std::string m_nick;
+		std::string m_user;
+		std::string m_host;
+		std::string m_channel;
+		std::string m_topic;
+
+		void executeCustom();
+	};
+
 } // namespace firc
 } // namespace anp
 

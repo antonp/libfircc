@@ -62,12 +62,16 @@ namespace firc
 	PrivMsgJob::PrivMsgJob(
 					Plugin *plugin,
 					INetworkManagerFrontend &network,
-					const int8 *sender,
+					const int8 *nick,
+					const int8 *user,
+					const int8 *host,
 					const int8 *target,
 					const int8 *message):
 	PluginJob(plugin),
 	m_network(network),
-	m_sender(sender),
+	m_nick(nick),
+	m_user(user),
+	m_host(host),
 	m_target(target),
 	m_message(message)
 	{
@@ -82,8 +86,38 @@ namespace firc
 	void PrivMsgJob::executeCustom()
 	{
 		PF_irc_onPrivMsg f = (PF_irc_onPrivMsg)m_func;
-		f(m_network, m_sender.c_str(),
-			m_target.c_str(), m_message.c_str());
+		f(m_network, m_nick.c_str(), m_user.c_str(),
+			m_host.c_str(), m_target.c_str(), m_message.c_str());
+	}
+
+	TopicJob::TopicJob(	Plugin *plugin,
+						INetworkManagerFrontend &network,
+						const std::string &nick,
+						const std::string &user,
+						const std::string &host,
+						const std::string &channel,
+						const std::string &topic):
+	PluginJob(plugin),
+	m_network(network),
+	m_nick(nick),
+	m_user(user),
+	m_host(host),
+	m_channel(channel),
+	m_topic(topic)
+	{
+
+	}
+
+	TopicJob::~TopicJob()
+	{
+
+	}
+
+	void TopicJob::executeCustom()
+	{
+		PF_irc_onTopic f = (PF_irc_onTopic)m_func;
+		f(m_network, m_nick.c_str(), m_user.c_str(), m_host.c_str(),
+			m_channel.c_str(), m_topic.c_str());
 	}
 
 } // namespace firc

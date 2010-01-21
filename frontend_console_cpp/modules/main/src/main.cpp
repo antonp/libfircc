@@ -41,8 +41,10 @@ private:
 };
 
 void irc_onPrivMsg(INetworkManagerFrontend &network,
-					const anp::int8 *sender,
-					const anp::int8 *receiver,
+					const anp::int8 *nick,
+					const anp::int8 *user,
+					const anp::int8 *host,
+					const anp::int8 *target,
 					const anp::int8 *message)
 {
 	std::cout << "main.cpp: Received a PRIVMSG!" << std::endl;
@@ -56,11 +58,11 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 		pthread_mutex_unlock(&g_stateMutex);
 	}
 
-	if ( receiver[0] == '#' )
+	if ( target[0] == '#' )
 	{
 		const NetworkCacheUserInterface &cache = network.networkCache();
 		ChannelCache channel;
-		cache.getChannel(receiver, channel);
+		cache.getChannel(target, channel);
 	
 		std::stringstream ss;
 		ss << "PRIVMSG " << channel.name() << " :The topic for "

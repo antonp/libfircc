@@ -62,16 +62,12 @@ namespace firc
 	PrivMsgJob::PrivMsgJob(
 					Plugin *plugin,
 					INetworkManagerFrontend &network,
-					const int8 *nick,
-					const int8 *user,
-					const int8 *host,
+					const MsgPrefix &origin,
 					const int8 *target,
 					const int8 *message):
 	PluginJob(plugin),
 	m_network(network),
-	m_nick(nick),
-	m_user(user),
-	m_host(host),
+	m_origin(origin),
 	m_target(target),
 	m_message(message)
 	{
@@ -86,8 +82,7 @@ namespace firc
 	void PrivMsgJob::executeCustom()
 	{
 		PF_irc_onPrivMsg f = (PF_irc_onPrivMsg)m_func;
-		f(m_network, m_nick.c_str(), m_user.c_str(),
-			m_host.c_str(), m_target.c_str(), m_message.c_str());
+		f(m_network, m_origin, m_target.c_str(), m_message.c_str());
 	}
 
 	TopicJob::TopicJob(	Plugin *plugin,

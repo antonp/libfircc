@@ -3,6 +3,7 @@
 #include <tcpconnection.h>
 #include <pluginmanager.h>
 #include <plugin_jobs.h>
+#include <messageprefix.h>
 
 #include <iostream>
 #include <sstream>
@@ -406,6 +407,7 @@ namespace firc
 														&nick,
 														&user,
 														&host);
+			MsgPrefix msgPrefix(prefix, nick, user, host);
 			if ( command == "PING" )
 			{
 				msgPingHandle(firstParam, "");
@@ -431,15 +433,8 @@ namespace firc
 				}
 			} else if ( command == "PRIVMSG" )
 			{
-				if ( validUser )
-				{
-					msgPrivMsgHandle(nick, user, host, firstParam,
-										paramsExcludingFirst);
-				} else
-				{
-					std::cout << "(lib)Not a user prefix: " << prefix
-						<< std::endl;
-				}
+				msgPrivMsgHandle(msgPrefix, firstParam,
+									paramsExcludingFirst);
 			} else if ( command == "TOPIC" )
 			{
 				if ( validUser )
@@ -502,17 +497,13 @@ namespace firc
 		// Job and so on
 	}
 	
-	void NetworkManager::msgPrivMsgHandle(const std::string &nick,
-											const std::string &user,
-											const std::string &host,
+	void NetworkManager::msgPrivMsgHandle(	const MsgPrefix &origin,
 											const std::string &target,
 											const std::string &message)
 	{
 		PrivMsgJob job(	NULL,
 						*this,
-						nick.c_str(),
-						user.c_str(),
-						host.c_str(),
+						origin,
 						target.c_str(),
 						message.c_str());
 		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);

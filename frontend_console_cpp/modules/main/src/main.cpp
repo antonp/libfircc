@@ -7,6 +7,7 @@
 #include <networkmanager_frontend.h>
 #include <networkmanager_api_cpp.h>
 #include <networkcache_userinterface.h>
+#include <messageprefix.h>
 #include <channelcache.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
@@ -41,9 +42,7 @@ private:
 };
 
 void irc_onPrivMsg(INetworkManagerFrontend &network,
-					const anp::int8 *nick,
-					const anp::int8 *user,
-					const anp::int8 *host,
+					const anp::firc::MsgPrefix &origin,
 					const anp::int8 *target,
 					const anp::int8 *message)
 {

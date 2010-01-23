@@ -15,6 +15,7 @@ namespace anp
 namespace firc
 {
 	class PluginManager;
+	class MsgPrefix;
 	
 	class NetworkManager: public INetworkManagerFrontend
 	{
@@ -65,9 +66,7 @@ namespace firc
 							const std::string &nick,
 							const std::string &user,
 							const std::string &host);
-		void msgPrivMsgHandle(	const std::string &nick,
-								const std::string &user,
-								const std::string &host,
+		void msgPrivMsgHandle(	const MsgPrefix &origin,
 								const std::string &target,
 								const std::string &message);
 		void msgTopicHandle(const std::string &nick,

@@ -9,6 +9,7 @@
 #include <basedefs.h>
 #include <anp_jobqueue.h>
 #include <plugin_functions.h>
+#include <messageprefix.h>
 
 #include <string>
 
@@ -52,18 +53,14 @@ namespace firc
 	public:
 		PrivMsgJob(Plugin *plugin,
 					INetworkManagerFrontend &network,
-					const int8 *nick,
-					const int8 *user,
-					const int8 *host,
+					const MsgPrefix &origin,
 					const int8 *target,
 					const int8 *message);
 		
 		virtual ~PrivMsgJob();
 	protected:
 		INetworkManagerFrontend &m_network;
-		std::string m_nick;
-		std::string m_user;
-		std::string m_host;
+		MsgPrefix m_origin;
 		std::string m_target;
 		std::string m_message;
 

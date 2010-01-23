@@ -72,17 +72,13 @@ namespace firc
 	public:
 		TopicJob(	Plugin *plugin,
 					INetworkManagerFrontend &network,
-					const std::string &nick,
-					const std::string &user,
-					const std::string &host,
+					const MsgPrefix &origin,
 					const std::string &channel,
 					const std::string &topic);
 		virtual ~TopicJob();
 	protected:
 		INetworkManagerFrontend &m_network;
-		std::string m_nick;
-		std::string m_user;
-		std::string m_host;
+		MsgPrefix m_origin;
 		std::string m_channel;
 		std::string m_topic;
 

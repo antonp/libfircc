@@ -69,9 +69,7 @@ namespace firc
 		void msgPrivMsgHandle(	const MsgPrefix &origin,
 								const std::string &target,
 								const std::string &message);
-		void msgTopicHandle(const std::string &nick,
-							const std::string &user,
-							const std::string &host,
+		void msgTopicHandle(const MsgPrefix &origin,
 							const std::string &channel,
 							const std::string &topic);
 	

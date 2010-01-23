@@ -87,16 +87,12 @@ namespace firc
 
 	TopicJob::TopicJob(	Plugin *plugin,
 						INetworkManagerFrontend &network,
-						const std::string &nick,
-						const std::string &user,
-						const std::string &host,
+						const MsgPrefix &origin,
 						const std::string &channel,
 						const std::string &topic):
 	PluginJob(plugin),
 	m_network(network),
-	m_nick(nick),
-	m_user(user),
-	m_host(host),
+	m_origin(origin),
 	m_channel(channel),
 	m_topic(topic)
 	{
@@ -111,8 +107,7 @@ namespace firc
 	void TopicJob::executeCustom()
 	{
 		PF_irc_onTopic f = (PF_irc_onTopic)m_func;
-		f(m_network, m_nick.c_str(), m_user.c_str(), m_host.c_str(),
-			m_channel.c_str(), m_topic.c_str());
+		f(m_network, m_origin, m_channel.c_str(), m_topic.c_str());
 	}
 
 } // namespace firc

@@ -29,9 +29,7 @@ namespace firc
 									const int8 *);
 
 	typedef void (*PF_irc_onTopic)(INetworkManagerFrontend &,
-									const int8 *,
-									const int8 *,
-									const int8 *,
+									const MsgPrefix &,
 									const int8 *,
 									const int8 *);
 } // namespace firc

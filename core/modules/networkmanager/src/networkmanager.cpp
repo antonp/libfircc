@@ -437,11 +437,8 @@ namespace firc
 									paramsExcludingFirst);
 			} else if ( command == "TOPIC" )
 			{
-				if ( validUser )
-				{
-					msgTopicHandle(nick, user, host, firstParam,
+				msgTopicHandle(msgPrefix, firstParam,
 									paramsExcludingFirst);
-				}
 			}
 		} else
 		{
@@ -509,9 +506,7 @@ namespace firc
 		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);
 	}
 	
-	void NetworkManager::msgTopicHandle(const std::string &nick,
-										const std::string &user,
-										const std::string &host,
+	void NetworkManager::msgTopicHandle(const MsgPrefix &origin,
 										const std::string &channel,
 										const std::string &topic)
 	{
@@ -519,12 +514,10 @@ namespace firc
 
 		TopicJob job(	NULL,
 						*this,
-						nick,
-						user,
-						host,
+						origin,
 						channel,
 						topic);
-		//m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
+		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
 	}
 	
 	void NetworkManager::sendMessage(const std::string &message)

@@ -20,6 +20,7 @@ namespace firc
 		{
 			IRC_JOIN,
 			IRC_PRIVMSG,
+			IRC_TOPIC,
 			
 			IRC_MAX_CALLBACKS
 		};

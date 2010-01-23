@@ -124,7 +124,7 @@ core = buildLibrary(
 frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	['frontend_console_cpp/modules'],
-	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'anpcommon.git/anp_workerthreads', 'anppfindep.git/anp_threading', 'core/modules/cache', 'anpcommon.git/anp_log'],
+	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/networkmanager', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'anpcommon.git/anp_workerthreads', 'anppfindep.git/anp_threading', 'core/modules/cache', 'anpcommon.git/anp_log', 'core/modules/tcpconnection'],
 	['core', 'pthread', 'dl', 'pcrecpp'],
 	['-rdynamic']
 )

@@ -14,6 +14,7 @@
 #include <sstream>
 #include <log.h>
 #include <fstream>
+#include <tcpconnection.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
@@ -46,7 +47,8 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 					const anp::int8 *target,
 					const anp::int8 *message)
 {
-	std::cout << "main.cpp: Received a PRIVMSG!" << std::endl;
+	std::cout << "[main.cpp <-] " << origin.nick() << ": "
+		<< message << std::endl;
 
 
 	if ( 0 == strcmp(message, "die") )
@@ -57,7 +59,7 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 		pthread_mutex_unlock(&g_stateMutex);
 	}
 
-	if ( target[0] == '#' )
+	if ( target[0] == '#' && strcmp(message, "topic?") == 0 )
 	{
 		const NetworkCacheUserInterface &cache = network.networkCache();
 		ChannelCache channel;
@@ -68,6 +70,24 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 			<< channel.name() << " is " << channel.topic() << ".\r\n";
 		network.sendMessage(ss.str());
 	}
+}
+
+bool32 waitForSocket(int socket,
+					uint32 timeoutSeconds,
+					uint32 timeoutMicroseconds)
+{
+	timeval timeout;
+	timeout.tv_sec = timeoutSeconds;
+	timeout.tv_usec = timeoutMicroseconds;
+	fd_set readFileDescriptorSet;
+	FD_ZERO(&readFileDescriptorSet);
+	FD_SET(socket, &readFileDescriptorSet);
+	if ( (-1) == ::select(socket+1, &readFileDescriptorSet,
+					NULL, NULL, &timeout) )
+	{
+		throw NetworkException("select() returned -1");
+	}
+	return FD_ISSET(socket, &readFileDescriptorSet);
 }
 
 int main(int argc, char *argv[])
@@ -121,6 +141,19 @@ int main(int argc, char *argv[])
 	// When the quit command has been received, state will equal 1.
 	while ( 0 == state )
 	{
+		if ( waitForSocket(fileno(stdin), 0, 250000) )
+		{
+			std::string command;
+			std::getline(std::cin, command);
+			if ( command == "die" )
+			{
+				break;
+			} else
+			{
+				chatJunkies->sendMessage(command+"\r\n");
+			}
+		}
+
 		// Read state
 		pthread_mutex_lock(&g_stateMutex);
 		state = g_state;

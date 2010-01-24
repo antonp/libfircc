@@ -32,7 +32,10 @@ namespace firc
 		
 		void performJob(PluginJob *job, CallbackType type);
 							
+		void addCallbackOnJoin(PF_irc_onJoin func);
+		void addCallbackOnPart(PF_irc_onPart func);
 		void addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
+		void addCallbackOnTopic(PF_irc_onTopic func);
 	private:
 		void addPluginToUnloadList(Plugin *const plugin);
 		void unloadScheduledPlugins();

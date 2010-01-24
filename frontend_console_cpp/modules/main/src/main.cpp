@@ -42,6 +42,24 @@ private:
 	std::string m_filename;
 };
 
+void irc_onJoin(INetworkManagerFrontend &network,
+				const anp::firc::MsgPrefix &origin,
+				const anp::int8 *channel)
+{
+	std::cout << "[main.cpp <-] " << origin.nick()
+		<< " joined channel " << channel << "." << std::endl;
+}
+
+void irc_onPart(INetworkManagerFrontend &network,
+				const anp::firc::MsgPrefix &origin,
+				const anp::int8 *channel,
+				const anp::int8 *message)
+{
+	std::cout << "[main.cpp <-] " << origin.nick()
+		<< " left channel " << channel << ". (" << message
+		<< ")" << std::endl;
+}
+
 void irc_onPrivMsg(INetworkManagerFrontend &network,
 					const anp::firc::MsgPrefix &origin,
 					const anp::int8 *target,
@@ -70,6 +88,16 @@ void irc_onPrivMsg(INetworkManagerFrontend &network,
 			<< channel.name() << " is " << channel.topic() << ".\r\n";
 		network.sendMessage(ss.str());
 	}
+}
+
+void irc_onTopic(	INetworkManagerFrontend &network,
+					const anp::firc::MsgPrefix &origin,
+					const anp::int8 *channel,
+					const anp::int8 *topic)
+{
+	std::cout << "[main.cpp <-] " << origin.nick()
+		<< " changed the topic for " << channel << " to '"
+		<< topic << "'" << std::endl;
 }
 
 bool32 waitForSocket(int socket,
@@ -130,7 +158,10 @@ int main(int argc, char *argv[])
 	chatJunkies->runMessageReceiverInThread();
 	
 	anp::uint32 state = 0;
+	pluginManager.addCallbackOnJoin(irc_onJoin);
+	pluginManager.addCallbackOnPart(irc_onPart);
 	pluginManager.addCallbackOnPrivMsg(irc_onPrivMsg);
+	pluginManager.addCallbackOnTopic(irc_onTopic);
 
 	sleep(9);
 	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");

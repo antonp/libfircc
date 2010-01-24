@@ -36,18 +36,36 @@ namespace firc
 	{
 	public:
 		JoinJob(Plugin *plugin,
-				void *network,
-				const int8 *channel,
-				const int8 *user);
+				INetworkManagerFrontend &network,
+				const MsgPrefix &origin,
+				const int8 *channel);
 		virtual ~JoinJob();
 	protected:	
-		void *m_network;
+		INetworkManagerFrontend &m_network;
+		MsgPrefix m_origin;
 		std::string m_channel;
-		std::string m_user;
 		
 		void executeCustom();
 	};
 	
+	class PartJob: public PluginJob
+	{
+	public:
+		PartJob(Plugin *plugin,
+				INetworkManagerFrontend &network,
+				const MsgPrefix &origin,
+				const int8 *channel,
+				const int8 *message);
+		virtual ~PartJob();
+	protected:	
+		INetworkManagerFrontend &m_network;
+		MsgPrefix m_origin;
+		std::string m_channel;
+		std::string m_message;
+		
+		void executeCustom();
+	};
+
 	class PrivMsgJob: public PluginJob
 	{
 	public:

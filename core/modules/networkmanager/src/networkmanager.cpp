@@ -413,24 +413,11 @@ namespace firc
 				msgPingHandle(firstParam, "");
 			} else if ( command == "JOIN" )
 			{
-				if ( validUser )
-				{
-					msgJoinHandle(firstParam, nick, user, host);
-				} else
-				{
-					std::cout << "(lib)Not a user prefix: " << prefix
-						<< std::endl;
-				}
+				msgJoinHandle(msgPrefix, firstParam);
 			} else if ( command == "PART" )
 			{
-				if ( validUser )
-				{
-					msgPartHandle(firstParam, nick, user, host);
-				} else
-				{
-					std::cout << "(lib)Not a user prefix: " << prefix
-						<< std::endl;
-				}
+				msgPartHandle(msgPrefix, firstParam,
+								paramsExcludingFirst);
 			} else if ( command == "PRIVMSG" )
 			{
 				msgPrivMsgHandle(msgPrefix, firstParam,
@@ -458,40 +445,45 @@ namespace firc
 		m_connection.send(pong);
 	}
 
-	void NetworkManager::msgJoinHandle(const std::string &channel,
-										const std::string &nick,
-										const std::string &user,
-										const std::string &host)
+	void NetworkManager::msgJoinHandle( const MsgPrefix &origin,
+										const std::string &channel)
 	{
 		std::string clientNick;
 		m_networkCache.getClientNickName(clientNick);
-		if ( nick == clientNick )
+		if ( origin.nick() == clientNick )
 		{
 			m_networkCache.addChannel(channel);
 		}
-		m_networkCache.addUserToChannel(nick, user, host, channel);
+		m_networkCache.addUserToChannel(origin.nick(),
+										origin.user(),
+										origin.host(),
+										channel);
 								
 		JoinJob joinJob(NULL,
-						(void *)this,
-						channel.c_str(),
-						nick.c_str());
+						*this,
+						origin,
+						channel.c_str());
 		m_pluginManager->performJob(&joinJob, PluginManager::IRC_JOIN);
 	}
 
-	void NetworkManager::msgPartHandle(const std::string &channel,
-										const std::string &nick,
-										const std::string &user,
-										const std::string &host)
+	void NetworkManager::msgPartHandle(	const MsgPrefix &origin,
+										const std::string &channel,
+										const std::string &message)
 	{
-		m_networkCache.removeUserFromChannel(nick, channel);
+		m_networkCache.removeUserFromChannel(origin.nick(), channel);
 
 		std::string clientNick;
 		m_networkCache.getClientNickName(clientNick);
-		if ( nick == clientNick )
+		if ( origin.nick() == clientNick )
 		{
 			m_networkCache.removeChannel(channel);
 		}
-		// Job and so on
+		PartJob partJob(NULL,
+						*this,
+						origin,
+						channel.c_str(),
+						message.c_str());
+		m_pluginManager->performJob(&partJob, PluginManager::IRC_PART);
 	}
 	
 	void NetworkManager::msgPrivMsgHandle(	const MsgPrefix &origin,

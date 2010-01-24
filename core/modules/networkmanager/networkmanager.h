@@ -58,14 +58,11 @@ namespace firc
 		void parseMessage(const std::string &message);
 		void msgPingHandle(const std::string &server1,
 							const std::string &server2);
-		void msgJoinHandle(const std::string &channel,
-							const std::string &nick,
-							const std::string &user,
-							const std::string &host);
-		void msgPartHandle(const std::string &channel,
-							const std::string &nick,
-							const std::string &user,
-							const std::string &host);
+		void msgJoinHandle(	const MsgPrefix &origin,
+							const std::string &channel);
+		void msgPartHandle(	const MsgPrefix &origin,
+							const std::string &channel,
+							const std::string &message);
 		void msgPrivMsgHandle(	const MsgPrefix &origin,
 								const std::string &target,
 								const std::string &message);

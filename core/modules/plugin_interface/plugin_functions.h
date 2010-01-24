@@ -21,7 +21,14 @@ namespace firc
 	typedef void (*PF_pluginDeinit)(uint32);
 	
 	// void irc_onJoin(void *network, const int8 *channel, const int8 *user)
-	typedef void (*PF_irc_onJoin)(void *, const int8 *, const int8 *);
+	typedef void (*PF_irc_onJoin)(	INetworkManagerFrontend &,
+									const MsgPrefix &,
+									const int8 *);
+
+	typedef void (*PF_irc_onPart)(	INetworkManagerFrontend &,
+									const MsgPrefix &,
+									const int8 *,
+									const int8 *);
 	
 	typedef void (*PF_irc_onPrivMsg)(INetworkManagerFrontend &,
 									const MsgPrefix &,

@@ -19,6 +19,7 @@ namespace firc
 		enum CallbackType
 		{
 			IRC_JOIN,
+			IRC_PART,
 			IRC_PRIVMSG,
 			IRC_TOPIC,
 			

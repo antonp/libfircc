@@ -191,6 +191,30 @@ namespace firc
 		unloadScheduledPlugins();
 	}
 
+	void PluginManager::addCallbackOnJoin(PF_irc_onJoin func)
+	{
+		if ( NULL != func )
+		{
+			CallbackEntry entry = { (void *)func, NULL };
+			m_callbacks[IRC_JOIN].push_back(entry);
+		} else
+		{
+			throw std::invalid_argument("func == NULL");
+		}
+	}
+
+	void PluginManager::addCallbackOnPart(PF_irc_onPart func)
+	{
+		if ( NULL != func )
+		{
+			CallbackEntry entry = { (void *)func, NULL };
+			m_callbacks[IRC_PART].push_back(entry);
+		} else
+		{
+			throw std::invalid_argument("func == NULL");
+		}
+	}
+
 	/**
 	 * @brief
 	 * Adds a function to be called whenever a PRIVMSG is received
@@ -205,6 +229,18 @@ namespace firc
 		{
 			CallbackEntry entry = { (void *)func, NULL };
 			m_callbacks[IRC_PRIVMSG].push_back(entry);
+		} else
+		{
+			throw std::invalid_argument("func == NULL");
+		}
+	}
+
+	void PluginManager::addCallbackOnTopic(PF_irc_onTopic func)
+	{
+		if ( NULL != func )
+		{
+			CallbackEntry entry = { (void *)func, NULL };
+			m_callbacks[IRC_TOPIC].push_back(entry);
 		} else
 		{
 			throw std::invalid_argument("func == NULL");

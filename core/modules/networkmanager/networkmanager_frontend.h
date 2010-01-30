@@ -2,6 +2,8 @@
 #define _NETWORKMANAGER_FRONTEND_H_
 
 #include <string>
+#include <eventdispatcher.h>
+#include <networkmanagerevents.h>
 
 namespace anp
 {
@@ -24,6 +26,23 @@ namespace firc
 		// Network cache stuff (getCache() instead ?)
 
 		virtual const NetworkCacheUserInterface &networkCache() const = 0;
+
+		virtual IEventDispatcherSubscriber
+		<events::ISubscriber<events::Join> > &
+		eventDispatcherJoin() = 0;
+
+		virtual IEventDispatcherSubscriber
+		<events::ISubscriber<events::Part> > &
+		eventDispatcherPart() = 0;
+
+		virtual IEventDispatcherSubscriber
+		<events::ISubscriber<events::PrivMsg> > &
+		eventDispatcherPrivMsg() = 0;
+
+		virtual IEventDispatcherSubscriber
+		<events::ISubscriber<events::Topic> > &
+		eventDispatcherTopic() = 0;
+
 	};
 }
 }

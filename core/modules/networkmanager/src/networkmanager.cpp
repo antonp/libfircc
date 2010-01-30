@@ -458,12 +458,14 @@ namespace firc
 										origin.user(),
 										origin.host(),
 										channel);
-								
-		JoinJob joinJob(NULL,
-						*this,
-						origin,
-						channel.c_str());
-		m_pluginManager->performJob(&joinJob, PluginManager::IRC_JOIN);
+		events::Join event(*this, origin, channel);
+		m_eventDispatchers.join.dispatch(event);
+
+//		JoinJob joinJob(NULL,
+//						*this,
+//						origin,
+//						channel.c_str());
+//		m_pluginManager->performJob(&joinJob, PluginManager::IRC_JOIN);
 	}
 
 	void NetworkManager::msgPartHandle(	const MsgPrefix &origin,
@@ -478,24 +480,31 @@ namespace firc
 		{
 			m_networkCache.removeChannel(channel);
 		}
-		PartJob partJob(NULL,
-						*this,
-						origin,
-						channel.c_str(),
-						message.c_str());
-		m_pluginManager->performJob(&partJob, PluginManager::IRC_PART);
+
+		events::Part event(*this, origin, channel, message);
+		m_eventDispatchers.part.dispatch(event);
+
+//		PartJob partJob(NULL,
+//						*this,
+//						origin,
+//						channel.c_str(),
+//						message.c_str());
+//		m_pluginManager->performJob(&partJob, PluginManager::IRC_PART);
 	}
 	
 	void NetworkManager::msgPrivMsgHandle(	const MsgPrefix &origin,
 											const std::string &target,
 											const std::string &message)
 	{
-		PrivMsgJob job(	NULL,
-						*this,
-						origin,
-						target.c_str(),
-						message.c_str());
-		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);
+		events::PrivMsg event(*this, origin, target, message);
+		m_eventDispatchers.privMsg.dispatch(event);
+
+//		PrivMsgJob job(	NULL,
+//						*this,
+//						origin,
+//						target.c_str(),
+//						message.c_str());
+//		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);
 	}
 	
 	void NetworkManager::msgTopicHandle(const MsgPrefix &origin,
@@ -504,12 +513,15 @@ namespace firc
 	{
 		m_networkCache.setTopic(channel, topic);
 
-		TopicJob job(	NULL,
-						*this,
-						origin,
-						channel,
-						topic);
-		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
+		events::Topic event(*this, origin, channel, topic);
+		m_eventDispatchers.topic.dispatch(event);
+
+//		TopicJob job(	NULL,
+//						*this,
+//						origin,
+//						channel,
+//						topic);
+//		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
 	}
 	
 	void NetworkManager::sendMessage(const std::string &message)
@@ -527,6 +539,31 @@ namespace firc
 	{
 		return m_networkCache;
 	}
+
+	IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
+	NetworkManager::eventDispatcherJoin()
+	{
+		return m_eventDispatchers.join;
+	}
+
+	IEventDispatcherSubscriber<events::ISubscriber<events::Part> > &
+	NetworkManager::eventDispatcherPart()
+	{
+		return m_eventDispatchers.part;
+	}
+
+	IEventDispatcherSubscriber<events::ISubscriber<events::PrivMsg> > &
+	NetworkManager::eventDispatcherPrivMsg()
+	{
+		return m_eventDispatchers.privMsg;
+	}
+
+	IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
+	NetworkManager::eventDispatcherTopic()
+	{
+		return m_eventDispatchers.topic;
+	}
+
 
 } // namespace firc
 } // namespace anp

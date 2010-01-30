@@ -6,6 +6,8 @@
 #include <networkcache.h>
 #include "networkmanager_frontend.h"
 #include "inc/messagesender.h"
+#include <eventdispatcher.h>
+#include <networkmanagerevents.h>
 
 #include <anp_threading.h> // johnny bigert?
 #include <memory>
@@ -54,6 +56,20 @@ namespace firc
 									
 		Result getChannelInfo(void *network, const int8 *channel,
 								const void **userList) const;
+
+		// Event stuff
+		IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
+			eventDispatcherJoin();
+
+		IEventDispatcherSubscriber<events::ISubscriber<events::Part> > &
+			eventDispatcherPart();
+
+		IEventDispatcherSubscriber<events::ISubscriber<events::PrivMsg> > &
+			eventDispatcherPrivMsg();
+
+		IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
+			eventDispatcherTopic();
+
 	private:
 		void parseMessage(const std::string &message);
 		void msgPingHandle(const std::string &server1,
@@ -81,6 +97,26 @@ namespace firc
 		
 		PluginManager *m_pluginManager;
 		NetworkCache m_networkCache;
+
+		struct
+		{
+			EventDispatcher<
+				events::ISubscriber<events::Join>,
+				events::Join
+			> join;
+			EventDispatcher<
+				events::ISubscriber<events::Part>,
+				events::Part
+			> part;
+			EventDispatcher<
+				events::ISubscriber<events::PrivMsg>,
+				events::PrivMsg
+			> privMsg;
+			EventDispatcher<
+				events::ISubscriber<events::Topic>,
+				events::Topic
+			> topic;
+		} m_eventDispatchers;
 	};
 } // namespace firc
 } // namespace anp

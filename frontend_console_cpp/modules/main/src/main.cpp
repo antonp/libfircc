@@ -15,6 +15,7 @@
 #include <log.h>
 #include <fstream>
 #include <tcpconnection.h>
+#include <networkmanagerevents.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
@@ -42,63 +43,62 @@ private:
 	std::string m_filename;
 };
 
-void irc_onJoin(INetworkManagerFrontend &network,
-				const anp::firc::MsgPrefix &origin,
-				const anp::int8 *channel)
+void irctest_onJoin(events::Join &event)
 {
-	std::cout << "[main.cpp <-] " << origin.nick()
-		<< " joined channel " << channel << "." << std::endl;
+	std::cout << "irctest_onJoin: " << event.origin().nick()
+		<< " joined " << event.channel() << std::endl;
 }
 
-void irc_onPart(INetworkManagerFrontend &network,
-				const anp::firc::MsgPrefix &origin,
-				const anp::int8 *channel,
-				const anp::int8 *message)
+class EventHandler: public events::ISubscriber<events::Join>,
+					public events::ISubscriber<events::Part>,
+					public events::ISubscriber<events::PrivMsg>,
+					public events::ISubscriber<events::Topic>
 {
-	std::cout << "[main.cpp <-] " << origin.nick()
-		<< " left channel " << channel << ". (" << message
-		<< ")" << std::endl;
-}
-
-void irc_onPrivMsg(INetworkManagerFrontend &network,
-					const anp::firc::MsgPrefix &origin,
-					const anp::int8 *target,
-					const anp::int8 *message)
-{
-	std::cout << "[main.cpp <-] " << origin.nick() << ": "
-		<< message << std::endl;
-
-
-	if ( 0 == strcmp(message, "die") )
+public:
+	void receiveEvent(events::Join &event)
 	{
-		// Write state
-		pthread_mutex_lock(&g_stateMutex);
-		g_state = 1; // QUIT
-		pthread_mutex_unlock(&g_stateMutex);
+		irctest_onJoin(event);
 	}
-
-	if ( target[0] == '#' && strcmp(message, "topic?") == 0 )
+	void receiveEvent(events::Part &event)
 	{
-		const NetworkCacheUserInterface &cache = network.networkCache();
-		ChannelCache channel;
-		cache.getChannel(target, channel);
+		std::cout << "[main.cpp <-] " << event.origin().nick()
+			<< " left channel " << event.channel() << ". ("
+			<< event.message() << ")" << std::endl;
+	}
+	void receiveEvent(events::PrivMsg &event)
+	{
+		std::cout << "[main.cpp <-] " << event.origin().nick() << ": "
+			<< event.message() << std::endl;
+
+
+		if ( event.message() == "die" )
+		{
+			// Write state
+			pthread_mutex_lock(&g_stateMutex);
+			g_state = 1; // QUIT
+			pthread_mutex_unlock(&g_stateMutex);
+		}
+
+		if ( event.target()[0] == '#' && event.message() == "topic?" )
+		{
+			const NetworkCacheUserInterface &cache =
+				event.network().networkCache();
+			ChannelCache channel;
+			cache.getChannel(event.target(), channel);
 	
-		std::stringstream ss;
-		ss << "PRIVMSG " << channel.name() << " :The topic for "
-			<< channel.name() << " is " << channel.topic() << ".\r\n";
-		network.sendMessage(ss.str());
+			std::stringstream ss;
+			ss << "PRIVMSG " << channel.name() << " :The topic for "
+				<< channel.name() << " is " << channel.topic() << ".\r\n";
+			event.network().sendMessage(ss.str());
+		}
 	}
-}
-
-void irc_onTopic(	INetworkManagerFrontend &network,
-					const anp::firc::MsgPrefix &origin,
-					const anp::int8 *channel,
-					const anp::int8 *topic)
-{
-	std::cout << "[main.cpp <-] " << origin.nick()
-		<< " changed the topic for " << channel << " to '"
-		<< topic << "'" << std::endl;
-}
+	void receiveEvent(events::Topic &event)
+	{
+		std::cout << "[main.cpp <-] " << event.origin().nick()
+			<< " changed the topic for " << event.channel() << " to '"
+			<< event.topic() << "'" << std::endl;
+	}
+};
 
 bool32 waitForSocket(int socket,
 					uint32 timeoutSeconds,
@@ -151,21 +151,23 @@ int main(int argc, char *argv[])
 		pluginManager.loadPlugin(pluginNames[i]);
 	}
 	
-	INetworkManagerFrontend *chatJunkies =
+	INetworkManagerFrontend *network =
 		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
 													&pluginManager);
 
-	chatJunkies->runMessageReceiverInThread();
+	network->runMessageReceiverInThread();
 	
 	anp::uint32 state = 0;
-	pluginManager.addCallbackOnJoin(irc_onJoin);
-	pluginManager.addCallbackOnPart(irc_onPart);
-	pluginManager.addCallbackOnPrivMsg(irc_onPrivMsg);
-	pluginManager.addCallbackOnTopic(irc_onTopic);
+
+	EventHandler eventHandler;
+	network->eventDispatcherJoin().subscribe(&eventHandler);
+	network->eventDispatcherPart().subscribe(&eventHandler);
+	network->eventDispatcherPrivMsg().subscribe(&eventHandler);
+	network->eventDispatcherTopic().subscribe(&eventHandler);
 
 	sleep(9);
-	chatJunkies->sendMessage("JOIN #my-secret-botdev\r\n");
-	chatJunkies->sendMessage(
+	network->sendMessage("JOIN #my-secret-botdev\r\n");
+	network->sendMessage(
 					"PRIVMSG #my-secret-botdev :Hello world!\r\n");
 	sleep(20);
 	
@@ -181,7 +183,7 @@ int main(int argc, char *argv[])
 				break;
 			} else
 			{
-				chatJunkies->sendMessage(command+"\r\n");
+				network->sendMessage(command+"\r\n");
 			}
 		}
 
@@ -193,8 +195,8 @@ int main(int argc, char *argv[])
 	}
 	
 	// Quit
-	chatJunkies->deinit("Time to go! See you!");
-	networkmanager_destroy(chatJunkies);
+	network->deinit("Time to go! See you!");
+	networkmanager_destroy(network);
 	log.addMessage("main.cpp: Successfully disconnected.");
 	
 	pthread_mutex_destroy(&g_stateMutex);

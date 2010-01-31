@@ -387,26 +387,47 @@ namespace numeric_replies
 		return RES_OK;
 	}
 
+	void parseParams(std::string &all, std::string list[])
+	{
+		using std::cout;
+		using std::endl;
+		using std::string;
+		using tokenizer::tokenize;
+		// Assuming list holds 15 elements
+		cout << endl << "all params: " << all << endl;
+
+		for ( int i=0; i<15; i++ )
+		{
+			if ( all[0] == ':' )
+			{
+				list[i] = all.substr(1);
+				break;
+			} else if ( !tokenize(list[i], all, " ") )
+			{
+				break;
+			}
+		}
+	}
+
 	void NetworkManager::parseMessage(const std::string &message)
 	{
 		using pcrecpp::RE;
 
-		std::string prefix, command, firstParam, parameters,
-					paramsExcludingFirst;
+		std::string prefix, command, parameters, params[15];
 		std::string nick, user, host;
 
 		static
 		RE ircMsgPattern(
-"^(:(\\S+?)\\s)?(\\S+?)\\s:?((\\S*)\\s?:?(.*))$"
+			"^(:(\\S+?)\\s)?(\\S+)\\s?(:?.*)$"
 		);
 		static
 		RE prefixPattern("^(\\S+?)!(\\S+?)@(\\S+?)$");
+		static
+		RE numPattern("^[[:digit:]]{3}$");
 
 		bool32 validMessage = ircMsgPattern.FullMatch(message, (void *)0,
-													&prefix, &command,
-													&parameters,
-													&firstParam,
-													&paramsExcludingFirst);
+			&prefix, &command, &parameters);
+
 		if ( validMessage )
 		{
 			bool32 validUser = prefixPattern.FullMatch(prefix,
@@ -414,61 +435,42 @@ namespace numeric_replies
 														&user,
 														&host);
 			MsgPrefix msgPrefix(prefix, nick, user, host);
-			if ( command == "PING" )
+
+			parseParams(parameters, params);
+
+			if ( numPattern.FullMatch(command) )
 			{
-				msgPingHandle(firstParam, "");
-			} else if ( command == "JOIN" )
+				// Numeric replies
+				if ( command == numeric_replies::RPL_NAMREPLY )
+				{
+					msgNumHandleRPL_NAMREPLY(params[2], params[3]);
+				}
+				msgNumHandle(msgPrefix, command, params);
+			} else
 			{
-				msgJoinHandle(msgPrefix, firstParam);
-			} else if ( command == "PART" )
-			{
-				msgPartHandle(msgPrefix, firstParam,
-								paramsExcludingFirst);
-			} else if ( command == "PRIVMSG" )
-			{
-				msgPrivMsgHandle(msgPrefix, firstParam,
-									paramsExcludingFirst);
-			} else if ( command == "TOPIC" )
-			{
-				msgTopicHandle(msgPrefix, firstParam,
-									paramsExcludingFirst);
+				if ( command == "PING" )
+				{
+					msgPingHandle(params[0], "");
+				} else if ( command == "JOIN" )
+				{
+					msgJoinHandle(msgPrefix, params[0]);
+				} else if ( command == "PART" )
+				{
+					msgPartHandle(msgPrefix, params[0],
+									params[1]);
+				} else if ( command == "PRIVMSG" )
+				{
+					msgPrivMsgHandle(msgPrefix, params[0],
+										params[1]);
+				} else if ( command == "TOPIC" )
+				{
+					msgTopicHandle(msgPrefix, params[0],
+										params[1]);
+				}
+				// TODO
+				//msgCommandHandle(msgPrefix, command, params);
 			}
 
-			// Numeric replies
-			else if ( command == numeric_replies::RPL_NAMREPLY )
-			{
-				// RPL_NAMREPLY ex: (efnet) [Original message]
-				// :efnet.demon.co.uk 353 firc_04 =
-				// #antons_kanal :firc_04 @Pliskin_
-				/*		
-				 // target = firc_04
-				tokenize(target, currentMessage, ' ');
-				 // temp1 = '='
-				tokenize(temp1, currentMessage, ' ');
-				 // temp2 = #antons_kanal
-				tokenize(temp2, currentMessage, " :");
-
-				bool keepGoing = true;
-				while ( keepGoing ) {
-					// temp3 = [@|+|nothing]nickname
-					keepGoing = tokenize(temp3,
-										 currentMessage,
-										 " ");
-					switch ( temp3[0] ) {
-					case '@':
-						temp3.erase(0, 1);
-						break;
-					case '+':
-						temp3.erase(0, 1);
-						break;
-					default:
-						break;
-					}
-					//m_networkCache.addUser(temp2, temp3);
-					m_networkCache.addUserToChannel(temp3, "", "",
-														 temp2);
-				}*/
-			}
 		} else
 		{
 			std::cout << "(lib)Invalid IRC message: " << message
@@ -565,15 +567,46 @@ namespace numeric_replies
 //						topic);
 //		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
 	}
+
+	void NetworkManager::msgNumHandleRPL_NAMREPLY(
+								const std::string &channel,
+								const std::string &userlist)
+	{
+		using tokenizer::tokenize;
+		std::string nick, userlistCopy = userlist;
+		bool keepGoing = true;
+
+		while ( keepGoing ) {
+			// nick = [@|+|nothing]nickname
+			keepGoing = tokenize(nick, // note, reusing var
+								 userlistCopy,
+								 " ");
+			switch ( nick[0] ) {
+			case '@':
+				nick.erase(0, 1);
+				break;
+			case '+':
+				nick.erase(0, 1);
+				break;
+			default:
+				break;
+			}
+			//m_networkCache.addUser(temp2, temp3);
+			m_networkCache.addUserToChannel(nick, "", "",
+												 channel);
+		}
+	}
+
+	void NetworkManager::msgNumHandle(const MsgPrefix &origin,
+										const std::string &command,
+										const std::string params[])
+	{
+		events::NumericReply event(*this, origin, command, params);
+		m_eventDispatchers.num.dispatch(event);
+	}
 	
 	void NetworkManager::sendMessage(const std::string &message)
 	{
-		/** @todo
-		Create a message sender which can run in it's own thread
-		and work as an anti-flood mechanism.
-		*/
-		
-		//m_connection.send(message);
 		m_messageSender->addMessage(message);
 	}
 
@@ -606,6 +639,13 @@ namespace numeric_replies
 		return m_eventDispatchers.topic;
 	}
 
+	IEventDispatcherSubscriber<
+		events::ISubscriber<events::NumericReply>
+	> &
+	NetworkManager::eventDispatcherNumericReply()
+	{
+		return m_eventDispatchers.num;
+	}
 
 } // namespace firc
 } // namespace anp

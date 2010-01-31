@@ -43,6 +43,9 @@ namespace firc
 		<events::ISubscriber<events::Topic> > &
 		eventDispatcherTopic() = 0;
 
+		virtual IEventDispatcherSubscriber
+		<events::ISubscriber<events::NumericReply> > &
+		eventDispatcherNumericReply() = 0;
 	};
 }
 }

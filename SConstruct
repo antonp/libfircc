@@ -148,8 +148,8 @@ test_threading = buildProgram(
 test_parsing = buildProgram(
 	'test_parsing',
 	['test_parsing/modules'],
-	[],
-	['pcrecpp'],
+	['core/modules/tokenizer'],
+	['pcrecpp', 'core'],
 	[]
 )
 

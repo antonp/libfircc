@@ -70,6 +70,11 @@ namespace firc
 		IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
 			eventDispatcherTopic();
 
+		IEventDispatcherSubscriber<
+			events::ISubscriber<events::NumericReply>
+		> &
+			eventDispatcherNumericReply();
+
 	private:
 		void parseMessage(const std::string &message);
 		void msgPingHandle(const std::string &server1,
@@ -85,7 +90,13 @@ namespace firc
 		void msgTopicHandle(const MsgPrefix &origin,
 							const std::string &channel,
 							const std::string &topic);
-	
+		void msgNumHandleRPL_NAMREPLY(
+								const std::string &channel,
+								const std::string &userlist);
+		void msgNumHandle(const MsgPrefix &origin,
+							const std::string &command,
+							const std::string params[]);
+
 		State m_state;
 		//pthread_mutex_t m_stateMutex;
 		threading::Mutex m_stateMutex;
@@ -116,6 +127,10 @@ namespace firc
 				events::ISubscriber<events::Topic>,
 				events::Topic
 			> topic;
+			EventDispatcher<
+				events::ISubscriber<events::NumericReply>,
+				events::NumericReply
+			> num;
 		} m_eventDispatchers;
 	};
 } // namespace firc

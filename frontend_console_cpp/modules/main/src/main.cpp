@@ -52,7 +52,8 @@ void irctest_onJoin(events::Join &event)
 class EventHandler: public events::ISubscriber<events::Join>,
 					public events::ISubscriber<events::Part>,
 					public events::ISubscriber<events::PrivMsg>,
-					public events::ISubscriber<events::Topic>
+					public events::ISubscriber<events::Topic>,
+					public events::ISubscriber<events::NumericReply>
 {
 public:
 	void receiveEvent(events::Join &event)
@@ -97,6 +98,12 @@ public:
 		std::cout << "[main.cpp <-] " << event.origin().nick()
 			<< " changed the topic for " << event.channel() << " to '"
 			<< event.topic() << "'" << std::endl;
+	}
+	void receiveEvent(events::NumericReply &event)
+	{
+		std::cout << "[main.cpp <-] Numeric reply "
+			<< event.command() << " received. ("
+			<< event.origin().prefix() << ')' << std::endl;
 	}
 };
 
@@ -164,6 +171,7 @@ int main(int argc, char *argv[])
 	network->eventDispatcherPart().subscribe(&eventHandler);
 	network->eventDispatcherPrivMsg().subscribe(&eventHandler);
 	network->eventDispatcherTopic().subscribe(&eventHandler);
+	network->eventDispatcherNumericReply().subscribe(&eventHandler);
 
 	sleep(9);
 	network->sendMessage("JOIN #my-secret-botdev\r\n");

@@ -1,6 +1,7 @@
 #ifndef _NETWORKMANAGEREVENTS_H_
 #define _NETWORKMANAGEREVENTS_H_
 
+#include <basedefs.h>
 #include <eventdispatcher.h>
 #include <messageprefix.h>
 
@@ -66,6 +67,37 @@ protected:
 	std::string m_message;
 };
 
+class EventWithCommand
+{
+public:
+	EventWithCommand(const std::string &command): m_command(command)
+	{
+	}
+	virtual ~EventWithCommand() { }
+	const std::string &command() const { return m_command; }
+protected:
+	std::string m_command;
+};
+
+class EventWithParamList
+{
+public:
+	EventWithParamList(const std::string params[])
+	{
+		for ( uint32 i=0; i<15; ++i )
+		{
+			m_params[i] = params[i];
+		}
+	}
+	virtual ~EventWithParamList() { }
+	const std::string &param(uint32 index) const
+	{
+		return m_params[index];
+	}
+protected:
+	std::string m_params[15];
+};
+
 class Join: public IRCEvent, public EventWithChannel
 {
 public:
@@ -126,6 +158,22 @@ public:
 	const std::string &topic() const { return m_topic; }
 protected:
 	std::string m_topic;
+};
+
+class NumericReply: public IRCEvent,
+					public EventWithCommand,
+					public EventWithParamList
+{
+public:
+	NumericReply(INetworkManagerFrontend &network,
+					const MsgPrefix &origin,
+					const std::string &command,
+					const std::string params[]):
+	IRCEvent(network, origin),
+	EventWithCommand(command),
+	EventWithParamList(params)
+	{
+	}
 };
 
 template <typename E>

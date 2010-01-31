@@ -15,6 +15,10 @@ namespace anp
 {
 namespace firc
 {
+namespace numeric_replies
+{
+	const int8 *const RPL_NAMREPLY = "353";
+}
 	static void *threadRunMessageReceiver(void *arg)
 	{
 		NetworkManager *nm = (NetworkManager *)arg;
@@ -392,7 +396,9 @@ namespace firc
 		std::string nick, user, host;
 
 		static
-		RE ircMsgPattern("^(:(\\S+?)\\s)?(\\S+?)\\s:?((\\S*)\\s?:?(.*))$");
+		RE ircMsgPattern(
+"^(:(\\S+?)\\s)?(\\S+?)\\s:?((\\S*)\\s?:?(.*))$"
+		);
 		static
 		RE prefixPattern("^(\\S+?)!(\\S+?)@(\\S+?)$");
 
@@ -426,6 +432,42 @@ namespace firc
 			{
 				msgTopicHandle(msgPrefix, firstParam,
 									paramsExcludingFirst);
+			}
+
+			// Numeric replies
+			else if ( command == numeric_replies::RPL_NAMREPLY )
+			{
+				// RPL_NAMREPLY ex: (efnet) [Original message]
+				// :efnet.demon.co.uk 353 firc_04 =
+				// #antons_kanal :firc_04 @Pliskin_
+				/*		
+				 // target = firc_04
+				tokenize(target, currentMessage, ' ');
+				 // temp1 = '='
+				tokenize(temp1, currentMessage, ' ');
+				 // temp2 = #antons_kanal
+				tokenize(temp2, currentMessage, " :");
+
+				bool keepGoing = true;
+				while ( keepGoing ) {
+					// temp3 = [@|+|nothing]nickname
+					keepGoing = tokenize(temp3,
+										 currentMessage,
+										 " ");
+					switch ( temp3[0] ) {
+					case '@':
+						temp3.erase(0, 1);
+						break;
+					case '+':
+						temp3.erase(0, 1);
+						break;
+					default:
+						break;
+					}
+					//m_networkCache.addUser(temp2, temp3);
+					m_networkCache.addUserToChannel(temp3, "", "",
+														 temp2);
+				}*/
 			}
 		} else
 		{

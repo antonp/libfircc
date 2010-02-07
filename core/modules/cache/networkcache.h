@@ -29,6 +29,8 @@ namespace firc
 							  const std::string &channelName);
 		void removeUserFromChannel(const std::string &name,
 									const std::string &channelName);
+		void removeAllUsersFromChannel(
+							const std::string &channel);
 
 		void setTopic(const std::string &channelName,
 						const std::string &topic);

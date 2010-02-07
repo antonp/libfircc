@@ -8,6 +8,7 @@
 #include <userinfo.h>
 #include "../inc/utilities.h"
 #include <stdexcept>
+#include <iostream> // TODO: Remove of course
 
 namespace anp
 {
@@ -31,7 +32,21 @@ namespace firc
 	static int channeluserrelation_compareC(const ChannelUserRelation &r1,
 									const ChannelUserRelation &r2)
 	{
+		// TODO: Improve this by also taking nick names into account
+		// So that the table can be sorted on channel (primarily) and
+		// nick names (secondarily)
 		return r1.m_channel.compare(r2.m_channel);
+	}
+
+	static int channeluserrelation_compareCU(const ChannelUserRelation &r1,
+									const ChannelUserRelation &r2)
+	{
+		int ret = r1.m_channel.compare(r2.m_channel);
+		if ( 0 == ret )
+		{
+			return r1.m_user.compare(r2.m_user);
+		}
+		return ret;
 	}
 
 	// pImpl object
@@ -230,6 +245,9 @@ namespace firc
 			delete (*i);
 			list.erase(i);
 		}
+
+		// Remove entries in relation table
+		removeAllUsersFromChannel(channel);
 	}
 
 	void NetworkCache::addUserToChannel(const std::string &name,
@@ -248,17 +266,44 @@ namespace firc
 		}
 		ChannelUserRelation newRelation(channelName, name, 0);
 		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
-		table.insert(
-			std::lower_bound(
-				table.begin(),
-				table.end(),
-				newRelation,
-				channeluserrelation_compareC
-			),
-			newRelation
-		);
+
+		// Avoid duplicates (drop duplicates silently without
+		// exceptions or anything)
+		if ( table.empty() || !std::binary_search(table.begin(), 
+				table.end(), newRelation,
+				channeluserrelation_compareCU) )
+		{
+			std::cout << "(cache) Added '" << name << "' to '"
+				<< channelName << "'." << std::endl;
+			table.insert(
+				std::lower_bound(
+					table.begin(),
+					table.end(),
+					newRelation,
+					channeluserrelation_compareCU
+				),
+				newRelation
+			);
+		} else
+		{
+			std::cout << "(cache) Didn't add '" << name << "' to '"
+				<< channelName << "' because of binary_search. table.size()=" << table.size() 
+				<< std::endl;
+		}
 	}
 	
+	/**
+		Removes a channel - user relation.
+
+		@param name
+		Nickname of the user.
+
+		@param channelName
+		Name of the channel.
+
+		@remark
+		Assumes there's no duplicate entries.
+	*/
 	void NetworkCache::removeUserFromChannel(const std::string &name,
 								const std::string &channelName)
 	{
@@ -270,13 +315,18 @@ namespace firc
 		> range = std::equal_range(table.begin(), table.end(), tempRel,
 									channeluserrelation_compareC);
 
-		if ( range.first != table.end() )
+		if ( range.first != table.end() ) // equal_range() succeeded?
 		{
-			while ( range.first != range.second )
+			// infinite loop while ( range.first != range.second )
+			bool32 erased = false;
+			while ( !erased && range.first != range.second )
 			{
 				if ( (*range.first).m_user == name )
 				{
 					range.first = table.erase(range.first);
+					std::cout << "(cache) Removed '" << name
+						<< "' from '" << channelName << "'." << std::endl;
+					erased = true;
 				} else
 				{
 					range.first++;
@@ -288,6 +338,21 @@ namespace firc
 			ss << "Unable to find channel '" << channelName << "'.";
 			throw std::runtime_error(ss.str());
 		}
+	}
+
+	void NetworkCache::removeAllUsersFromChannel(
+								const std::string &channel)
+	{
+		ChannelUserRelation tempRel(channel, "", 0);
+		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+		std::pair<
+			std::vector<ChannelUserRelation>::iterator,
+			std::vector<ChannelUserRelation>::iterator
+		> range = std::equal_range(table.begin(), table.end(), tempRel,
+									channeluserrelation_compareC);
+		
+		std::cout << "Erasing all users in " << channel << std::endl;
+		table.erase(range.first, range.second);
 	}
 
 	void NetworkCache::setTopic(const std::string &channelName,

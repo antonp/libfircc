@@ -516,13 +516,16 @@ namespace numeric_replies
 										const std::string &channel,
 										const std::string &message)
 	{
-		m_networkCache.removeUserFromChannel(origin.nick(), channel);
 
 		std::string clientNick;
 		m_networkCache.getClientNickName(clientNick);
 		if ( origin.nick() == clientNick )
 		{
 			m_networkCache.removeChannel(channel);
+		} else
+		{
+			m_networkCache.removeUserFromChannel(origin.nick(),
+												channel);
 		}
 
 		events::Part event(*this, origin, channel, message);
@@ -591,9 +594,13 @@ namespace numeric_replies
 			default:
 				break;
 			}
-			//m_networkCache.addUser(temp2, temp3);
-			m_networkCache.addUserToChannel(nick, "", "",
+			// Stupid temporary fix.
+			// Parsing should be fixed instead.
+			if ( nick != "" && nick != " " )
+			{
+				m_networkCache.addUserToChannel(nick, "", "",
 												 channel);
+			}
 		}
 	}
 

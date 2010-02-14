@@ -17,15 +17,15 @@
 
 * Introduce api functions to unregister callbacks too, and make the plugins responsible for cleaning up after themselves.
 
-* Write a parser for the numeric reply 005 (RPL_BOUNCE acc to rfc, but seems to be used as RPL_ISUPPORT by all irc servers nowadays) and store info in cache
+(Won't fix) * Write a parser for the numeric reply 005 (RPL_BOUNCE acc to rfc, but seems to be used as RPL_ISUPPORT by all irc servers nowadays) and store info in cache
 
 (Done) * Perhaps look over the network cache code and adjust it to be more like the rest of the project.
 
-* Refactor message parsing
+(Done) * Refactor message parsing
 
-* Add handlers for more irc events than join and privmsg.
+(Done) * Add handlers for more irc events than join and privmsg.
 
-(WorkInProgress) * Add antiflood mechanism (output queue + monitor)
+(Done) * Add antiflood mechanism (output queue + monitor)
 
 * Assertions: Add NDEBUG preprocessor definition for releasebuilds!
 

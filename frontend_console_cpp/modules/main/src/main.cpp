@@ -161,8 +161,6 @@ int main(int argc, char *argv[])
 	INetworkManagerFrontend *network =
 		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
 													&pluginManager);
-
-	network->runMessageReceiverInThread();
 	
 	anp::uint32 state = 0;
 
@@ -172,6 +170,8 @@ int main(int argc, char *argv[])
 	network->eventDispatcherPrivMsg().subscribe(&eventHandler);
 	network->eventDispatcherTopic().subscribe(&eventHandler);
 	network->eventDispatcherNumericReply().subscribe(&eventHandler);
+
+	network->runMessageReceiverInThread();
 
 	sleep(9);
 	network->sendMessage("JOIN #my-secret-botdev\r\n");

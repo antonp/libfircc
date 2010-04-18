@@ -14,10 +14,7 @@ namespace firc
 	class Plugin
 	{
 	public:
-		Plugin(void *fircCore,
-			   const int8 *fileName,
-			   PF_irc_onJoin *ioj,
-			   PF_irc_onPrivMsg *iopm);
+		Plugin(const int8 *fileName);
 		~Plugin();
 		
 		void setUnloadReason(uint32 reason);

@@ -16,6 +16,8 @@
 #include <fstream>
 #include <tcpconnection.h>
 #include <networkmanagerevents.h>
+#include <eventdispatcher.h>
+#include <networkmanagerevents.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
@@ -125,10 +127,41 @@ bool32 waitForSocket(int socket,
 	return FD_ISSET(socket, &readFileDescriptorSet);
 }
 
+namespace app
+{
+	namespace events
+	{
+		class NewSession
+		{
+		public:
+			NewSession(anp::firc::INetworkManagerFrontend &session):
+			m_session(session)
+			{
+			}
+
+			anp::firc::INetworkManagerFrontend &session()
+			{
+				return m_session;
+			}
+		protected:
+			anp::firc::INetworkManagerFrontend &m_session;
+		};
+	}
+	struct EventDispatchers
+	{
+		EventDispatcher<
+			anp::firc::events::ISubscriber<events::NewSession>,
+			events::NewSession
+		> newSession;
+	};
+}
+
 int main(int argc, char *argv[])
 {
 	using namespace anp;
 	using namespace anp::firc;
+
+	app::EventDispatchers dispatchers;
 	
 	std::string serverAddress = "irc.chatjunkies.org",
 				serverPort = "6667";

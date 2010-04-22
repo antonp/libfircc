@@ -3,14 +3,11 @@
 
 #include <basedefs.h>
 #include <plugin_functions.h>
-#include <anp_jobqueue.h>
 #include "pluginmanager_frontend.h"
 
 // TODO: Maybe pImpl this
 #include <vector> 
-#include <map>
 #include <string>
-#include "plugin_jobs.h" // remove this dependency by moving the stuff in this header to another
 
 namespace anp
 {
@@ -24,7 +21,13 @@ namespace firc
 		PluginManager();
 		~PluginManager();
 
-		void loadPlugin(const int8 *fileName);
+		void loadPlugin(const int8 *fileName,
+						anp::EventDispatcher<
+							events::ISubscriber<events::NewSession>,
+							events::NewSession
+						> &newSessionDispatcher,
+						void *appContext
+						);
 		bool unloadPlugin(const std::string &fileName, uint32 reason);
 		void unloadAllPlugins();
 		uint32 getPluginCount() const;

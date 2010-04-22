@@ -24,7 +24,7 @@
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
 using namespace anp;
-using namespace firc;
+using namespace anp::firc;
 
 class LogFileWriter: public ILogInterface
 {
@@ -134,7 +134,10 @@ int main(int argc, char *argv[])
 	using namespace anp;
 	using namespace anp::firc;
 
-	app::EventDispatchers dispatchers;
+	anp::EventDispatcher<
+		events::ISubscriber<events::NewSession>,
+		events::NewSession
+	> newSessionDispatcher;
 	
 	std::string serverAddress = "irc.chatjunkies.org",
 				serverPort = "6667";
@@ -161,7 +164,7 @@ int main(int argc, char *argv[])
 	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
 			i++ )
 	{
-		pluginManager.loadPlugin(pluginNames[i]);
+		pluginManager.loadPlugin(pluginNames[i], newSessionDispatcher, 0);
 	}
 	
 	INetworkManagerFrontend *network =

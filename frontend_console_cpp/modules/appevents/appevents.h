@@ -7,21 +7,6 @@ namespace app
 {
 	namespace events
 	{
-		class NewSession
-		{
-		public:
-			NewSession(anp::firc::INetworkManagerFrontend &session):
-			m_session(session)
-			{
-			}
-
-			anp::firc::INetworkManagerFrontend &session()
-			{
-				return m_session;
-			}
-		protected:
-			anp::firc::INetworkManagerFrontend &m_session;
-		};
 	}
 }
 

@@ -1,6 +1,9 @@
 #ifndef _PLUGIN_FUNCTIONS_H_
 #define _PLUGIN_FUNCTIONS_H_
 
+#include <eventdispatcher.h>
+#include <networkmanagerevents.h>
+
 namespace anp
 {
 namespace firc
@@ -15,7 +18,13 @@ namespace firc
 
 	// Typedefs
 	// uint32 pluginInit(void *fircCore)
-	typedef uint32 (*PF_pluginInit)(void *);
+	typedef uint32 (*PF_pluginInit)(
+		anp::EventDispatcher<
+			events::ISubscriber<events::NewSession>,
+			events::NewSession
+		> &,
+		void *userData
+	);
 	
 	// void pluginDeinit()
 	typedef void (*PF_pluginDeinit)(uint32);

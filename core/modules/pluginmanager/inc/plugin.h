@@ -14,7 +14,14 @@ namespace firc
 	class Plugin
 	{
 	public:
-		Plugin(const int8 *fileName);
+		Plugin(
+			const int8 *fileName,
+			anp::EventDispatcher<
+				events::ISubscriber<events::NewSession>,
+				events::NewSession
+			> &newSessionDispatcher,
+			void *appContext
+		);
 		~Plugin();
 		
 		void setUnloadReason(uint32 reason);

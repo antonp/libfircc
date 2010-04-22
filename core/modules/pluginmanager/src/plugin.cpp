@@ -17,7 +17,14 @@ namespace firc
 	 * @param fileName
 	 * NULL terminated string representing the fileName
 	 */
-	Plugin::Plugin(const int8 *fileName):
+	Plugin::Plugin(
+		const int8 *fileName,
+		anp::EventDispatcher<
+			events::ISubscriber<events::NewSession>,
+			events::NewSession
+		> &newSessionDispatcher,
+		void *appContext
+	):
 		m_lib(fileName),
 		m_name("n/a"),
 		m_pf_pluginDeinit(NULL),
@@ -37,7 +44,10 @@ namespace firc
 		
 		// Call init function
 		m_name = fileName;
-		uint32 res = pf_pluginInit(0); //remove 0
+		uint32 res = pf_pluginInit(
+			newSessionDispatcher,
+			appContext
+		);
 		if ( res == 0 )
 		{
 			std::cout << "pluginInit returned 0" << std::endl;

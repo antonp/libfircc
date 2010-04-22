@@ -25,9 +25,22 @@ namespace firc
 	 * @param fileName
 	 * NULL terminated string representing the fileName
 	 */
-	void PluginManager::loadPlugin(const int8 *fileName)
+	void PluginManager::loadPlugin(
+		const int8 *fileName,
+		anp::EventDispatcher<
+			events::ISubscriber<
+				events::NewSession
+			>,
+			events::NewSession
+		> &newSessionDispatcher,
+		void *appContext
+	)
 	{
-		Plugin *plugin = new Plugin(fileName);
+		Plugin *plugin = new Plugin(
+			fileName,
+			newSessionDispatcher,
+			appContext
+		);
 		m_plugins.push_back(plugin);
 	}
 

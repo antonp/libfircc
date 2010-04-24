@@ -22,8 +22,8 @@ namespace firc
 		anp::EventDispatcher<
 			events::ISubscriber<events::NewSession>,
 			events::NewSession
-		> &,
-		void *userData
+		> &newSessionDispatcher,
+		void *appContext
 	);
 	
 	// void pluginDeinit()

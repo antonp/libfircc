@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	}
 
 	const int8 *pluginNames[] = {
-	//	"./libpluginTest1.so"
+		"./libpluginTest1.so"
 	};
 
 	LogFileWriter logFileWriter("frontend_cpp.log");
@@ -170,6 +170,8 @@ int main(int argc, char *argv[])
 	INetworkManagerFrontend *network =
 		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
 													&pluginManager);
+	events::NewSession newSessionEvent(*network);
+	newSessionDispatcher.dispatch(newSessionEvent);
 	
 	anp::uint32 state = 0;
 

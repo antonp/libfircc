@@ -13,7 +13,7 @@ using namespace anp::firc::events;
 using std::cout;
 using std::endl;
 
-class EventHandler: public ISubscriber<NewSession>,
+class TestEventHandler: public ISubscriber<NewSession>,
 					// public ISubscriber<RemovedSession>,
 //					public ISubscriber<Join>,
 //					public ISubscriber<Part>,
@@ -24,6 +24,7 @@ class EventHandler: public ISubscriber<NewSession>,
 public:
 	void receiveEvent(NewSession &event)
 	{
+		cout << "[pluginTest1] <-] NewSession event received!" << endl;
 		event.session().eventDispatcherNumericReply().subscribe(this);
 	}
 	void receiveEvent(NumericReply &event)
@@ -31,9 +32,9 @@ public:
 		cout << "[pluginTest1 <-] Numeric reply " << event.command()
 			<< " received. (" << event.origin().prefix() << ')' << endl;
 	}
-} g_eventHandler;
+} g_handla;
 
-uint32 pluginInit(
+extern "C" uint32 pluginInit(
 	EventDispatcher<
 		events::ISubscriber<events::NewSession>,
 		events::NewSession
@@ -41,12 +42,13 @@ uint32 pluginInit(
 	void *appContext
 )
 {
-	newSessionDispatcher.subscribe(&g_eventHandler);
+	newSessionDispatcher.subscribe(&g_handla);
+	cout << "pluginTest1.cpp: pluginInit()" << endl;
 
 	return 1;
 }
 
-void pluginDeinit()
+extern "C" void pluginDeinit()
 {
 	std::cout << "Good bye world from pluginTest1.cpp" << std::endl;
 }

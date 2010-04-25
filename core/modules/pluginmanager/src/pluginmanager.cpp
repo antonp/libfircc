@@ -27,18 +27,15 @@ namespace firc
 	 */
 	void PluginManager::loadPlugin(
 		const int8 *fileName,
-		anp::EventDispatcher<
-			events::ISubscriber<
-				events::NewSession
-			>,
-			events::NewSession
-		> &newSessionDispatcher,
+		network::NewNetworkEventDispatcher &newNetworkDispatcher,
+		network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
 		void *appContext
 	)
 	{
 		Plugin *plugin = new Plugin(
 			fileName,
-			newSessionDispatcher,
+			newNetworkDispatcher,
+			removingNetworkDispatcher,
 			appContext
 		);
 		m_plugins.push_back(plugin);

@@ -5,6 +5,7 @@
 
 #include <networkmanager_frontend.h>
 #include <networkmanagerevents.h>
+#include <networkeventdispatchers.h>
 
 using namespace anp;
 using namespace anp::firc;
@@ -13,7 +14,8 @@ using namespace anp::firc::events;
 using std::cout;
 using std::endl;
 
-class TestEventHandler: public ISubscriber<NewSession>,
+class TestEventHandler: public ISubscriber<NewNetwork>,
+						public ISubscriber<RemovingNetwork>,
 					// public ISubscriber<RemovedSession>,
 //					public ISubscriber<Join>,
 //					public ISubscriber<Part>,
@@ -22,10 +24,15 @@ class TestEventHandler: public ISubscriber<NewSession>,
 					public ISubscriber<NumericReply>
 {
 public:
-	void receiveEvent(NewSession &event)
+	void receiveEvent(NewNetwork &event)
 	{
 		cout << "[pluginTest1] <-] NewSession event received!" << endl;
-		event.session().eventDispatcherNumericReply().subscribe(this);
+		event.network().eventDispatcherNumericReply().subscribe(this);
+	}
+	void receiveEvent(RemovingNetwork &event)
+	{
+		cout << "[pluginTest2] <-] RemovingNetwork event received!" << endl;
+		event.network().eventDispatcherNumericReply().unsubscribe(this);
 	}
 	void receiveEvent(NumericReply &event)
 	{
@@ -35,14 +42,13 @@ public:
 } g_handla;
 
 extern "C" uint32 pluginInit(
-	EventDispatcher<
-		events::ISubscriber<events::NewSession>,
-		events::NewSession
-	> &newSessionDispatcher,
+	anp::firc::network::NewNetworkEventDispatcher &newNetworkDispatcher,
+	anp::firc::network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
 	void *appContext
 )
 {
-	newSessionDispatcher.subscribe(&g_handla);
+	newNetworkDispatcher.subscribe(&g_handla);
+	removingNetworkDispatcher.subscribe(&g_handla);
 	cout << "pluginTest1.cpp: pluginInit()" << endl;
 
 	return 1;

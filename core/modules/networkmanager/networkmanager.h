@@ -22,8 +22,7 @@ namespace firc
 	class NetworkManager: public INetworkManagerFrontend
 	{
 	public:
-		NetworkManager(const int8 *host, const int8 *port,
-						PluginManager *m_pluginManager);
+		NetworkManager(const int8 *host, const int8 *port);
 		~NetworkManager();
 		
 		void deinit(const std::string &message);

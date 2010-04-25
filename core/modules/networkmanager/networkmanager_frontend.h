@@ -8,7 +8,7 @@
 namespace anp
 {
 namespace firc
-{
+{	
 	class NetworkCacheUserInterface;
 
 	class INetworkManagerFrontend

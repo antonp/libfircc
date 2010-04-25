@@ -3,6 +3,8 @@
 
 #include <basedefs.h>
 #include <anp_dynamic_library.h>
+#include <networkeventdispatchers.h>
+
 #include "plugin_functions.h"
 
 #include <string>
@@ -16,10 +18,8 @@ namespace firc
 	public:
 		Plugin(
 			const int8 *fileName,
-			anp::EventDispatcher<
-				events::ISubscriber<events::NewSession>,
-				events::NewSession
-			> &newSessionDispatcher,
+			network::NewNetworkEventDispatcher &newNetworkDispatcher,
+			network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
 			void *appContext
 		);
 		~Plugin();
@@ -30,10 +30,6 @@ namespace firc
 		
 		const std::string &getName() const;
 		
-		// Event handler get functions
-		Result getEventHandler(PF_irc_onJoin *dest) const;
-		Result getEventHandler(PF_irc_onPrivMsg *dest) const;
-		
 		// Execution, status, reloading
 		void increaseExecutionCount();
 		void decreaseExecutionCount();
@@ -41,10 +37,6 @@ namespace firc
 		DynamicLibrary		m_lib;
 		
 		PF_pluginDeinit		m_pf_pluginDeinit;
-		
-		// Pure irc functions
-		PF_irc_onJoin		m_pf_irc_onJoin;
-		PF_irc_onPrivMsg	m_pf_irc_onPrivMsg;
 		
 		// Info
 		std::string			m_name;

@@ -135,9 +135,14 @@ int main(int argc, char *argv[])
 	using namespace anp::firc;
 
 	anp::EventDispatcher<
-		events::ISubscriber<events::NewSession>,
-		events::NewSession
-	> newSessionDispatcher;
+		events::ISubscriber<events::NewNetwork>,
+		events::NewNetwork
+	> newNetworkDispatcher;
+	
+	anp::EventDispatcher<
+		events::ISubscriber<events::RemovingNetwork>,
+		events::RemovingNetwork
+	> removingNetworkDispatcher;
 	
 	std::string serverAddress = "irc.chatjunkies.org",
 				serverPort = "6667";
@@ -164,14 +169,18 @@ int main(int argc, char *argv[])
 	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
 			i++ )
 	{
-		pluginManager.loadPlugin(pluginNames[i], newSessionDispatcher, 0);
+		pluginManager.loadPlugin(
+			pluginNames[i],
+			newNetworkDispatcher,
+			removingNetworkDispatcher,
+			0
+		);
 	}
 	
 	INetworkManagerFrontend *network =
-		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
-													&pluginManager);
-	events::NewSession newSessionEvent(*network);
-	newSessionDispatcher.dispatch(newSessionEvent);
+		networkmanager_create(serverAddress.c_str(), serverPort.c_str());
+	events::NewNetwork newNetworkEvent(*network);
+	newNetworkDispatcher.dispatch(newNetworkEvent);
 	
 	anp::uint32 state = 0;
 

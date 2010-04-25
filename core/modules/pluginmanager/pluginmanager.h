@@ -2,8 +2,7 @@
 #define _PLUGINMANAGER_H_
 
 #include <basedefs.h>
-#include <plugin_functions.h>
-#include "pluginmanager_frontend.h"
+#include <networkeventdispatchers.h>
 
 // TODO: Maybe pImpl this
 #include <vector> 
@@ -21,13 +20,12 @@ namespace firc
 		PluginManager();
 		~PluginManager();
 
-		void loadPlugin(const int8 *fileName,
-						anp::EventDispatcher<
-							events::ISubscriber<events::NewSession>,
-							events::NewSession
-						> &newSessionDispatcher,
-						void *appContext
-						);
+		void loadPlugin(
+			const int8 *fileName,
+			network::NewNetworkEventDispatcher &newNetworkDispatcher,
+			network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+			void *appContext
+		);
 		bool unloadPlugin(const std::string &fileName, uint32 reason);
 		void unloadAllPlugins();
 		uint32 getPluginCount() const;

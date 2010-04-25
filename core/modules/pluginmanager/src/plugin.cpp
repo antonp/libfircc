@@ -19,10 +19,8 @@ namespace firc
 	 */
 	Plugin::Plugin(
 		const int8 *fileName,
-		anp::EventDispatcher<
-			events::ISubscriber<events::NewSession>,
-			events::NewSession
-		> &newSessionDispatcher,
+		network::NewNetworkEventDispatcher &newNetworkDispatcher,
+		network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
 		void *appContext
 	):
 		m_lib(fileName),
@@ -45,7 +43,8 @@ namespace firc
 		// Call init function
 		m_name = fileName;
 		uint32 res = pf_pluginInit(
-			newSessionDispatcher,
+			newNetworkDispatcher,
+			removingNetworkDispatcher,
 			appContext
 		);
 		if ( res == 0 )
@@ -79,48 +78,6 @@ namespace firc
 	{
 		// Trust that the caller respects the constness
 		return m_name;
-	}
-	
-	/////////////////////////
-	// Get plugin handlers
-	/////////////////////////
-
-	Result Plugin::getEventHandler(PF_irc_onJoin *dest) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != dest )
-		{
-			if ( NULL != m_pf_irc_onJoin )
-			{
-				*dest = m_pf_irc_onJoin;
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-		
-		return res;
-	}
-	
-	Result Plugin::getEventHandler(PF_irc_onPrivMsg *dest) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != dest )
-		{
-			if ( NULL != m_pf_irc_onPrivMsg )
-			{
-				*dest = m_pf_irc_onPrivMsg;
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-		
-		return res;
 	}
 	
 	//////////////////////////////////

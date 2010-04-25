@@ -176,20 +176,36 @@ public:
 	}
 };
 
-class NewSession
+class NewNetwork
 {
 public:
-	NewSession(anp::firc::INetworkManagerFrontend &session):
-	m_session(session)
+	NewNetwork(anp::firc::INetworkManagerFrontend &network):
+	m_network(network)
 	{
 	}
 
-	anp::firc::INetworkManagerFrontend &session()
+	anp::firc::INetworkManagerFrontend &network()
 	{
-		return m_session;
+		return m_network;
 	}
 protected:
-	anp::firc::INetworkManagerFrontend &m_session;
+	anp::firc::INetworkManagerFrontend &m_network;
+};
+
+class RemovingNetwork
+{
+public:
+	RemovingNetwork(anp::firc::INetworkManagerFrontend &network):
+	m_network(network)
+	{
+	}
+
+	anp::firc::INetworkManagerFrontend &network()
+	{
+		return m_network;
+	}
+protected:
+	anp::firc::INetworkManagerFrontend &m_network;
 };
 
 template <typename E>

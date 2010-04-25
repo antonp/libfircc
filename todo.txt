@@ -11,11 +11,9 @@
 
 (Done) * Refactor callback handling to minimize code duplication and simplify adding of new callbacks.
 
-* Break out "PluginJob", don't have it depend on threading lib. Split it into functor and arg pack.
-
 * Prevent multiple Plugin objects from being created using the same shared library handle.
 
-* Introduce api functions to unregister callbacks too, and make the plugins responsible for cleaning up after themselves.
+(Done) * Introduce api functions to unregister callbacks too, and make the plugins responsible for cleaning up after themselves.
 
 (Won't fix) * Write a parser for the numeric reply 005 (RPL_BOUNCE acc to rfc, but seems to be used as RPL_ISUPPORT by all irc servers nowadays) and store info in cache
 

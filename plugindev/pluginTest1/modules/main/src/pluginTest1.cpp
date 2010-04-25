@@ -1,128 +1,61 @@
 #include <basedefs.h>
-#include <fircapi.h>
 #include <iostream>
 #include <sstream>
-#include <string.h>
+#include <string>
+
+#include <networkmanager_frontend.h>
+#include <networkmanagerevents.h>
+#include <networkeventdispatchers.h>
 
 using namespace anp;
 using namespace anp::firc;
+using namespace anp::firc::events;
 
-extern "C"
+using std::cout;
+using std::endl;
+
+class TestEventHandler: public ISubscriber<NewNetwork>,
+						public ISubscriber<RemovingNetwork>,
+					// public ISubscriber<RemovedSession>,
+//					public ISubscriber<Join>,
+//					public ISubscriber<Part>,
+//					public ISubscriber<PrivMsg>,
+//					public ISubscriber<Topic>,
+					public ISubscriber<NumericReply>
 {
-
-void *g_fircCore = NULL;
-
-void irc_onJoin(void *network, const int8 *channel, const int8 *user)
-{
-	std::cout << "pluginTest1.cpp: onJoin: channel='" << channel
-		<< "' user:'" << user << "'" << std::endl;
-		
-	ircPrivMsg(network, channel,
-						"Hello world from pluginTest1.cpp");
-}
-
-void irc_onPrivMsg(void *network, const int8 *sender,
-					const int8 *receiver, const int8 *message)
-{
-	Result res = RES_FAILED;
-	void *pm = NULL;
-	uint32 pluginCount = 0;
-	std::stringstream ss;
-
-	res = coreGetPluginManager(g_fircCore, &pm);
-	if ( RES_OK != res )
+public:
+	void receiveEvent(NewNetwork &event)
 	{
-		std::cout << "Failed to get plugin manager.." << std::endl;
-	} else if ( message[0] == '?' )
-	{
-		pluginGetPluginCount(pm, &pluginCount);
-		ss << pluginCount << " plugins loaded." << std::endl;
-		ircPrivMsg(network, receiver, ss.str().c_str());
-		ss.str("");
-		
-		for ( uint32 i=0; i<pluginCount; ++i )
-		{
-			int8 name[256];
-
-			res = pluginGetPluginInfo(pm, i,
-										name, 256 );
-			if ( RES_OK == res )
-			{
-				ss << name << ", ";
-			}
-		}
-		ircPrivMsg(network, receiver, ss.str().c_str());
-	} else if ( message[0] == ']' )
-	{
-		res = pluginLoad(pm, "./libpluginTest2.so");
-		if ( RES_OK == res )
-		{
-			std::cout << "Successfully loaded pluginTest2."
-				<< std::endl;
-		} else
-		{
-			std::cout << "Failed to load pluginTest2." << std::endl;
-		}
-	} else if ( message[0] == '%' )
-	{
-		pluginGetPluginCount(pm, &pluginCount);
-		
-		for ( uint32 i=0; i<pluginCount; ++i )
-		{
-			int8 name[256];
-
-			res = pluginGetPluginInfo(pm, i,
-										name, 256 );
-			if ( RES_OK == res )
-			{
-				if ( 0 == strcmp(name, "./libpluginTest2.so") )
-				{
-					pluginUnload(pm, i, 1);
-				}
-			}
-		}
+		cout << "[pluginTest1] <-] NewSession event received!" << endl;
+		event.network().eventDispatcherNumericReply().subscribe(this);
 	}
-}
-
-uint32 pluginInit(void *fircCore)
-{
-	Result res = RES_FAILED;
-	void *network = NULL;
-	
-	g_fircCore = fircCore;
-
-	std::cout << "Hello world from pluginTest1.cpp!" << std::endl;
-
-/*	res = ircConnect(fircCore, "irc.efnet.ch", "6667", &network);
-	if ( RES_OK == res )
+	void receiveEvent(RemovingNetwork &event)
 	{
-		std::cout << "pluginTest1.cpp: Successfully connected!"
-			<< std::endl;
-			
-		ircSendRaw(network, "JOIN #my-secret-botdev\r\n");
-		ircPrivMsg(network, "#my-secret-botdev", "Hello world!");			
-		
-		// Quit
-		res = ircDisconnect(fircCore, network, "Time to go! See you!");
-		if ( RES_OK == res )
-		{
-			std::cout << "pluginTest1.cpp: Successfully disconnected." << std::endl;
-		} else
-		{
-			std::cout << "pluginTest1.cpp: Failed to disconnect" << std::endl;	
-		}
-
-	} else
-	{
-		std::cout << "pluginTest1.cpp: Failed to connect" << std::endl;
+		cout << "[pluginTest2] <-] RemovingNetwork event received!" << endl;
+		event.network().eventDispatcherNumericReply().unsubscribe(this);
 	}
-*/
+	void receiveEvent(NumericReply &event)
+	{
+		cout << "[pluginTest1 <-] Numeric reply " << event.command()
+			<< " received. (" << event.origin().prefix() << ')' << endl;
+	}
+} g_handla;
+
+extern "C" uint32 pluginInit(
+	anp::firc::network::NewNetworkEventDispatcher &newNetworkDispatcher,
+	anp::firc::network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+	void *appContext
+)
+{
+	newNetworkDispatcher.subscribe(&g_handla);
+	removingNetworkDispatcher.subscribe(&g_handla);
+	cout << "pluginTest1.cpp: pluginInit()" << endl;
+
 	return 1;
 }
 
-void pluginDeinit()
+extern "C" void pluginDeinit()
 {
 	std::cout << "Good bye world from pluginTest1.cpp" << std::endl;
 }
 
-} // extern "C"

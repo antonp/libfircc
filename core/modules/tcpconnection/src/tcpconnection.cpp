@@ -64,11 +64,18 @@ namespace firc
 									pServInfoCurrent->ai_addr,
 									pServInfoCurrent->ai_addrlen) )
 			{
-				// Failed to connect
-				throw NetworkException("Failed to connect");
+				continue;
+			} else
+			{
+				// Success
+				freeaddrinfo(pServInfoFirst);
+				return;
 			}
 		}
-		// Success
+		
+		// Failed to connect
+		freeaddrinfo(pServInfoFirst);
+		throw NetworkException("Failed to connect");
 	}
 
 	Result TCPConnection::send(const std::string &buffer)

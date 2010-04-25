@@ -2,14 +2,11 @@
 #define _PLUGINMANAGER_H_
 
 #include <basedefs.h>
-#include <plugin_functions.h>
-#include <anp_jobqueue.h>
-#include "pluginmanager_frontend.h"
+#include <networkeventdispatchers.h>
 
 // TODO: Maybe pImpl this
-#include <vector> // johnny bigert this!
-#include <map>
-#include "plugin_jobs.h" // remove this dependency by moving the stuff in this header to another
+#include <vector> 
+#include <string>
 
 namespace anp
 {
@@ -17,42 +14,25 @@ namespace firc
 {
 	class Plugin;
 
-	class PluginManager: public IPluginManagerFrontend
+	class PluginManager 
 	{
 	public:
 		PluginManager();
 		~PluginManager();
 
-		void loadPlugin(const int8 *fileName);
+		void loadPlugin(
+			const int8 *fileName,
+			network::NewNetworkEventDispatcher &newNetworkDispatcher,
+			network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+			void *appContext
+		);
+		bool unloadPlugin(const std::string &fileName, uint32 reason);
 		void unloadAllPlugins();
-		void unloadPluginReally(uint32 index, uint32 reason);
 		uint32 getPluginCount() const;
 		void getPluginInfo(uint32 index,
-							int8 *name, uint32 nameLength);
-		
-		void performJob(PluginJob *job, CallbackType type);
-							
-		void addCallbackOnJoin(PF_irc_onJoin func);
-		void addCallbackOnPart(PF_irc_onPart func);
-		void addCallbackOnPrivMsg(PF_irc_onPrivMsg func);
-		void addCallbackOnTopic(PF_irc_onTopic func);
+						   std::string &name);
 	private:
-		void addPluginToUnloadList(Plugin *const plugin);
-		void unloadScheduledPlugins();
-		
-		struct CallbackEntry
-		{
-			void *func;
-			Plugin *plugin;
-		};
-	
-		uint32							m_pluginCount;
 		std::vector<Plugin *>			m_plugins;
-		std::vector<Plugin *>			m_pluginsToBeUnloaded;
-		
-		std::vector<CallbackEntry> m_callbacks[IRC_MAX_CALLBACKS];
-										
-		anp::threading::JobQueue		m_jobQueue;
 	};
 
 } // namespace firc

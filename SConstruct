@@ -154,8 +154,12 @@ test_parsing = buildProgram(
 )
 
 # Plugins
-pluginTest1 = buildSharedLibrary('pluginTest1', ['plugindev/pluginTest1/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
-pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
+pluginTest1 = buildSharedLibrary(
+	'pluginTest1',
+	['plugindev/pluginTest1/modules'],
+	['anpbase.git/anp_basecode', 'core/modules/plugin_interface', 'core/modules/networkmanager', 'anpcommon.git/eventdispatcher'],
+	[])
+#pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
 
 Depends(pluginTest1, [core])
 # Depends(frontend_console_c, [core])

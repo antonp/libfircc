@@ -8,7 +8,6 @@ namespace anp
 namespace firc
 {
 	class INetworkManagerFrontend;
-	class IPluginManagerFrontend;
 	
 	/**
 	Creates a network manager and returns an INetworkManagerFrontend
@@ -30,8 +29,7 @@ namespace firc
 	An INetworkManagerFrontend interface to the network.
 	*/
 	INetworkManagerFrontend *
-	networkmanager_create(const int8 *host, const int8 *port,
-							PluginManager *pluginManager);
+	networkmanager_create(const int8 *host, const int8 *port);
 
 	/**
 	Destroys the network manager. Disconnects the host if not

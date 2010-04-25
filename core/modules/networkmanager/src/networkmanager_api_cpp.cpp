@@ -6,13 +6,11 @@ namespace anp
 namespace firc
 {
 	class INetworkManagerFrontend;
-	class IPluginManagerFrontend;
 	
 	INetworkManagerFrontend *
-	networkmanager_create(const int8 *host, const int8 *port,
-							PluginManager *pluginManager)
+	networkmanager_create(const int8 *host, const int8 *port)
 	{
-		return new NetworkManager(host, port, pluginManager);
+		return new NetworkManager(host, port);
 	}
 							
 	void networkmanager_destroy(INetworkManagerFrontend *networkManager)

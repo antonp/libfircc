@@ -176,6 +176,38 @@ public:
 	}
 };
 
+class NewNetwork
+{
+public:
+	NewNetwork(anp::firc::INetworkManagerFrontend &network):
+	m_network(network)
+	{
+	}
+
+	anp::firc::INetworkManagerFrontend &network()
+	{
+		return m_network;
+	}
+protected:
+	anp::firc::INetworkManagerFrontend &m_network;
+};
+
+class RemovingNetwork
+{
+public:
+	RemovingNetwork(anp::firc::INetworkManagerFrontend &network):
+	m_network(network)
+	{
+	}
+
+	anp::firc::INetworkManagerFrontend &network()
+	{
+		return m_network;
+	}
+protected:
+	anp::firc::INetworkManagerFrontend &m_network;
+};
+
 template <typename E>
 class ISubscriber
 {

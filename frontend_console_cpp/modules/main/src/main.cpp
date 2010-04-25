@@ -16,11 +16,15 @@
 #include <fstream>
 #include <tcpconnection.h>
 #include <networkmanagerevents.h>
+#include <eventdispatcher.h>
+#include <networkmanagerevents.h>
+#include <appevents.h>
+#include <appeventdispatchers.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
 using namespace anp;
-using namespace firc;
+using namespace anp::firc;
 
 class LogFileWriter: public ILogInterface
 {
@@ -129,6 +133,16 @@ int main(int argc, char *argv[])
 {
 	using namespace anp;
 	using namespace anp::firc;
+
+	anp::EventDispatcher<
+		events::ISubscriber<events::NewNetwork>,
+		events::NewNetwork
+	> newNetworkDispatcher;
+	
+	anp::EventDispatcher<
+		events::ISubscriber<events::RemovingNetwork>,
+		events::RemovingNetwork
+	> removingNetworkDispatcher;
 	
 	std::string serverAddress = "irc.chatjunkies.org",
 				serverPort = "6667";
@@ -140,7 +154,7 @@ int main(int argc, char *argv[])
 	}
 
 	const int8 *pluginNames[] = {
-	//	"./libpluginTest1.so"
+		"./libpluginTest1.so"
 	};
 
 	LogFileWriter logFileWriter("frontend_cpp.log");
@@ -155,14 +169,18 @@ int main(int argc, char *argv[])
 	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
 			i++ )
 	{
-		pluginManager.loadPlugin(pluginNames[i]);
+		pluginManager.loadPlugin(
+			pluginNames[i],
+			newNetworkDispatcher,
+			removingNetworkDispatcher,
+			0
+		);
 	}
 	
 	INetworkManagerFrontend *network =
-		networkmanager_create(serverAddress.c_str(), serverPort.c_str(),
-													&pluginManager);
-
-	network->runMessageReceiverInThread();
+		networkmanager_create(serverAddress.c_str(), serverPort.c_str());
+	events::NewNetwork newNetworkEvent(*network);
+	newNetworkDispatcher.dispatch(newNetworkEvent);
 	
 	anp::uint32 state = 0;
 
@@ -172,6 +190,8 @@ int main(int argc, char *argv[])
 	network->eventDispatcherPrivMsg().subscribe(&eventHandler);
 	network->eventDispatcherTopic().subscribe(&eventHandler);
 	network->eventDispatcherNumericReply().subscribe(&eventHandler);
+
+	network->runMessageReceiverInThread();
 
 	sleep(9);
 	network->sendMessage("JOIN #my-secret-botdev\r\n");

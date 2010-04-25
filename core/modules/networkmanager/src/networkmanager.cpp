@@ -1,8 +1,6 @@
 #include "../networkmanager.h"
 #include <tokenizer.h>
 #include <tcpconnection.h>
-#include <pluginmanager.h>
-#include <plugin_jobs.h>
 #include <messageprefix.h>
 
 #include <iostream>
@@ -38,12 +36,10 @@ namespace numeric_replies
 		pthread_exit(0);
 	}
 	
-	NetworkManager::NetworkManager(const int8 *host, const int8 *port,
-					PluginManager *pluginManager):
+	NetworkManager::NetworkManager(const int8 *host, const int8 *port):
 	m_state(CONNECTING),
 	m_connection(host, port),
-	m_messageSender(new MessageSender(m_connection)),
-	m_pluginManager(pluginManager)
+	m_messageSender(new MessageSender(m_connection))
 	{
 		std::string m_outStr;
 		

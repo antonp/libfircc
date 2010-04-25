@@ -14,29 +14,20 @@ namespace firc
 	 * @brief
 	 * Creates a plugin by loading it from file.
 	 * 
-	 * @param fircCore
-	 * The core loading the plugin.
-	 * 
 	 * @param fileName
 	 * NULL terminated string representing the fileName
-	 * 
-	 * @param[out] ioj
-	 * Address of an irc_onJoin function pointer.
 	 */
-	Plugin::Plugin(void *fircCore,
-				   const int8 *fileName,
-				   PF_irc_onJoin *ioj,
-				   PF_irc_onPrivMsg *iopm):
+	Plugin::Plugin(
+		const int8 *fileName,
+		network::NewNetworkEventDispatcher &newNetworkDispatcher,
+		network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+		void *appContext
+	):
 		m_lib(fileName),
 		m_name("n/a"),
 		m_pf_pluginDeinit(NULL),
-		m_pf_irc_onJoin(NULL),
-		m_pf_irc_onPrivMsg(NULL),
-		m_executionCount(0),
-		m_unloading(FALSE),
 		m_unloadReason(0)
-	{
-		
+	{		
 		std::cout << "Plugin::loadFromFile: " << fileName << std::endl;
 		
 		PF_pluginInit pf_pluginInit	= (PF_pluginInit)m_lib.getSymbol(
@@ -49,15 +40,13 @@ namespace firc
 		// happen.
 		assert(NULL != pf_pluginInit && NULL != m_pf_pluginDeinit);
 		
-		// Find all implemented event handlers
-		*ioj = m_pf_irc_onJoin =
-			(PF_irc_onJoin)m_lib.getSymbol("irc_onJoin");
-		*iopm = m_pf_irc_onPrivMsg =
-			(PF_irc_onPrivMsg)m_lib.getSymbol("irc_onPrivMsg");
-		
 		// Call init function
 		m_name = fileName;
-		uint32 res = pf_pluginInit(fircCore);
+		uint32 res = pf_pluginInit(
+			newNetworkDispatcher,
+			removingNetworkDispatcher,
+			appContext
+		);
 		if ( res == 0 )
 		{
 			std::cout << "pluginInit returned 0" << std::endl;
@@ -89,48 +78,6 @@ namespace firc
 	{
 		// Trust that the caller respects the constness
 		return m_name;
-	}
-	
-	/////////////////////////
-	// Get plugin handlers
-	/////////////////////////
-
-	Result Plugin::getEventHandler(PF_irc_onJoin *dest) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != dest )
-		{
-			if ( NULL != m_pf_irc_onJoin )
-			{
-				*dest = m_pf_irc_onJoin;
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-		
-		return res;
-	}
-	
-	Result Plugin::getEventHandler(PF_irc_onPrivMsg *dest) const
-	{
-		Result res = RES_INVALID_PARAMETER;
-		
-		if ( NULL != dest )
-		{
-			if ( NULL != m_pf_irc_onPrivMsg )
-			{
-				*dest = m_pf_irc_onPrivMsg;
-				res = RES_OK;
-			} else
-			{
-				res = RES_NOTFOUND;
-			}
-		}
-		
-		return res;
 	}
 	
 	//////////////////////////////////

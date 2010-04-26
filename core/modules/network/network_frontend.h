@@ -3,7 +3,7 @@
 
 #include <string>
 #include <eventdispatcher.h>
-#include <networkmanagerevents.h>
+#include <networkevents.h>
 
 namespace anp
 {

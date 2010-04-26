@@ -3,8 +3,8 @@
 #include <sstream>
 #include <string>
 
-#include <networkmanager_frontend.h>
-#include <networkmanagerevents.h>
+#include <network_frontend.h>
+#include <networkevents.h>
 #include <networkeventdispatchers.h>
 
 using namespace anp;

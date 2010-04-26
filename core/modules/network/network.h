@@ -4,10 +4,10 @@
 #include <basedefs.h>
 #include <tcpconnection.h>
 #include <networkcache.h>
-#include "networkmanager_frontend.h"
+#include "network_frontend.h"
 #include "inc/messagesender.h"
 #include <eventdispatcher.h>
-#include <networkmanagerevents.h>
+#include <networkevents.h>
 
 #include <anp_threading.h> // johnny bigert?
 #include <memory>
@@ -19,11 +19,11 @@ namespace firc
 	class PluginManager;
 	class MsgPrefix;
 	
-	class NetworkManager: public INetworkManagerFrontend
+	class Network: public INetworkManagerFrontend
 	{
 	public:
-		NetworkManager(const int8 *host, const int8 *port);
-		~NetworkManager();
+		Network(const int8 *host, const int8 *port);
+		~Network();
 		
 		void deinit(const std::string &message);
 		enum State

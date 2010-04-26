@@ -1,4 +1,4 @@
-#include "../networkmanager.h"
+#include "../network.h"
 #include <tokenizer.h>
 #include <tcpconnection.h>
 #include <messageprefix.h>
@@ -19,7 +19,7 @@ namespace numeric_replies
 }
 	static void *threadRunMessageReceiver(void *arg)
 	{
-		NetworkManager *nm = (NetworkManager *)arg;
+		Network *nm = (Network *)arg;
 		if ( NULL != nm )
 		{
 			try
@@ -28,15 +28,15 @@ namespace numeric_replies
 			} catch ( std::exception &e )
 			{
 				std::cout
-					<< "NetworkManager-MessageReceiverRunner: Exception occured: "
+					<< "Network-MessageReceiverRunner: Exception occured: "
 					<< e.what() << std::endl;
 			}
 		}
-		std::cout << "NetworkManager: closing thread." << std::endl;
+		std::cout << "Network: closing thread." << std::endl;
 		pthread_exit(0);
 	}
 	
-	NetworkManager::NetworkManager(const int8 *host, const int8 *port):
+	Network::Network(const int8 *host, const int8 *port):
 	m_state(CONNECTING),
 	m_connection(host, port),
 	m_messageSender(new MessageSender(m_connection))
@@ -66,7 +66,7 @@ namespace numeric_replies
 		m_state = CONNECTED;
 	}
 	
-	NetworkManager::~NetworkManager()
+	Network::~Network()
 	{
 		if ( NULL != m_receiverThread.get() )
 		{
@@ -84,10 +84,10 @@ namespace numeric_replies
 	Sends the QUIT message to the server and waits (blocking)
 	for the receiver thread to finish.
 
-	You still need to destroy the NetworkManager object
+	You still need to destroy the Network object
 	after calling this function.
 	*/
-	void NetworkManager::deinit(const std::string &message)
+	void Network::deinit(const std::string &message)
 	{
 		m_stateMutex.lock();
 		m_state = SHUTTING_DOWN;
@@ -111,7 +111,7 @@ namespace numeric_replies
 
 	Throws an exception if the thread cannot be created.
 	*/
-	void NetworkManager::runMessageReceiverInThread()
+	void Network::runMessageReceiverInThread()
 	{
 		m_receiverThread.reset(new threading::Thread);
 		m_receiverThread->create(NULL,	threadRunMessageReceiver,
@@ -121,7 +121,7 @@ namespace numeric_replies
 	/**
 	Runs the message receiver, doesn't return until disconnected.
 	*/
-	Result NetworkManager::runMessageReceiver()
+	Result Network::runMessageReceiver()
 	{
 		using tokenizer::tokenize;
 		State state = UNKNOWN;
@@ -405,7 +405,7 @@ namespace numeric_replies
 		}
 	}
 
-	void NetworkManager::parseMessage(const std::string &message)
+	void Network::parseMessage(const std::string &message)
 	{
 		using pcrecpp::RE;
 
@@ -476,7 +476,7 @@ namespace numeric_replies
 		}
 	}
 
-	void NetworkManager::msgPingHandle(const std::string &server1,
+	void Network::msgPingHandle(const std::string &server1,
 										const std::string &server2)
 	{
 		std::string pong = "PONG :";
@@ -485,7 +485,7 @@ namespace numeric_replies
 		m_connection.send(pong);
 	}
 
-	void NetworkManager::msgJoinHandle( const MsgPrefix &origin,
+	void Network::msgJoinHandle( const MsgPrefix &origin,
 										const std::string &channel)
 	{
 		std::string clientNick;
@@ -508,7 +508,7 @@ namespace numeric_replies
 //		m_pluginManager->performJob(&joinJob, PluginManager::IRC_JOIN);
 	}
 
-	void NetworkManager::msgPartHandle(	const MsgPrefix &origin,
+	void Network::msgPartHandle(	const MsgPrefix &origin,
 										const std::string &channel,
 										const std::string &message)
 	{
@@ -535,7 +535,7 @@ namespace numeric_replies
 //		m_pluginManager->performJob(&partJob, PluginManager::IRC_PART);
 	}
 	
-	void NetworkManager::msgPrivMsgHandle(	const MsgPrefix &origin,
+	void Network::msgPrivMsgHandle(	const MsgPrefix &origin,
 											const std::string &target,
 											const std::string &message)
 	{
@@ -550,7 +550,7 @@ namespace numeric_replies
 //		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);
 	}
 	
-	void NetworkManager::msgTopicHandle(const MsgPrefix &origin,
+	void Network::msgTopicHandle(const MsgPrefix &origin,
 										const std::string &channel,
 										const std::string &topic)
 	{
@@ -567,7 +567,7 @@ namespace numeric_replies
 //		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
 	}
 
-	void NetworkManager::msgNumHandleRPL_NAMREPLY(
+	void Network::msgNumHandleRPL_NAMREPLY(
 								const std::string &channel,
 								const std::string &userlist)
 	{
@@ -600,7 +600,7 @@ namespace numeric_replies
 		}
 	}
 
-	void NetworkManager::msgNumHandle(const MsgPrefix &origin,
+	void Network::msgNumHandle(const MsgPrefix &origin,
 										const std::string &command,
 										const std::string params[])
 	{
@@ -608,36 +608,36 @@ namespace numeric_replies
 		m_eventDispatchers.num.dispatch(event);
 	}
 	
-	void NetworkManager::sendMessage(const std::string &message)
+	void Network::sendMessage(const std::string &message)
 	{
 		m_messageSender->addMessage(message);
 	}
 
-	const NetworkCacheUserInterface &NetworkManager::networkCache() const
+	const NetworkCacheUserInterface &Network::networkCache() const
 	{
 		return m_networkCache;
 	}
 
 	IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
-	NetworkManager::eventDispatcherJoin()
+	Network::eventDispatcherJoin()
 	{
 		return m_eventDispatchers.join;
 	}
 
 	IEventDispatcherSubscriber<events::ISubscriber<events::Part> > &
-	NetworkManager::eventDispatcherPart()
+	Network::eventDispatcherPart()
 	{
 		return m_eventDispatchers.part;
 	}
 
 	IEventDispatcherSubscriber<events::ISubscriber<events::PrivMsg> > &
-	NetworkManager::eventDispatcherPrivMsg()
+	Network::eventDispatcherPrivMsg()
 	{
 		return m_eventDispatchers.privMsg;
 	}
 
 	IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
-	NetworkManager::eventDispatcherTopic()
+	Network::eventDispatcherTopic()
 	{
 		return m_eventDispatchers.topic;
 	}
@@ -645,7 +645,7 @@ namespace numeric_replies
 	IEventDispatcherSubscriber<
 		events::ISubscriber<events::NumericReply>
 	> &
-	NetworkManager::eventDispatcherNumericReply()
+	Network::eventDispatcherNumericReply()
 	{
 		return m_eventDispatchers.num;
 	}

@@ -2,7 +2,7 @@
 #define _PLUGIN_FUNCTIONS_H_
 
 #include <eventdispatcher.h>
-#include <networkmanagerevents.h>
+#include <networkevents.h>
 #include <networkeventdispatchers.h>
 
 namespace anp

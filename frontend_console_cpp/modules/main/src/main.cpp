@@ -4,7 +4,7 @@
 #include <pluginmanager.h>
 //#include <core_api_cpp.h>
 //#include <core_frontend.h>
-#include <networkmanager_frontend.h>
+#include <network_frontend.h>
 #include <networkmanager_api_cpp.h>
 #include <networkcache_userinterface.h>
 #include <messageprefix.h>
@@ -15,11 +15,8 @@
 #include <log.h>
 #include <fstream>
 #include <tcpconnection.h>
-#include <networkmanagerevents.h>
+#include <networkevents.h>
 #include <eventdispatcher.h>
-#include <networkmanagerevents.h>
-#include <appevents.h>
-#include <appeventdispatchers.h>
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;

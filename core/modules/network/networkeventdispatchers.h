@@ -2,7 +2,7 @@
 #define _NETWORK_H_
 
 #include <eventdispatcher.h>
-#include <networkmanagerevents.h>
+#include <networkevents.h>
 
 namespace anp
 {

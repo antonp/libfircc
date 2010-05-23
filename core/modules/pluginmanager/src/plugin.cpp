@@ -9,7 +9,7 @@
 namespace anp
 {
 namespace firc
-{
+{	
 	/**
 	 * @brief
 	 * Creates a plugin by loading it from file.
@@ -19,8 +19,7 @@ namespace firc
 	 */
 	Plugin::Plugin(
 		const int8 *fileName,
-		network::NewNetworkEventDispatcher &newNetworkDispatcher,
-		network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+		NetworkFactory &networkFactory,
 		void *appContext
 	):
 		m_lib(fileName),
@@ -36,15 +35,14 @@ namespace firc
 														"pluginDeinit");
 		
 		// DynamicLibrary::getSymbol should throw an exception if
-		// any of the functoins cannot be found, so this should never
+		// any of the functions cannot be found, so this should never
 		// happen.
 		assert(NULL != pf_pluginInit && NULL != m_pf_pluginDeinit);
 		
 		// Call init function
 		m_name = fileName;
 		uint32 res = pf_pluginInit(
-			newNetworkDispatcher,
-			removingNetworkDispatcher,
+			networkFactory,
 			appContext
 		);
 		if ( res == 0 )

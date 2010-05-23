@@ -13,13 +13,17 @@ namespace anp
 {
 namespace firc
 {
+	namespace networkfactory
+	{
+		class NetworkFactory;
+	}
+	
 	class Plugin
 	{
 	public:
 		Plugin(
 			const int8 *fileName,
-			network::NewNetworkEventDispatcher &newNetworkDispatcher,
-			network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+			NetworkFactory &networkFactory,
 			void *appContext
 		);
 		~Plugin();

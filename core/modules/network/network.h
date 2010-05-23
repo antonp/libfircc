@@ -9,7 +9,7 @@
 #include <eventdispatcher.h>
 #include <networkevents.h>
 
-#include <anp_threading.h> // johnny bigert?
+#include <anp_threading.h> // hide?
 #include <memory>
 
 namespace anp

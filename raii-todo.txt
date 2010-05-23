@@ -1,7 +1,0 @@
-- read up on getaddrinfo() and make sure the error checking in the connect function is sufficient and covers all possible errors.
-(Done) - raii: PluginManager
-- maybe rename NetworkManager -> irc session something?
-- maybe rename INetworkManagerFrontend -> INetworkManager
-(Done) - maybe get rid of "Core" ? At least rename it?
-	- only exists for the purpose of tying NetworkManagers and PluginManager together.
-(Done) - create a wrapper for dlopen/dlclose/dlsym/dlerror and use in plugin class to be raii

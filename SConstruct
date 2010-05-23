@@ -124,7 +124,21 @@ core = buildLibrary(
 frontend_console_cpp = buildProgram(
 	'frontend_console_cpp',
 	['frontend_console_cpp/modules'],
-	['anpbase.git/anp_basecode', 'core/modules/frontend_interface', 'core/modules/network', 'core/modules/plugin_interface', 'core/modules/pluginmanager', 'anpcommon.git/anp_workerthreads', 'anppfindep.git/anp_threading', 'core/modules/cache', 'anpcommon.git/anp_log', 'core/modules/tcpconnection', 'anpcommon.git/eventdispatcher'],
+	[
+		'anpbase.git/anp_basecode',
+		'core/modules/frontend_interface',
+		'core/modules/network',
+		'core/modules/plugin_interface',
+		'core/modules/pluginmanager',
+		'anpcommon.git/anp_workerthreads',
+		'anpcommon.git/anp_threadsafequeue',
+		'anppfindep.git/anp_threading',
+		'core/modules/cache',
+		'anpcommon.git/anp_log',
+		'core/modules/tcpconnection',
+		'core/modules/networkfactory',
+		'anpcommon.git/eventdispatcher'
+	],
 	['core', 'pthread', 'dl', 'pcrecpp'],
 	['-rdynamic']
 )
@@ -157,7 +171,13 @@ test_parsing = buildProgram(
 pluginTest1 = buildSharedLibrary(
 	'pluginTest1',
 	['plugindev/pluginTest1/modules'],
-	['anpbase.git/anp_basecode', 'core/modules/plugin_interface', 'core/modules/network', 'anpcommon.git/eventdispatcher'],
+	[
+		'anpbase.git/anp_basecode',
+		'core/modules/plugin_interface',
+		'core/modules/network',
+		'anpcommon.git/eventdispatcher',
+		'core/modules/networkfactory'
+	],
 	[])
 #pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
 

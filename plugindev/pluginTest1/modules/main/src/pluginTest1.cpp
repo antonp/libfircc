@@ -6,6 +6,7 @@
 #include <network_frontend.h>
 #include <networkevents.h>
 #include <networkeventdispatchers.h>
+#include <networkfactory.h>
 
 using namespace anp;
 using namespace anp::firc;
@@ -42,13 +43,12 @@ public:
 } g_handla;
 
 extern "C" uint32 pluginInit(
-	anp::firc::network::NewNetworkEventDispatcher &newNetworkDispatcher,
-	anp::firc::network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+	NetworkFactory &networkFactory,
 	void *appContext
 )
 {
-	newNetworkDispatcher.subscribe(&g_handla);
-	removingNetworkDispatcher.subscribe(&g_handla);
+	networkFactory.eventDispatcherNewNetwork().subscribe(&g_handla);
+	networkFactory.eventDispatcherRemovingNetwork().subscribe(&g_handla);
 	cout << "pluginTest1.cpp: pluginInit()" << endl;
 
 	return 1;

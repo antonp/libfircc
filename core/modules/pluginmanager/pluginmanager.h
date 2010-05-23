@@ -12,6 +12,7 @@ namespace anp
 {
 namespace firc
 {
+	class NetworkFactory;
 	class Plugin;
 
 	class PluginManager 
@@ -22,8 +23,7 @@ namespace firc
 
 		void loadPlugin(
 			const int8 *fileName,
-			network::NewNetworkEventDispatcher &newNetworkDispatcher,
-			network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,
+			NetworkFactory &networkFactory,
 			void *appContext
 		);
 		bool unloadPlugin(const std::string &fileName, uint32 reason);
@@ -32,7 +32,7 @@ namespace firc
 		void getPluginInfo(uint32 index,
 						   std::string &name);
 	private:
-		std::vector<Plugin *>			m_plugins;
+		std::vector<Plugin *> m_plugins;
 	};
 
 } // namespace firc

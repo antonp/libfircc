@@ -1,29 +1,26 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include <basedefs.h>
 #include <pluginmanager.h>
-//#include <core_api_cpp.h>
-//#include <core_frontend.h>
 #include <network_frontend.h>
-#include <networkmanager_api_cpp.h>
 #include <networkcache_userinterface.h>
 #include <messageprefix.h>
 #include <channelcache.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
-#include <sstream>
 #include <log.h>
-#include <fstream>
 #include <tcpconnection.h>
 #include <networkevents.h>
 #include <eventdispatcher.h>
+#include <networkfactory.h>
+#include <network.h> // maybe hide/use interface instead
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
-using namespace anp;
-using namespace anp::firc;
 
-class LogFileWriter: public ILogInterface
+class LogFileWriter: public anp::ILogInterface
 {
 public:
 	LogFileWriter(const std::string &filename):
@@ -44,30 +41,25 @@ private:
 	std::string m_filename;
 };
 
-void irctest_onJoin(events::Join &event)
-{
-	std::cout << "irctest_onJoin: " << event.origin().nick()
-		<< " joined " << event.channel() << std::endl;
-}
-
-class EventHandler: public events::ISubscriber<events::Join>,
-					public events::ISubscriber<events::Part>,
-					public events::ISubscriber<events::PrivMsg>,
-					public events::ISubscriber<events::Topic>,
-					public events::ISubscriber<events::NumericReply>
+class EventHandler: public anp::firc::events::ISubscriber<anp::firc::events::Join>,
+					public anp::firc::events::ISubscriber<anp::firc::events::Part>,
+					public anp::firc::events::ISubscriber<anp::firc::events::PrivMsg>,
+					public anp::firc::events::ISubscriber<anp::firc::events::Topic>,
+					public anp::firc::events::ISubscriber<anp::firc::events::NumericReply>
 {
 public:
-	void receiveEvent(events::Join &event)
+	void receiveEvent(anp::firc::events::Join &event)
 	{
-		irctest_onJoin(event);
+		std::cout << "irctest_onJoin: " << event.origin().nick()
+			<< " joined " << event.channel() << std::endl;
 	}
-	void receiveEvent(events::Part &event)
+	void receiveEvent(anp::firc::events::Part &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick()
 			<< " left channel " << event.channel() << ". ("
 			<< event.message() << ")" << std::endl;
 	}
-	void receiveEvent(events::PrivMsg &event)
+	void receiveEvent(anp::firc::events::PrivMsg &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick() << ": "
 			<< event.message() << std::endl;
@@ -83,9 +75,9 @@ public:
 
 		if ( event.target()[0] == '#' && event.message() == "topic?" )
 		{
-			const NetworkCacheUserInterface &cache =
+			const anp::firc::NetworkCacheUserInterface &cache =
 				event.network().networkCache();
-			ChannelCache channel;
+			anp::firc::ChannelCache channel;
 			cache.getChannel(event.target(), channel);
 	
 			std::stringstream ss;
@@ -94,13 +86,13 @@ public:
 			event.network().sendMessage(ss.str());
 		}
 	}
-	void receiveEvent(events::Topic &event)
+	void receiveEvent(anp::firc::events::Topic &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick()
 			<< " changed the topic for " << event.channel() << " to '"
 			<< event.topic() << "'" << std::endl;
 	}
-	void receiveEvent(events::NumericReply &event)
+	void receiveEvent(anp::firc::events::NumericReply &event)
 	{
 		std::cout << "[main.cpp <-] Numeric reply "
 			<< event.command() << " received. ("
@@ -108,9 +100,9 @@ public:
 	}
 };
 
-bool32 waitForSocket(int socket,
-					uint32 timeoutSeconds,
-					uint32 timeoutMicroseconds)
+anp::bool32 waitForSocket(int socket,
+						  anp::uint32 timeoutSeconds,
+						  anp::uint32 timeoutMicroseconds)
 {
 	timeval timeout;
 	timeout.tv_sec = timeoutSeconds;
@@ -121,26 +113,13 @@ bool32 waitForSocket(int socket,
 	if ( (-1) == ::select(socket+1, &readFileDescriptorSet,
 					NULL, NULL, &timeout) )
 	{
-		throw NetworkException("select() returned -1");
+		throw anp::NetworkException("select() returned -1");
 	}
 	return FD_ISSET(socket, &readFileDescriptorSet);
 }
 
 int main(int argc, char *argv[])
-{
-	using namespace anp;
-	using namespace anp::firc;
-
-	anp::EventDispatcher<
-		events::ISubscriber<events::NewNetwork>,
-		events::NewNetwork
-	> newNetworkDispatcher;
-	
-	anp::EventDispatcher<
-		events::ISubscriber<events::RemovingNetwork>,
-		events::RemovingNetwork
-	> removingNetworkDispatcher;
-	
+{	
 	std::string serverAddress = "irc.chatjunkies.org",
 				serverPort = "6667";
 
@@ -150,34 +129,31 @@ int main(int argc, char *argv[])
 		serverPort = argv[2];
 	}
 
-	const int8 *pluginNames[] = {
+	const anp::int8 *pluginNames[] = {
 		"./libpluginTest1.so"
 	};
 
 	LogFileWriter logFileWriter("frontend_cpp.log");
-	Log log;
+	anp::Log log;
 	log.addLogInterface(&logFileWriter);
 	log.addMessage("Log initialized.");
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
-	PluginManager pluginManager;
+	anp::firc::NetworkFactory networkFactory;
+	anp::firc::PluginManager pluginManager;
 	
-	for ( uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
+	for ( anp::uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
 			i++ )
 	{
 		pluginManager.loadPlugin(
 			pluginNames[i],
-			newNetworkDispatcher,
-			removingNetworkDispatcher,
+			networkFactory,
 			0
 		);
 	}
 	
-	INetworkManagerFrontend *network =
-		networkmanager_create(serverAddress.c_str(), serverPort.c_str());
-	events::NewNetwork newNetworkEvent(*network);
-	newNetworkDispatcher.dispatch(newNetworkEvent);
+	anp::firc::Network *network = networkFactory.openNetwork(serverAddress, serverPort);
 	
 	anp::uint32 state = 0;
 
@@ -221,7 +197,7 @@ int main(int argc, char *argv[])
 	
 	// Quit
 	network->deinit("Time to go! See you!");
-	networkmanager_destroy(network);
+	networkFactory.closeNetwork(network);
 	log.addMessage("main.cpp: Successfully disconnected.");
 	
 	pthread_mutex_destroy(&g_stateMutex);

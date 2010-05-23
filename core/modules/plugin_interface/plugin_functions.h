@@ -9,6 +9,8 @@ namespace anp
 {
 namespace firc
 {
+	class NetworkFactory;
+	
 	// Abbreviations/prefixes:
 	// pf - plugin function, implemented in plugins
 	
@@ -18,7 +20,7 @@ namespace firc
 
 	// Typedefs
 	// uint32 pluginInit(void *fircCore)
-	typedef uint32 (*PF_pluginInit)(		network::NewNetworkEventDispatcher &newNetworkDispatcher,		network::RemovingNetworkEventDispatcher &removingNetworkDispatcher,		void *appContext	);
+	typedef uint32 (*PF_pluginInit)(NetworkFactory &, void *appContext);
 	
 	// void pluginDeinit()
 	typedef void (*PF_pluginDeinit)(uint32);

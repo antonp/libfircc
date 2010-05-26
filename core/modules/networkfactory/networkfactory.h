@@ -3,14 +3,14 @@
 
 #include <string>
 #include <eventdispatcher.h>
-#include <networkevents.h> // hide this: forward declare events and move ISubscriber out of 'events' namespace
+#include <networkevents.h> /// @todo hide this: forward declare events and move ISubscriber out of 'events' namespace
 #include <networkeventdispatchers.h>
 
 namespace anp
 {
 namespace firc
 {
-	class Network;
+	class INetwork;
 	class NetworkFactoryImpl;
 	
 	class NetworkFactory
@@ -19,10 +19,10 @@ namespace firc
 		NetworkFactory();
 		~NetworkFactory();
 
-		Network *openNetwork(const std::string &host,
-							 const std::string &port);
+		INetwork *openNetwork(const std::string &host,
+							  const std::string &port);
 
-		void closeNetwork(Network *network);
+		void closeNetwork(INetwork *network);
 		void closeNetwork(const std::string &host,
 						  const std::string &port);
 						  

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#include <network_frontend.h>
+#include <inetwork.h>
 #include <networkevents.h>
 #include <networkeventdispatchers.h>
 #include <networkfactory.h>
@@ -56,6 +56,6 @@ extern "C" uint32 pluginInit(
 
 extern "C" void pluginDeinit()
 {
-	std::cout << "Good bye world from pluginTest1.cpp" << std::endl;
+	cout << "Good bye world from pluginTest1.cpp" << endl;
 }
 

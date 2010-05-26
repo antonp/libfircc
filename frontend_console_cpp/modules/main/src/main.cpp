@@ -4,7 +4,7 @@
 
 #include <basedefs.h>
 #include <pluginmanager.h>
-#include <network_frontend.h>
+#include <inetwork.h>
 #include <networkcache_userinterface.h>
 #include <messageprefix.h>
 #include <channelcache.h>
@@ -15,7 +15,6 @@
 #include <networkevents.h>
 #include <eventdispatcher.h>
 #include <networkfactory.h>
-#include <network.h> // maybe hide/use interface instead
 
 static pthread_mutex_t g_stateMutex;
 static anp::uint32 g_state = 0;
@@ -153,7 +152,8 @@ int main(int argc, char *argv[])
 		);
 	}
 	
-	anp::firc::Network *network = networkFactory.openNetwork(serverAddress, serverPort);
+	anp::firc::INetwork *network = networkFactory.openNetwork(serverAddress,
+															  serverPort);
 	
 	anp::uint32 state = 0;
 

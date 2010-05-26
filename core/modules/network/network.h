@@ -4,7 +4,7 @@
 #include <basedefs.h>
 #include <tcpconnection.h>
 #include <networkcache.h>
-#include "network_frontend.h"
+#include "inetwork.h"
 #include "inc/messagesender.h"
 #include <eventdispatcher.h>
 #include <networkevents.h>
@@ -19,7 +19,7 @@ namespace firc
 	class PluginManager;
 	class MsgPrefix;
 	
-	class Network: public INetworkManagerFrontend
+	class Network: public INetwork
 	{
 	public:
 		Network(const int8 *host, const int8 *port);
@@ -45,16 +45,6 @@ namespace firc
 		const NetworkCacheUserInterface &networkCache() const;
 		Result getBotNickName(int8 *destName,
 								uint32 maxNameLength) const;
-		Result getTopic(const int8 *channel, int8 *destTopic,
-						uint32 maxTopicSize) const;
-		Result getChannelUserCount(const int8 *channel,
-									uint32 *destChannelUserCount) const;
-		Result isUserInChannel(const int8 *channel,
-								const int8 *nickName,
-								bool32 *userIsInChannel) const;
-									
-		Result getChannelInfo(void *network, const int8 *channel,
-								const void **userList) const;
 
 		// Event stuff
 		IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
@@ -97,7 +87,6 @@ namespace firc
 							const std::string params[]);
 
 		State m_state;
-		//pthread_mutex_t m_stateMutex;
 		threading::Mutex m_stateMutex;
 		
 		TCPConnection m_connection;
@@ -105,7 +94,6 @@ namespace firc
 		std::auto_ptr<threading::Thread> m_receiverThread;
 		std::auto_ptr<MessageSender> m_messageSender;
 		
-		PluginManager *m_pluginManager;
 		NetworkCache m_networkCache;
 
 		struct

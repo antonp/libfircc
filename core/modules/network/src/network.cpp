@@ -27,6 +27,7 @@ namespace numeric_replies
 				nm->runMessageReceiver();
 			} catch ( std::exception &e )
 			{
+				/// @todo propagate this somehow
 				std::cout
 					<< "Network-MessageReceiverRunner: Exception occured: "
 					<< e.what() << std::endl;
@@ -131,14 +132,7 @@ namespace numeric_replies
 		bool hasPrefix=false;
 		std::string in,
 					currentMessage,
-					prefix,
-					command,
-					leftOvers,
-					target,
-					sender,
-					temp1,
-					temp2,
-					temp3;
+					leftOvers;
 					
 		std::cout << "runMessageReceiver():start" << std::endl;
 		
@@ -193,176 +187,6 @@ namespace numeric_replies
 					}
 					std::cout << "<- " << currentMessage << std::endl;
 					parseMessage(currentMessage);
-					/*
-					// Reset old vars as needed
-					prefix.erase();
-					// Start parsing the current message
-					if ( currentMessage[0] == ':' ) {
-						// The message has a prefix
-						currentMessage.erase(0, 1);
-						// Get the prefix
-						tokenize(prefix, currentMessage, ' ');
-					}
-					// Get the command
-					tokenize(command, currentMessage, ' ');
-
-					if ( command == "PING" ) {
-						 // Strip the starting colon ':'
-						currentMessage.erase(0, 1);
-						temp3 = "PONG :";
-						temp3 += currentMessage;
-						temp3 += "\r\n";
-						std::cout << "receiver: Sending mgs=" << temp3
-							<< std::endl;
-						m_connection.send(temp3);
-						//#m_pluginManager->onPing(currentMessage);
-					} else if ( command == "PRIVMSG" ) {
-						tokenize(target, currentMessage, ' ');
-
-						currentMessage.erase(0, 1);
-						std::cout << "(local) PRIVMSG detected: "
-							<< currentMessage << std::endl;
-
-						PrivMsgJob job(	NULL,
-										*this,
-										prefix.c_str(),
-										target.c_str(),
-										currentMessage.c_str());
-						m_pluginManager->performJob(&job,
-											PluginManager::IRC_PRIVMSG);
-					} else if ( command == "JOIN" ) {
-						std::cout << "(local) JOIN command detected: "
-							<< currentMessage << std::endl;
-						if ( currentMessage[0] == ':' )
-						{
- 							// Remove ':' in front of the channel
- 							// name (efnet seems to use it)
-							currentMessage.erase(0, 1);
-						}
-
-						// Separate the prefix into nickname,
-						// user and host
-						tokenize(temp1, prefix, '!'); // nickname
-						tokenize(temp2, prefix, '@'); // user
-						// prefix now only holds the host
-
-						//m_networkCache.onJoin(temp1,
-						//					  temp2,
-						//					  prefix,
-						//					  currentMessage);
-						std::string clientNick;
-						m_networkCache.getClientNickName(clientNick);
-						if ( temp1 == clientNick )
-						{
-							m_networkCache.addChannel(currentMessage);
-						}
-						m_networkCache.addUserToChannel(temp1, temp2,
-												prefix, currentMessage);
-												
-						JoinJob joinJob(NULL,
-										(void *)this,
-										currentMessage.c_str(),
-										temp1.c_str());
-						m_pluginManager->performJob(&joinJob,
-											PluginManager::IRC_JOIN);
-						std::cout << "Join command handled successfully."
-															<< std::endl;
-					} else if ( command == "PART" ) {
-						if ( currentMessage[0] == ':' )
-						{
-						 	// Remove ':' in front of the channel name
-							currentMessage.erase(0, 1);
-						}
-						// Store channelname into temp3
-						// currentMessage will hold part message, if any
-						tokenize(temp3, currentMessage, " :");
-
-						// Separate the prefix into nickname, user
-						// and host (UNNECESSARY FOR PART MESSAGE !?
-						//  ONLY USES NICKNAME ANYWAY!!!)
-						tokenize(temp1, prefix, '!'); // nickname
-						tokenize(temp2, prefix, '@'); // user
-						// prefix now only holds the host
-
-						//m_networkCache.onPart(temp1,
-						//					  temp2,
-						//					  prefix,
-						//					  currentMessage);
-
-						m_networkCache.removeUserFromChannel(temp1,
-																temp3);
-						std::string clientNick;
-						m_networkCache.getClientNickName(clientNick);
-						if ( temp1 == clientNick )
-						{
-							m_networkCache.removeChannel(currentMessage);
-						}
-
-						//#m_pluginManager->onPart(temp1,
-						// currentMessage);
-					} else if ( command == "TOPIC" ) {
-						// topic change.. ex: (GTANet)
-						// [Original message]
-						// ":Pliskin!IceChat7@gtanet-ADE03D4F.bsnet.se
-						// TOPIC #antons_kanal :Det här är en topic"
-						tokenize(target, currentMessage, " :");
-
-						m_networkCache.setTopic(target, currentMessage);
-						//m_pluginManager->onTopicChange(); TODO
-
-						// ##### NUMERIC REPLIES BELOW ######
-					} else if ( command == "332" ) {
-						// RPL_TOPIC ex: (GTANet)
-						//[Original message]
-						// ":frosties.de.eu.gtanet.com 332
-						// firc_04 #antons_kanal :lalala"
-						
-						 // target = firc_04
-						tokenize(target, currentMessage, ' ');
-						 // temp1 = #antons_kanal
-						tokenize(temp1, currentMessage, " :");
-						
-						m_networkCache.setTopic(temp1, currentMessage);
-					} else if ( command == "333" ) {
-						// "RPL_TOPICWHOWHEN" ? Ex: (ChatJunkies)
-						// [original message] :at.chatjunkies.org 333
-						// fircbot09 #my-secret-botdev
-						// antonp!~antonp@ChatJunkies-6a09bfa2.dyn.
-						// perspektivbredband.net 1248007592
-
-					} else if ( command == "353" ) {
-						// RPL_NAMREPLY ex: (efnet) [Original message]
-						// :efnet.demon.co.uk 353 firc_04 =
-						// #antons_kanal :firc_04 @Pliskin_
-						
-						 // target = firc_04
-						tokenize(target, currentMessage, ' ');
-						 // temp1 = '='
-						tokenize(temp1, currentMessage, ' ');
-						 // temp2 = #antons_kanal
-						tokenize(temp2, currentMessage, " :");
-
-						bool keepGoing = true;
-						while ( keepGoing ) {
-							// temp3 = [@|+|nothing]nickname
-							keepGoing = tokenize(temp3,
-												 currentMessage,
-												 " ");
-							switch ( temp3[0] ) {
-							case '@':
-								temp3.erase(0, 1);
-								break;
-							case '+':
-								temp3.erase(0, 1);
-								break;
-							default:
-								break;
-							}
-							//m_networkCache.addUser(temp2, temp3);
-							m_networkCache.addUserToChannel(temp3, "", "",
-																 temp2);
-						}
-					}*/
 				} else {
 					// The message isn't complete, so save it and
 					// add the rest when it arrives [todo]
@@ -385,12 +209,9 @@ namespace numeric_replies
 
 	void parseParams(std::string &all, std::string list[])
 	{
-		using std::cout;
-		using std::endl;
-		using std::string;
 		using tokenizer::tokenize;
 		// Assuming list holds 15 elements
-		cout << endl << "all params: " << all << endl;
+		std::cout << std::endl << "all params: " << all << std::endl;
 
 		for ( int i=0; i<15; i++ )
 		{
@@ -477,12 +298,14 @@ namespace numeric_replies
 	}
 
 	void Network::msgPingHandle(const std::string &server1,
-										const std::string &server2)
+								const std::string &server2)
 	{
 		std::string pong = "PONG :";
 		pong += server1 + "\r\n";
 		std::cout << "-> " << pong << std::endl;
 		m_connection.send(pong);
+		
+		// todo dispatch event for this
 	}
 
 	void Network::msgJoinHandle( const MsgPrefix &origin,
@@ -500,12 +323,6 @@ namespace numeric_replies
 										channel);
 		events::Join event(*this, origin, channel);
 		m_eventDispatchers.join.dispatch(event);
-
-//		JoinJob joinJob(NULL,
-//						*this,
-//						origin,
-//						channel.c_str());
-//		m_pluginManager->performJob(&joinJob, PluginManager::IRC_JOIN);
 	}
 
 	void Network::msgPartHandle(	const MsgPrefix &origin,
@@ -526,13 +343,6 @@ namespace numeric_replies
 
 		events::Part event(*this, origin, channel, message);
 		m_eventDispatchers.part.dispatch(event);
-
-//		PartJob partJob(NULL,
-//						*this,
-//						origin,
-//						channel.c_str(),
-//						message.c_str());
-//		m_pluginManager->performJob(&partJob, PluginManager::IRC_PART);
 	}
 	
 	void Network::msgPrivMsgHandle(	const MsgPrefix &origin,
@@ -541,13 +351,6 @@ namespace numeric_replies
 	{
 		events::PrivMsg event(*this, origin, target, message);
 		m_eventDispatchers.privMsg.dispatch(event);
-
-//		PrivMsgJob job(	NULL,
-//						*this,
-//						origin,
-//						target.c_str(),
-//						message.c_str());
-//		m_pluginManager->performJob(&job, PluginManager::IRC_PRIVMSG);
 	}
 	
 	void Network::msgTopicHandle(const MsgPrefix &origin,
@@ -558,13 +361,6 @@ namespace numeric_replies
 
 		events::Topic event(*this, origin, channel, topic);
 		m_eventDispatchers.topic.dispatch(event);
-
-//		TopicJob job(	NULL,
-//						*this,
-//						origin,
-//						channel,
-//						topic);
-//		m_pluginManager->performJob(&job, PluginManager::IRC_TOPIC);
 	}
 
 	void Network::msgNumHandleRPL_NAMREPLY(
@@ -601,8 +397,8 @@ namespace numeric_replies
 	}
 
 	void Network::msgNumHandle(const MsgPrefix &origin,
-										const std::string &command,
-										const std::string params[])
+							   const std::string &command,
+							   const std::string params[])
 	{
 		events::NumericReply event(*this, origin, command, params);
 		m_eventDispatchers.num.dispatch(event);

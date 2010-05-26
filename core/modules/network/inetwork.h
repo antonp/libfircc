@@ -11,11 +11,11 @@ namespace firc
 {	
 	class NetworkCacheUserInterface;
 
-	class INetworkManagerFrontend
+	class INetwork
 	{
 	public:
-		INetworkManagerFrontend() { }
-		virtual ~INetworkManagerFrontend() { }
+		INetwork() { }
+		virtual ~INetwork() { }
 
 		/**
 		Sends the QUIT message to IRC and blocks until the receiver

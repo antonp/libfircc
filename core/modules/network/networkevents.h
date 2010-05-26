@@ -9,24 +9,24 @@ namespace anp
 {
 namespace firc
 {
-class INetworkManagerFrontend;
+class INetwork;
 namespace events
 {
 
 class IRCEvent
 {
 public:
-	IRCEvent(INetworkManagerFrontend &network,
+	IRCEvent(INetwork &network,
 			const MsgPrefix &origin):
 	m_network(network),
 	m_origin(origin)
 	{
 	}
 	virtual ~IRCEvent() { }
-	INetworkManagerFrontend &network() { return m_network; }
+	INetwork &network() { return m_network; }
 	const MsgPrefix &origin() const { return m_origin; }
 protected:
-	INetworkManagerFrontend &m_network;
+	INetwork &m_network;
 	const MsgPrefix m_origin;
 };
 
@@ -101,7 +101,7 @@ protected:
 class Join: public IRCEvent, public EventWithChannel
 {
 public:
-	Join(INetworkManagerFrontend &network,
+	Join(INetwork &network,
 		const MsgPrefix &origin,
 		const std::string &channel):
 	IRCEvent(network, origin),
@@ -115,7 +115,7 @@ class Part: public IRCEvent,
 			public EventWithMessage
 {
 public:
-	Part(INetworkManagerFrontend &network,
+	Part(INetwork &network,
 		const MsgPrefix &origin,
 		const std::string &channel,
 		const std::string &message):
@@ -131,7 +131,7 @@ class PrivMsg: public IRCEvent,
 				public EventWithMessage
 {
 public:
-	PrivMsg(INetworkManagerFrontend &network,
+	PrivMsg(INetwork &network,
 			const MsgPrefix &origin,
 			const std::string &target,
 			const std::string &message):
@@ -146,7 +146,7 @@ class Topic: public IRCEvent,
 			public EventWithChannel
 {
 public:
-	Topic(INetworkManagerFrontend &network,
+	Topic(INetwork &network,
 			const MsgPrefix &origin,
 			const std::string &channel,
 			const std::string &topic):
@@ -165,7 +165,7 @@ class NumericReply: public IRCEvent,
 					public EventWithParamList
 {
 public:
-	NumericReply(INetworkManagerFrontend &network,
+	NumericReply(INetwork &network,
 					const MsgPrefix &origin,
 					const std::string &command,
 					const std::string params[]):
@@ -179,35 +179,36 @@ public:
 class NewNetwork
 {
 public:
-	NewNetwork(anp::firc::INetworkManagerFrontend &network):
+	NewNetwork(anp::firc::INetwork &network):
 	m_network(network)
 	{
 	}
 
-	anp::firc::INetworkManagerFrontend &network()
+	anp::firc::INetwork &network()
 	{
 		return m_network;
 	}
 protected:
-	anp::firc::INetworkManagerFrontend &m_network;
+	anp::firc::INetwork &m_network;
 };
 
 class RemovingNetwork
 {
 public:
-	RemovingNetwork(anp::firc::INetworkManagerFrontend &network):
+	RemovingNetwork(anp::firc::INetwork &network):
 	m_network(network)
 	{
 	}
 
-	anp::firc::INetworkManagerFrontend &network()
+	anp::firc::INetwork &network()
 	{
 		return m_network;
 	}
 protected:
-	anp::firc::INetworkManagerFrontend &m_network;
+	anp::firc::INetwork &m_network;
 };
 
+/// @todo move to correct namespace (anp?)
 template <typename E>
 class ISubscriber
 {

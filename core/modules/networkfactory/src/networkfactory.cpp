@@ -17,7 +17,7 @@ namespace firc
 	
 		~NetworkFactoryImpl()
 		{
-			std::list<Network *>::iterator i;
+			std::list<INetwork *>::iterator i;
 			for ( i=m_networks.begin(); i != m_networks.end(); i++ )
 			{
 				try
@@ -32,9 +32,9 @@ namespace firc
 			}
 		}
 		
-		void closeNetwork(Network *network)
+		void closeNetwork(INetwork *network)
 		{
-			for ( std::list<Network *>::iterator i=m_networks.begin();
+			for ( std::list<INetwork *>::iterator i=m_networks.begin();
 			      i != m_networks.end(); i++ )
 			{
 				if ( (*i) == network )
@@ -59,7 +59,7 @@ namespace firc
 			events::RemovingNetwork
 		> m_removingNetworkDispatcher;
 		
-		std::list<Network *> m_networks;
+		std::list<INetwork *> m_networks;
 	};
 
 	NetworkFactory::NetworkFactory(): m_impl(new NetworkFactoryImpl)
@@ -71,8 +71,8 @@ namespace firc
 		delete m_impl;
 	}
 
-	Network *NetworkFactory::openNetwork(const std::string &host,
-										 const std::string &port)
+	INetwork *NetworkFactory::openNetwork(const std::string &host,
+										  const std::string &port)
 	{
 		Network *network = new Network(host.c_str(), port.c_str());
 		m_impl->m_networks.push_back(network);
@@ -82,7 +82,7 @@ namespace firc
 		return network;
 	}
 	
-	void NetworkFactory::closeNetwork(Network *network)
+	void NetworkFactory::closeNetwork(INetwork *network)
 	{
 		m_impl->closeNetwork(network);
 	}

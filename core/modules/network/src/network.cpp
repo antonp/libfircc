@@ -156,27 +156,17 @@ namespace numeric_replies
 			// 1. Receive a message
 			if ( m_connection.waitForSocket(0, 500000) )
 			{
-				if ( RES_CONNECTION_CLOSED == m_connection.receive(
-						buffer, sizeof(buffer)/sizeof(buffer[0])) )
-				{
-					// The server closed the connection
-					// Flag we're not connected anymore, and exit thread
-					connected = FALSE;
-					return RES_CONNECTION_CLOSED;
-				}
+				m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0]));
 			} else
 			{
 				// There was no data available from the server
 				// check again
 				continue;
 			}
-			in = buffer; // optimize..?
-			//std::cout << "<- " << in << std::endl;
+			in = buffer;
 
-			// 2. Tokenize it and parse it
+			// Tokenize it and parse it
 			// Start by dividing it up into several messages
-			// (sometimes the server
-			// will send several messages at the same time)
 			while ( 1 ) {
 				if ( tokenize(currentMessage, in, "\r\n") ) {
 					// if there was something left from the previous

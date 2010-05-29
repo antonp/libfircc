@@ -1,10 +1,10 @@
 #include "../tcpconnection.h"
 
-#include <string.h> // for memset
+#include <string.h>
 #include <netdb.h>
 #include <stdexcept>
+#include <sstream>
 
-//#pragma comment(lib, "wsock32.lib")
 namespace anp
 {
 namespace firc
@@ -25,7 +25,6 @@ namespace firc
 
 	void TCPConnection::clean()
 	{
-		//WSACleanup();
 	}
 
 	void TCPConnection::connect(
@@ -78,21 +77,21 @@ namespace firc
 		throw NetworkException("Failed to connect");
 	}
 
-	Result TCPConnection::send(const std::string &buffer)
+	void TCPConnection::send(const std::string &buffer)
 	{
-		/// @todo Error-check return value
-		::send(m_socket, buffer.c_str(), (int)buffer.length(), 0);
-		return RES_OK;
+		if ( 0 >= ::send(m_socket, buffer.c_str(), (int)buffer.length(), 0) )
+		{
+			throw NetworkException("Failed to send()");
+		}
 	}
 
-	Result TCPConnection::receive(int8 *buffer, uint32 bufferSize)
+	void TCPConnection::receive(int8 *buffer, uint32 bufferSize)
 	{
 		memset((void *)buffer, 0, bufferSize);
 		if ( 0 >= ::recv(m_socket, buffer, bufferSize, 0) )
 		{
 			throw NetworkException("Failed to recv(), connection closed");
 		}
-		return RES_OK;
 	}
 
 	bool32 TCPConnection::waitForSocket(uint32 timeoutSeconds,

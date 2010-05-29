@@ -134,7 +134,7 @@ frontend_console_cpp = buildProgram(
 		'anpcommon.git/anp_threadsafequeue',
 		'anppfindep.git/anp_threading',
 		'core/modules/cache',
-		'anpcommon.git/anp_log',
+		'anpcommon.git/log',
 		'core/modules/tcpconnection',
 		'core/modules/networkfactory',
 		'anpcommon.git/eventdispatcher'

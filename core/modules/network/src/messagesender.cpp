@@ -2,34 +2,40 @@
 
 #include <anp_timing.h>
 #include <anp_threadsafequeue.h>
+#include <log_singleton.h>
 #include <tcpconnection.h>
+#include <sstream>
 
-/// @todo REMOVE IOSTREAM INCLUDE! REPLACE WITH INTERNAL LOGGING OR
-/// SOMETHING
-#include <iostream>
 #include <stdexcept>
 
 namespace anp
 {
 namespace firc
 {
-
-	// Should be static but can't due to friendship :P
 	void *threadRunMessageSender(void *arg)
 	{
 		MessageSender *ms = (MessageSender *)arg;
 		if ( NULL == ms )
 		{
-			throw std::invalid_argument("'Invalid MessageSender'");
-		}
-		try
+			//throw std::invalid_argument("'Invalid MessageSender'");
+			try
+			{
+				LogSingleton::getInstance().addMessage(std::string("MessageSender: Invalid MessageSender."));
+				LogSingleton::releaseInstance();
+			} catch ( ... )
+			{
+				// we're doomed
+			}
+			
+		} else
 		{
-			ms->monitor();
-			std::cout << "MessageSender: closing thread." << std::endl;
-		} catch ( std::exception &e )
-		{
-			std::cout << "MessageSender: Exception occured: " 
-				<< e.what()	<< std::endl;
+			try
+			{
+				ms->monitor();
+			} catch ( std::exception &e )
+			{
+				ms->log(std::string("MessageSender: Exception occured: ")+e.what());
+			}
 		}
 		pthread_exit(0);
 	}
@@ -66,6 +72,7 @@ namespace firc
 	
 	void MessageSender::monitor()
 	{
+		std::stringstream ss;
 		while ( true )
 		{
 			bool32 isDying = true;
@@ -73,6 +80,7 @@ namespace firc
 
 			if ( isDying )
 			{
+				m_log.addMessage("MessageSender: closing thread.");
 				break;
 			}
 			
@@ -88,7 +96,9 @@ namespace firc
 				
 				uint32 cooldown = 0;
 				std::string &message = m_queue.front();
-				std::cout << "-> " << message << std::endl;
+				ss << "-> " << message;
+				m_log.addMessage(ss.str());
+				ss.str("");
 				
 				m_connection.send(message);
 				m_queue.pop();
@@ -98,6 +108,10 @@ namespace firc
 				empty = m_queue.isEmpty();
 			}
 		}
+	}
+	void MessageSender::log(const anp::dstring &message)
+	{
+		m_log.addMessage(message);
 	}
 }
 }

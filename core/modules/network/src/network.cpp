@@ -3,7 +3,6 @@
 #include <tcpconnection.h>
 #include <messageprefix.h>
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <memory>
@@ -28,12 +27,13 @@ namespace numeric_replies
 			} catch ( std::exception &e )
 			{
 				/// @todo propagate this somehow
-				std::cout
-					<< "Network-MessageReceiverRunner: Exception occured: "
-					<< e.what() << std::endl;
+				std::stringstream ss;
+				ss << "Network-MessageReceiverRunner: Exception occured: "
+				   << e.what() << std::endl;
+				LOG_SINGLETON_MSG(ss.str());
 			}
+			LOG_SINGLETON_MSG("Network: closing thread");
 		}
-		std::cout << "Network: closing thread." << std::endl;
 		pthread_exit(0);
 	}
 	
@@ -44,7 +44,7 @@ namespace numeric_replies
 	{
 		std::string m_outStr;
 		
-		std::cout << "Successfully connected." << std::endl;
+		m_log("Successfully connected.");
 		
 		m_state = REGISTERING;
 		// Nick
@@ -122,7 +122,7 @@ namespace numeric_replies
 	/**
 	Runs the message receiver, doesn't return until disconnected.
 	*/
-	Result Network::runMessageReceiver()
+	void Network::runMessageReceiver()
 	{
 		using tokenizer::tokenize;
 		State state = UNKNOWN;
@@ -133,14 +133,10 @@ namespace numeric_replies
 		std::string in,
 					currentMessage,
 					leftOvers;
-					
-		std::cout << "runMessageReceiver():start" << std::endl;
+		std::stringstream ss;
 		
 		while ( TRUE == connected )
-		{
-			//sleep(2);
-			//std::cout << "messageReceiver: hi" << std::endl;
-			
+		{			
 			m_stateMutex.lock();
 			state = m_state;
 			m_stateMutex.unlock();
@@ -149,9 +145,6 @@ namespace numeric_replies
 			{
 				break;
 			}
-			
-			
-			/////////////////////////////////////////
 
 			// 1. Receive a message
 			if ( m_connection.waitForSocket(0, 500000) )
@@ -175,14 +168,13 @@ namespace numeric_replies
 						currentMessage = leftOvers + currentMessage;
 						leftOvers.erase();
 					}
-					std::cout << "<- " << currentMessage << std::endl;
+					ss << "<- " << currentMessage;
+					m_log.addMessage(ss.str());
+					ss.str("");
 					parseMessage(currentMessage);
 				} else {
 					// The message isn't complete, so save it and
-					// add the rest when it arrives [todo]
-					//m_out << "[Parsing results] The message wasn't
-					// complete. (Looked like: " << currentMessage
-					// << ")\n";
+					// add the rest when it arrives
 					if ( currentMessage.length() >= 3 )
 					{
 						leftOvers = currentMessage.erase(
@@ -194,14 +186,12 @@ namespace numeric_replies
 					break;
 			}			
 		}
-		return RES_OK;
 	}
 
 	void parseParams(std::string &all, std::string list[])
 	{
 		using tokenizer::tokenize;
 		// Assuming list holds 15 elements
-		std::cout << std::endl << "all params: " << all << std::endl;
 
 		for ( int i=0; i<15; i++ )
 		{
@@ -280,9 +270,11 @@ namespace numeric_replies
 
 		} else
 		{
-			std::cout << "(lib)Invalid IRC message: " << message
+			std::stringstream ss;
+			ss << "(lib)Invalid IRC message: " << message
 				<< "(" << "p=" << prefix << "c=" << command << "pa="
-				<< parameters << ")" << std::endl;
+				<< parameters << ")";
+			m_log.addMessage(ss.str());
 			// unknownMessageHandler()!
 		}
 	}
@@ -292,7 +284,7 @@ namespace numeric_replies
 	{
 		std::string pong = "PONG :";
 		pong += server1 + "\r\n";
-		std::cout << "-> " << pong << std::endl;
+
 		m_connection.send(pong);
 		
 		// todo dispatch event for this
@@ -327,8 +319,7 @@ namespace numeric_replies
 			m_networkCache.removeChannel(channel);
 		} else
 		{
-			m_networkCache.removeUserFromChannel(origin.nick(),
-												channel);
+			m_networkCache.removeUserFromChannel(origin.nick(), channel);
 		}
 
 		events::Part event(*this, origin, channel, message);
@@ -363,7 +354,7 @@ namespace numeric_replies
 
 		while ( keepGoing ) {
 			// nick = [@|+|nothing]nickname
-			keepGoing = tokenize(nick, // note, reusing var
+			keepGoing = tokenize(nick, // note, reusing var nick
 								 userlistCopy,
 								 " ");
 			switch ( nick[0] ) {

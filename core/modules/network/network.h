@@ -8,6 +8,7 @@
 #include "inc/messagesender.h"
 #include <eventdispatcher.h>
 #include <networkevents.h>
+#include <log_singleton.h>
 
 #include <anp_threading.h> // hide?
 #include <memory>
@@ -37,7 +38,7 @@ namespace firc
 		// Non-blocking, creates a thread on it's own
 		void runMessageReceiverInThread();
 		// Blocking
-		Result runMessageReceiver();
+		void runMessageReceiver();
 		
 		void sendMessage(const std::string &message);
 		
@@ -119,6 +120,8 @@ namespace firc
 				events::NumericReply
 			> num;
 		} m_eventDispatchers;
+		
+		LogSingletonHelper m_log;
 	};
 } // namespace firc
 } // namespace anp

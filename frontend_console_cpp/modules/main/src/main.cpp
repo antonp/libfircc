@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <log.h>
 #include <tcpconnection.h>
 #include <networkevents.h>
+#include <networkeventsubscribers.h>
 #include <eventdispatcher.h>
 #include <networkfactory.h>
 
@@ -66,11 +67,11 @@ private:
 	std::string m_filename;
 };
 
-class EventHandler: public anp::ISubscriber<anp::firc::events::Join>,
-					public anp::ISubscriber<anp::firc::events::Part>,
-					public anp::ISubscriber<anp::firc::events::PrivMsg>,
-					public anp::ISubscriber<anp::firc::events::Topic>,
-					public anp::ISubscriber<anp::firc::events::NumericReply>
+class EventHandler: public anp::firc::eventsubscribers::Join,
+					public anp::firc::eventsubscribers::Part,
+					public anp::firc::eventsubscribers::PrivMsg,
+					public anp::firc::eventsubscribers::Topic,
+					public anp::firc::eventsubscribers::NumericReply
 {
 public:
 	void receiveEvent(anp::firc::events::Join &event)

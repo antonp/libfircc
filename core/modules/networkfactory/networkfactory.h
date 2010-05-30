@@ -26,8 +26,8 @@ namespace firc
 		void closeNetwork(const std::string &host,
 						  const std::string &port);
 						  
-		network::NewNetworkEventDispatcher &eventDispatcherNewNetwork();
-		network::RemovingNetworkEventDispatcher &eventDispatcherRemovingNetwork();
+		dispatchers::NewNetwork &eventDispatcherNewNetwork();
+		dispatchers::RemovingNetwork &eventDispatcherRemovingNetwork();
 	private:
 		NetworkFactoryImpl *m_impl;
 	};

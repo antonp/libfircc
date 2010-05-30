@@ -8,7 +8,7 @@
 #include <userinfo.h>
 #include "../inc/utilities.h"
 #include <stdexcept>
-#include <iostream> // TODO: Remove of course
+#include <log_singleton.h>
 
 namespace anp
 {
@@ -64,6 +64,7 @@ namespace firc
 		std::vector<ChannelCache *> m_channels;
 		std::vector<ChannelUserRelation> m_cuRelations;
 		std::string m_clientNickName;
+		LogSingletonHelper m_log;
 	private:
 		uint32 getChannelIndex(const std::string &name) const;
 		uint32 getUserIndex(const std::string &name) const;
@@ -273,8 +274,10 @@ namespace firc
 				table.end(), newRelation,
 				channeluserrelation_compareCU) )
 		{
-			std::cout << "(cache) Added '" << name << "' to '"
-				<< channelName << "'." << std::endl;
+			std::stringstream ss;
+			ss << "(cache) Added '" << name << "' to '"
+				<< channelName << "'.";
+			m_impl->m_log(ss.str());
 			table.insert(
 				std::lower_bound(
 					table.begin(),
@@ -286,9 +289,11 @@ namespace firc
 			);
 		} else
 		{
-			std::cout << "(cache) Didn't add '" << name << "' to '"
-				<< channelName << "' because of binary_search. table.size()=" << table.size() 
-				<< std::endl;
+			std::stringstream ss;
+			ss << "(cache) Didn't add '" << name << "' to '"
+				<< channelName << "' because of binary_search. table.size()="
+				<< table.size();
+			m_impl->m_log(ss.str());
 		}
 	}
 	
@@ -324,8 +329,10 @@ namespace firc
 				if ( (*range.first).m_user == name )
 				{
 					range.first = table.erase(range.first);
-					std::cout << "(cache) Removed '" << name
-						<< "' from '" << channelName << "'." << std::endl;
+					std::stringstream ss;
+					ss << "(cache) Removed '" << name
+						<< "' from '" << channelName << "'.";
+					m_impl->m_log(ss.str());
 					erased = true;
 				} else
 				{
@@ -336,6 +343,7 @@ namespace firc
 		{
 			std::stringstream ss;
 			ss << "Unable to find channel '" << channelName << "'.";
+			m_impl->m_log(ss.str());
 			throw std::runtime_error(ss.str());
 		}
 	}
@@ -351,7 +359,9 @@ namespace firc
 		> range = std::equal_range(table.begin(), table.end(), tempRel,
 									channeluserrelation_compareC);
 		
-		std::cout << "Erasing all users in " << channel << std::endl;
+		std::stringstream ss;
+		ss << "Erasing all users in " << channel;
+		m_impl->m_log(ss.str());
 		table.erase(range.first, range.second);
 	}
 

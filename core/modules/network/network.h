@@ -48,26 +48,28 @@ namespace firc
 								uint32 maxNameLength) const;
 
 		// Event stuff
-		IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
+		dispatchers::Join &
 			eventDispatcherJoin();
 
-		IEventDispatcherSubscriber<events::ISubscriber<events::Part> > &
+		dispatchers::Part &
 			eventDispatcherPart();
 
-		IEventDispatcherSubscriber<events::ISubscriber<events::PrivMsg> > &
+		dispatchers::PrivMsg &
 			eventDispatcherPrivMsg();
 
-		IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
+		dispatchers::Topic &
 			eventDispatcherTopic();
 
-		IEventDispatcherSubscriber<
-			events::ISubscriber<events::NumericReply>
-		> &
+		dispatchers::NumericReply &
 			eventDispatcherNumericReply();
+			
+		dispatchers::Ping &
+			eventDispatcherPing();
 
 	private:
 		void parseMessage(const std::string &message);
-		void msgPingHandle(const std::string &server1,
+		void msgPingHandle( const MsgPrefix &origin,
+							const std::string &server1,
 							const std::string &server2);
 		void msgJoinHandle(	const MsgPrefix &origin,
 							const std::string &channel);
@@ -100,25 +102,29 @@ namespace firc
 		struct
 		{
 			EventDispatcher<
-				events::ISubscriber<events::Join>,
+				ISubscriber<events::Join>,
 				events::Join
 			> join;
 			EventDispatcher<
-				events::ISubscriber<events::Part>,
+				ISubscriber<events::Part>,
 				events::Part
 			> part;
 			EventDispatcher<
-				events::ISubscriber<events::PrivMsg>,
+				ISubscriber<events::PrivMsg>,
 				events::PrivMsg
 			> privMsg;
 			EventDispatcher<
-				events::ISubscriber<events::Topic>,
+				ISubscriber<events::Topic>,
 				events::Topic
 			> topic;
 			EventDispatcher<
-				events::ISubscriber<events::NumericReply>,
+				ISubscriber<events::NumericReply>,
 				events::NumericReply
 			> num;
+			EventDispatcher<
+				ISubscriber<events::Ping>,
+				events::Ping
+			> ping;
 		} m_eventDispatchers;
 		
 		LogSingletonHelper m_log;

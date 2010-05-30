@@ -50,12 +50,12 @@ namespace firc
 		}
 	
 		EventDispatcher<
-			events::ISubscriber<events::NewNetwork>,
+			ISubscriber<events::NewNetwork>,
 			events::NewNetwork
 		> m_newNetworkDispatcher;
 		
 		EventDispatcher<
-			events::ISubscriber<events::RemovingNetwork>,
+			ISubscriber<events::RemovingNetwork>,
 			events::RemovingNetwork
 		> m_removingNetworkDispatcher;
 		
@@ -94,13 +94,13 @@ namespace firc
 		throw std::runtime_error("NetworkFactory::closeNetwork(h, p) not implemented.");
 	}
 	
-	network::NewNetworkEventDispatcher &
+	dispatchers::NewNetwork &
 	NetworkFactory::eventDispatcherNewNetwork()
 	{
 		return m_impl->m_newNetworkDispatcher;
 	}
 		
-	network::RemovingNetworkEventDispatcher &
+	dispatchers::RemovingNetwork &
 	NetworkFactory::eventDispatcherRemovingNetwork()
 	{
 		return m_impl->m_removingNetworkDispatcher;

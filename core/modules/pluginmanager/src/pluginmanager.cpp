@@ -1,7 +1,6 @@
 #include "../pluginmanager.h"
 #include "../inc/plugin.h"
 
-#include <iostream>
 #include <algorithm>
 #include <stdexcept>
 
@@ -106,7 +105,7 @@ namespace firc
 			name = m_plugins[index]->getName();
 		} else
 		{
-			throw std::runtime_error("getPluginInfo() index out of bounds");
+			throw std::invalid_argument("getPluginInfo() index out of bounds");
 		}
 	}
 } // namespace firc

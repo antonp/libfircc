@@ -3,6 +3,7 @@
 
 #include <string>
 #include <eventdispatcher.h>
+#include <networkeventdispatchers.h>
 #include <networkevents.h>
 
 namespace anp
@@ -52,29 +53,25 @@ namespace firc
 		/**
 		Returns a subscriber interface for the JOIN event dispatcher.
 		*/
-		virtual IEventDispatcherSubscriber
-		<events::ISubscriber<events::Join> > &
+		virtual dispatchers::Join &
 		eventDispatcherJoin() = 0;
 
 		/**
 		Returns a subscriber interface for the PART event dispatcher.
 		*/
-		virtual IEventDispatcherSubscriber
-		<events::ISubscriber<events::Part> > &
+		virtual dispatchers::Part &
 		eventDispatcherPart() = 0;
 
 		/**
 		Returns a subscriber interface for the PRIVMSG event dispatcher.
 		*/
-		virtual IEventDispatcherSubscriber
-		<events::ISubscriber<events::PrivMsg> > &
+		virtual dispatchers::PrivMsg &
 		eventDispatcherPrivMsg() = 0;
 
 		/**
 		Returns a subscriber interface for the TOPIC event dispatcher.
 		*/
-		virtual IEventDispatcherSubscriber
-		<events::ISubscriber<events::Topic> > &
+		virtual dispatchers::Topic &
 		eventDispatcherTopic() = 0;
 
 		/**
@@ -82,9 +79,18 @@ namespace firc
 		dispatcher, which is a generic dispatcher for all numeric
 		replies.
 		*/
-		virtual IEventDispatcherSubscriber
-		<events::ISubscriber<events::NumericReply> > &
+		virtual dispatchers::NumericReply &
 		eventDispatcherNumericReply() = 0;
+
+		/**
+		Returns a subscriber interface for the PING event dispatcher.
+		
+		@remark 
+		No response is needed since the INetwork implementation should
+		respond to this message automatically.
+		*/		
+		virtual dispatchers::Ping &
+		eventDispatcherPing() = 0;
 	};
 }
 }

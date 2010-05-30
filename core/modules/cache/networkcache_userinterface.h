@@ -1,6 +1,8 @@
 #ifndef _NETWORKCACHE_USERINTERFACE_H_
 #define _NETWORKCACHE_USERINTERFACE_H_
 
+#include <string>
+
 namespace anp
 {
 namespace firc

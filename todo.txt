@@ -37,14 +37,11 @@
 
 
 Finalize:
-* Perhaps Johnny Bigert some includes, header cleanup
 * Remove all memory leaks (valgrind..?)
 * Find all "ETODO" notes and fix.
 * Find all "iostream" and fix.
 * Go through doxygen todo list.
-* Maybe create separate doxygen configs to generate external and complete documentation.
 * Look through documentation.
-* Find and replace all Johnny Bigert references ^^
 
 Misc:
 * Look at/install trac?

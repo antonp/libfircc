@@ -1,6 +1,5 @@
 #include "../inc/plugin.h"
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <cassert>
@@ -27,8 +26,6 @@ namespace firc
 		m_pf_pluginDeinit(NULL),
 		m_unloadReason(0)
 	{		
-		std::cout << "Plugin::loadFromFile: " << fileName << std::endl;
-		
 		PF_pluginInit pf_pluginInit	= (PF_pluginInit)m_lib.getSymbol(
 														"pluginInit");
 		m_pf_pluginDeinit			= (PF_pluginDeinit)m_lib.getSymbol(
@@ -47,7 +44,6 @@ namespace firc
 		);
 		if ( res == 0 )
 		{
-			std::cout << "pluginInit returned 0" << std::endl;
 			throw std::runtime_error("pluginInit returned 0");
 		}
 	}

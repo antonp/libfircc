@@ -40,11 +40,11 @@ private:
 	std::string m_filename;
 };
 
-class EventHandler: public anp::firc::events::ISubscriber<anp::firc::events::Join>,
-					public anp::firc::events::ISubscriber<anp::firc::events::Part>,
-					public anp::firc::events::ISubscriber<anp::firc::events::PrivMsg>,
-					public anp::firc::events::ISubscriber<anp::firc::events::Topic>,
-					public anp::firc::events::ISubscriber<anp::firc::events::NumericReply>
+class EventHandler: public anp::ISubscriber<anp::firc::events::Join>,
+					public anp::ISubscriber<anp::firc::events::Part>,
+					public anp::ISubscriber<anp::firc::events::PrivMsg>,
+					public anp::ISubscriber<anp::firc::events::Topic>,
+					public anp::ISubscriber<anp::firc::events::NumericReply>
 {
 public:
 	void receiveEvent(anp::firc::events::Join &event)

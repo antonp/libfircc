@@ -176,6 +176,25 @@ public:
 	}
 };
 
+class Ping: public IRCEvent
+{
+public:
+	Ping(INetwork &network,
+		const MsgPrefix &origin,
+		const std::string &server1,
+		const std::string &server2):
+	IRCEvent(network, origin),
+	m_server1(server1),
+	m_server2(server2)
+	{
+	}
+	const std::string &server1() const { return m_server1; }
+	const std::string &server2() const { return m_server2; }
+protected:
+	std::string m_server1;
+	std::string m_server2;
+};
+
 class NewNetwork
 {
 public:
@@ -206,15 +225,6 @@ public:
 	}
 protected:
 	anp::firc::INetwork &m_network;
-};
-
-/// @todo move to correct namespace (anp?)
-template <typename E>
-class ISubscriber
-{
-public:
-	virtual ~ISubscriber() { }
-	virtual void receiveEvent(E &event) = 0;
 };
 
 } // namespace events

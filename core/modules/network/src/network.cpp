@@ -247,7 +247,7 @@ namespace numeric_replies
 			{
 				if ( command == "PING" )
 				{
-					msgPingHandle(params[0], "");
+					msgPingHandle(msgPrefix, params[0], "");
 				} else if ( command == "JOIN" )
 				{
 					msgJoinHandle(msgPrefix, params[0]);
@@ -279,7 +279,8 @@ namespace numeric_replies
 		}
 	}
 
-	void Network::msgPingHandle(const std::string &server1,
+	void Network::msgPingHandle(const MsgPrefix &origin,
+								const std::string &server1,
 								const std::string &server2)
 	{
 		std::string pong = "PONG :";
@@ -287,7 +288,8 @@ namespace numeric_replies
 
 		m_connection.send(pong);
 		
-		// todo dispatch event for this
+		events::Ping event(*this, origin, server1, server2);
+		m_eventDispatchers.ping.dispatch(event);
 	}
 
 	void Network::msgJoinHandle( const MsgPrefix &origin,
@@ -395,37 +397,41 @@ namespace numeric_replies
 		return m_networkCache;
 	}
 
-	IEventDispatcherSubscriber<events::ISubscriber<events::Join> > &
+	dispatchers::Join &
 	Network::eventDispatcherJoin()
 	{
 		return m_eventDispatchers.join;
 	}
 
-	IEventDispatcherSubscriber<events::ISubscriber<events::Part> > &
+	dispatchers::Part &
 	Network::eventDispatcherPart()
 	{
 		return m_eventDispatchers.part;
 	}
 
-	IEventDispatcherSubscriber<events::ISubscriber<events::PrivMsg> > &
+	dispatchers::PrivMsg &
 	Network::eventDispatcherPrivMsg()
 	{
 		return m_eventDispatchers.privMsg;
 	}
 
-	IEventDispatcherSubscriber<events::ISubscriber<events::Topic> > &
+	dispatchers::Topic &
 	Network::eventDispatcherTopic()
 	{
 		return m_eventDispatchers.topic;
 	}
 
-	IEventDispatcherSubscriber<
-		events::ISubscriber<events::NumericReply>
-	> &
+	dispatchers::NumericReply &
 	Network::eventDispatcherNumericReply()
 	{
 		return m_eventDispatchers.num;
 	}
+	
+	dispatchers::Ping &
+	Network::eventDispatcherPing()
+	{
+		return m_eventDispatchers.ping;
+	}	
 
 } // namespace firc
 } // namespace anp

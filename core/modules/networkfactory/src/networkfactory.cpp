@@ -74,6 +74,23 @@ namespace firc
 			}
 			throw std::runtime_error("closeNetwork() couldn't find network");
 		}
+		
+		void closeNetwork(const std::string &host, const std::string &port)
+		{
+			for ( std::list<INetwork *>::iterator i=m_networks.begin();
+			      i != m_networks.end(); i++ )
+			{
+				if ( (*i)->host() == host && (*i)->port() == port )
+				{
+					events::RemovingNetwork removingNetworkEvent(*(*i));
+					m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
+					delete (*i);
+					m_networks.erase(i);
+					return;
+				}
+			}
+			throw std::runtime_error("closeNetwork() couldn't find network");			
+		}
 	
 		EventDispatcher<
 			ISubscriber<events::NewNetwork>,
@@ -116,8 +133,7 @@ namespace firc
 	void NetworkFactory::closeNetwork(const std::string &host,
 									  const std::string &port)
 	{
-		/// @todo implement (or remove?)
-		throw std::runtime_error("NetworkFactory::closeNetwork(h, p) not implemented.");
+		m_impl->closeNetwork(host, port);
 	}
 	
 	dispatchers::NewNetwork &

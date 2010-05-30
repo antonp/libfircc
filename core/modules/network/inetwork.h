@@ -67,7 +67,23 @@ namespace firc
 		*/
 		virtual void runMessageReceiverInThread() = 0;
 		
-		// Network cache stuff (getCache() instead ?)
+		/**
+		Retrieves the name of the remote host that this network is connected to.
+		
+		@return
+		The host name.
+		*/
+		virtual const std::string &host() = 0;
+
+		/**
+		Retrieves the remote port that this network is connected to.
+		
+		@return
+		The port.
+		*/
+		virtual const std::string &port() = 0;
+		
+		// Network cache stuff
 
 		/**
 		Returns a reference to a NetworkCacheUserInterface which

@@ -68,10 +68,11 @@ namespace firc
 		
 		void sendMessage(const std::string &message);
 		
+		const std::string &host();
+		const std::string &port();
+		
 		// Network cache stuff
 		const NetworkCacheUserInterface &networkCache() const;
-		Result getBotNickName(int8 *destName,
-								uint32 maxNameLength) const;
 
 		// Event stuff
 		dispatchers::Join &
@@ -119,6 +120,8 @@ namespace firc
 		threading::Mutex m_stateMutex;
 		
 		TCPConnection m_connection;
+		std::string m_host;
+		std::string m_port;
 		
 		std::auto_ptr<threading::Thread> m_receiverThread;
 		std::auto_ptr<MessageSender> m_messageSender;

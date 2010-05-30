@@ -69,6 +69,8 @@ namespace numeric_replies
 	Network::Network(const int8 *host, const int8 *port):
 	m_state(CONNECTING),
 	m_connection(host, port),
+	m_host(host),
+	m_port(port),
 	m_messageSender(new MessageSender(m_connection))
 	{
 		std::string m_outStr;
@@ -419,6 +421,16 @@ namespace numeric_replies
 	void Network::sendMessage(const std::string &message)
 	{
 		m_messageSender->addMessage(message);
+	}
+
+	const std::string &Network::host()
+	{
+		return m_host;
+	}
+	
+	const std::string &Network::port()
+	{
+		return m_port;
 	}
 
 	const NetworkCacheUserInterface &Network::networkCache() const

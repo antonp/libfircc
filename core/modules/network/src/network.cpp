@@ -58,8 +58,11 @@ namespace numeric_replies
 				   << e.what() << std::endl;
 				LOG_SINGLETON_MSG(ss.str());
 			}
-			LOG_SINGLETON_MSG("Network: closing thread");
+		} else
+		{
+			LOG_SINGLETON_MSG("Network: threadRunMessageReceiver Network == NULL");
 		}
+		LOG_SINGLETON_MSG("Network: closing thread");
 		pthread_exit(0);
 	}
 	

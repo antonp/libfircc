@@ -3,7 +3,6 @@
 
 #include <string>
 #include <eventdispatcher.h>
-#include <networkevents.h> /// @todo hide this: forward declare events and move ISubscriber out of 'events' namespace
 #include <networkeventdispatchers.h>
 
 namespace anp

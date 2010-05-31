@@ -3,6 +3,7 @@ firc is an IRC client library written in C\+\+.
 
 # Goals
 To create a library that is
+
 -   Working (stable)
 -   Flexible
 -   Easy to understand
@@ -10,6 +11,7 @@ To create a library that is
 -   Easy to expand
 
 And personally I would also like to
+
 -   Learn more about open source.
 -   Learn how to write portable code.
 
@@ -23,6 +25,7 @@ to try though.
 The project does not have a very good name, firc is temporary.
 
 ## Current features
+
 -   Connect to multiple servers/networks.
 -   Anti-flood implemented with an outgoing message queue.
 -   Event system (IRC messages, new connections, etc).
@@ -30,6 +33,7 @@ The project does not have a very good name, firc is temporary.
 -   Simple plugin manager.
 
 ## Todo
+
 -   There is some work to be done on the network cache/database.
 -   Open up the network interface some more.
 -   Documentation.
@@ -37,6 +41,7 @@ The project does not have a very good name, firc is temporary.
 -   Verify status of release build.
 
 ## Future features
+
 -   Let worker threads handle eventdispatching.
 -   DCC ?
 -   Windows port.

@@ -42,7 +42,7 @@ namespace numeric_replies
 {
 	const int8 *const RPL_NAMREPLY = "353";
 }
-	static void *threadRunMessageReceiver(void *arg)
+	void *Network::threadRunMessageReceiver(void *arg)
 	{
 		Network *nm = (Network *)arg;
 		if ( NULL != nm )
@@ -52,11 +52,13 @@ namespace numeric_replies
 				nm->runMessageReceiver();
 			} catch ( std::exception &e )
 			{
-				/// @todo propagate this somehow
 				std::stringstream ss;
 				ss << "Network-MessageReceiverRunner: Exception occured: "
 				   << e.what() << std::endl;
 				LOG_SINGLETON_MSG(ss.str());
+				
+				events::ExceptionOccured event(e);
+				nm->m_eventDispatchers.exceptionOccured.dispatch(event);
 			}
 		} else
 		{
@@ -66,7 +68,9 @@ namespace numeric_replies
 		pthread_exit(0);
 	}
 	
-	Network::Network(const int8 *host, const int8 *port):
+	Network::Network(const int8 *host, const int8 *port,
+					 const std::string &nick, const std::string &user,
+					 const std::string &realName):
 	m_state(CONNECTING),
 	m_connection(host, port),
 	m_host(host),
@@ -80,19 +84,18 @@ namespace numeric_replies
 		m_state = REGISTERING;
 		// Nick
 		m_outStr = std::string("NICK ")
-			+std::string("fircbot09")
+			+nick
 			+std::string("\r\n");
 		m_connection.send(m_outStr);
 		// User
 		m_outStr = std::string("USER ")
-			+std::string("fircbot09")
+			+user
 			+std::string(" 0 * :")
-			+std::string("Anton Petersson")
+			+realName
 			+std::string("\r\n");
 		m_connection.send(m_outStr);
 		
-		//m_networkCache.init(host, "fircbot09");
-		m_networkCache.setClientNickName("fircbot09");
+		m_networkCache.setClientNickName(nick);
 		
 		
 		m_state = CONNECTED;
@@ -160,7 +163,6 @@ namespace numeric_replies
 		bool32 connected = true;
 
 		char buffer[MAX_DATA_LENGTH];
-		bool hasPrefix=false;
 		std::string in,
 					currentMessage,
 					leftOvers;
@@ -295,8 +297,7 @@ namespace numeric_replies
 					msgTopicHandle(msgPrefix, params[0],
 										params[1]);
 				}
-				// TODO
-				//msgCommandHandle(msgPrefix, command, params);
+				msgCommandHandle(msgPrefix, command, params);
 			}
 
 		} else
@@ -418,6 +419,14 @@ namespace numeric_replies
 		m_eventDispatchers.num.dispatch(event);
 	}
 	
+	void Network::msgCommandHandle(const MsgPrefix &origin,
+								   const std::string &command,
+								   const std::string params[])
+	{
+		events::Command event(*this, origin, command, params);
+		m_eventDispatchers.command.dispatch(event);
+	}
+	
 	void Network::sendMessage(const std::string &message)
 	{
 		m_messageSender->addMessage(message);
@@ -468,11 +477,23 @@ namespace numeric_replies
 		return m_eventDispatchers.num;
 	}
 	
+	dispatchers::Command &
+	Network::eventDispatcherCommand()
+	{
+		return m_eventDispatchers.command;
+	}
+	
 	dispatchers::Ping &
 	Network::eventDispatcherPing()
 	{
 		return m_eventDispatchers.ping;
-	}	
+	}
+	
+	dispatchers::ExceptionOccured &
+	Network::eventDispatcherExceptionOccured()
+	{
+		return m_eventDispatchers.exceptionOccured;
+	}
 
 } // namespace firc
 } // namespace anp

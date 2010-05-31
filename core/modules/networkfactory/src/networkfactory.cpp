@@ -115,9 +115,16 @@ namespace firc
 	}
 
 	INetwork *NetworkFactory::openNetwork(const std::string &host,
-										  const std::string &port)
+										  const std::string &port,
+										  const std::string &nick,
+										  const std::string &user,
+										  const std::string &realName)
 	{
-		Network *network = new Network(host.c_str(), port.c_str());
+		Network *network = new Network(host.c_str(),
+									   port.c_str(),
+									   nick,
+									   user,
+									   realName);
 		m_impl->m_networks.push_back(network);
 		
 		events::NewNetwork newNetworkEvent(*network);

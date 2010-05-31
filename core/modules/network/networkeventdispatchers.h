@@ -34,6 +34,11 @@ namespace anp
 {
 namespace firc
 {
+	
+/**
+	Collection of typedefs for various event dispatcher subscriber interfaces.
+	Provided for increased readability and to avoid having to type too much.
+*/
 namespace eventdispatchers
 {
 
@@ -42,9 +47,11 @@ typedef IEventDispatcherSubscriber<ISubscriber<events::Part> > Part;
 typedef IEventDispatcherSubscriber<ISubscriber<events::PrivMsg> > PrivMsg;
 typedef IEventDispatcherSubscriber<ISubscriber<events::Topic> > Topic;
 typedef IEventDispatcherSubscriber<ISubscriber<events::NumericReply> > NumericReply;
+typedef IEventDispatcherSubscriber<ISubscriber<events::Command> > Command;
 typedef IEventDispatcherSubscriber<ISubscriber<events::Ping> > Ping;
 typedef IEventDispatcherSubscriber<ISubscriber<events::NewNetwork> > NewNetwork;
 typedef IEventDispatcherSubscriber<ISubscriber<events::RemovingNetwork> > RemovingNetwork;
+typedef IEventDispatcherSubscriber<ISubscriber<events::ExceptionOccured> > ExceptionOccured;
 
 } // namespace dispatchers
 namespace dispatchers = eventdispatchers;

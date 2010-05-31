@@ -45,7 +45,10 @@ namespace firc
 		~NetworkFactory();
 
 		INetwork *openNetwork(const std::string &host,
-							  const std::string &port);
+							  const std::string &port,
+							  const std::string &nick,
+							  const std::string &user,
+							  const std::string &realName);
 
 		void closeNetwork(INetwork *network);
 		void closeNetwork(const std::string &host,

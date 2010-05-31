@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../pluginmanager.h"
 #include "../inc/plugin.h"
 
+#include <vector>
 #include <algorithm>
 #include <stdexcept>
 
@@ -34,13 +35,22 @@ namespace anp
 {
 namespace firc
 {
-	PluginManager::PluginManager()
+	class PluginManagerImpl
+	{
+	public:
+		
+		std::vector<Plugin *> m_plugins;
+	};
+	
+	PluginManager::PluginManager():
+	m_impl(new PluginManagerImpl)
 	{
 	}
 	
 	PluginManager::~PluginManager()
 	{
 		unloadAllPlugins();
+		delete m_impl;
 	}
 	
 	/**
@@ -61,7 +71,7 @@ namespace firc
 			networkFactory,
 			appContext
 		);
-		m_plugins.push_back(plugin);
+		m_impl->m_plugins.push_back(plugin);
 	}
 
 	/**
@@ -77,13 +87,14 @@ namespace firc
 	bool PluginManager::unloadPlugin(const std::string &fileName,
 									 uint32 reason)
 	{
-		for ( uint32 i=0; i<m_plugins.size(); ++i )
+		std::vector<Plugin *> &plugins = m_impl->m_plugins;
+		for ( uint32 i=0; i<plugins.size(); ++i )
 		{
-			if ( m_plugins[i]->getName() == fileName )
+			if ( plugins[i]->getName() == fileName )
 			{
-				m_plugins[i]->setUnloadReason(reason);
-				delete m_plugins[i];
-				m_plugins.erase(m_plugins.begin()+i);
+				plugins[i]->setUnloadReason(reason);
+				delete plugins[i];
+				plugins.erase(plugins.begin()+i);
 				return true;
 			}
 		}
@@ -96,11 +107,12 @@ namespace firc
 	 */
 	void PluginManager::unloadAllPlugins()
 	{
-		uint32 size = m_plugins.size();
+		std::vector<Plugin *> &plugins = m_impl->m_plugins;
+		uint32 size = plugins.size();
 		Plugin *p = NULL;
 		for ( uint32 i=0; i<size; ++i )
 		{
-			p = m_plugins[i];
+			p = plugins[i];
 			if ( NULL == p )
 			{
 				// weird, but ok skip this one then
@@ -110,25 +122,26 @@ namespace firc
 				p->setUnloadReason(0); // Revise '0'
 				delete p;
 				p = NULL;
-				m_plugins[i] = NULL;
+				plugins[i] = NULL;
 			}
 		}
-		m_plugins.clear();
+		plugins.clear();
 	}
 	
 	uint32 PluginManager::getPluginCount() const
 	{
-		return m_plugins.size();
+		return m_impl->m_plugins.size();
 	}
 	
 	void PluginManager::getPluginInfo(uint32 index,
 									  std::string &name)
 	{
-		uint32 size = m_plugins.size();
+		std::vector<Plugin *> &plugins = m_impl->m_plugins;
+		uint32 size = plugins.size();
 		
-		if ( size > index && NULL != m_plugins[index] )
+		if ( size > index && NULL != plugins[index] )
 		{
-			name = m_plugins[index]->getName();
+			name = plugins[index]->getName();
 		} else
 		{
 			throw std::invalid_argument("getPluginInfo() index out of bounds");

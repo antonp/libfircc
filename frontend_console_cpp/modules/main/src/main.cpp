@@ -180,7 +180,10 @@ int main(int argc, char *argv[])
 	}
 	
 	anp::firc::INetwork *network = networkFactory.openNetwork(serverAddress,
-															  serverPort);
+															  serverPort,
+															  "firc10",
+															  "fircclient10",
+															  "Test Name");
 	
 	anp::uint32 state = 0;
 

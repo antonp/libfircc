@@ -125,6 +125,13 @@ namespace firc
 		eventDispatcherNumericReply() = 0;
 
 		/**
+		Returns a subscriber interface for the command event dispatcher,
+		which is a generic dispatcher for all irc commands.
+		*/
+		virtual dispatchers::Command &
+		eventDispatcherCommand() = 0;
+
+		/**
 		Returns a subscriber interface for the PING event dispatcher.
 		
 		@remark 
@@ -133,6 +140,13 @@ namespace firc
 		*/		
 		virtual dispatchers::Ping &
 		eventDispatcherPing() = 0;
+		
+		/**
+		Returns a subscriber interface for the ExceptionOccured event
+		dispatcher.
+		*/
+		virtual dispatchers::ExceptionOccured &
+		eventDispatcherExceptionOccured() = 0;
 	};
 }
 }

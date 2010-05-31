@@ -202,6 +202,22 @@ public:
 	}
 };
 
+class Command: public IRCEvent,
+			   public EventWithCommand,
+			   public EventWithParamList
+{
+public:
+	Command(INetwork &network,
+			const MsgPrefix &origin,
+			const std::string &command,
+			const std::string params[]):
+	IRCEvent(network, origin),
+	EventWithCommand(command),
+	EventWithParamList(params)
+	{
+	}
+};
+
 class Ping: public IRCEvent
 {
 public:
@@ -251,6 +267,21 @@ public:
 	}
 protected:
 	anp::firc::INetwork &m_network;
+};
+
+class ExceptionOccured
+{
+public:
+	ExceptionOccured(std::exception &e)
+	{
+		m_exception = e;
+	}
+	std::exception &exception()
+	{
+		return m_exception;
+	}
+protected:
+	std::exception m_exception;
 };
 
 } // namespace events

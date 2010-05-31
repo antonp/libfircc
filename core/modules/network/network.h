@@ -49,7 +49,9 @@ namespace firc
 	class Network: public INetwork
 	{
 	public:
-		Network(const int8 *host, const int8 *port);
+		Network(const int8 *host, const int8 *port,
+				const std::string &nick, const std::string &user,
+				const std::string &realName);
 		~Network();
 		
 		void deinit(const std::string &message);
@@ -75,23 +77,21 @@ namespace firc
 		const NetworkCacheUserInterface &networkCache() const;
 
 		// Event stuff
-		dispatchers::Join &
-			eventDispatcherJoin();
+		dispatchers::Join &eventDispatcherJoin();
 
-		dispatchers::Part &
-			eventDispatcherPart();
+		dispatchers::Part &eventDispatcherPart();
 
-		dispatchers::PrivMsg &
-			eventDispatcherPrivMsg();
+		dispatchers::PrivMsg &eventDispatcherPrivMsg();
 
-		dispatchers::Topic &
-			eventDispatcherTopic();
+		dispatchers::Topic &eventDispatcherTopic();
 
-		dispatchers::NumericReply &
-			eventDispatcherNumericReply();
+		dispatchers::NumericReply &eventDispatcherNumericReply();
+		
+		dispatchers::Command &eventDispatcherCommand();
 			
-		dispatchers::Ping &
-			eventDispatcherPing();
+		dispatchers::Ping &eventDispatcherPing();
+			
+		dispatchers::ExceptionOccured &eventDispatcherExceptionOccured();
 
 	private:
 		void parseMessage(const std::string &message);
@@ -115,6 +115,11 @@ namespace firc
 		void msgNumHandle(const MsgPrefix &origin,
 							const std::string &command,
 							const std::string params[]);
+		void msgCommandHandle(const MsgPrefix &origin,
+							  const std::string &command,
+							  const std::string params[]);
+							
+		static void *threadRunMessageReceiver(void *arg);
 
 		State m_state;
 		threading::Mutex m_stateMutex;
@@ -151,9 +156,17 @@ namespace firc
 				events::NumericReply
 			> num;
 			EventDispatcher<
+				ISubscriber<events::Command>,
+				events::Command
+			> command;
+			EventDispatcher<
 				ISubscriber<events::Ping>,
 				events::Ping
 			> ping;
+			EventDispatcher<
+				ISubscriber<events::ExceptionOccured>,
+				events::ExceptionOccured
+			> exceptionOccured;
 		} m_eventDispatchers;
 		
 		LogSingletonHelper m_log;

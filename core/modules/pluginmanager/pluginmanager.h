@@ -30,8 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <basedefs.h>
 #include <networkeventdispatchers.h>
 
-// TODO: Maybe pImpl this
-#include <vector> 
 #include <string>
 
 namespace anp
@@ -40,6 +38,7 @@ namespace firc
 {
 	class NetworkFactory;
 	class Plugin;
+	class PluginManagerImpl;
 
 	class PluginManager 
 	{
@@ -58,7 +57,7 @@ namespace firc
 		void getPluginInfo(uint32 index,
 						   std::string &name);
 	private:
-		std::vector<Plugin *> m_plugins;
+		PluginManagerImpl *m_impl;
 	};
 
 } // namespace firc

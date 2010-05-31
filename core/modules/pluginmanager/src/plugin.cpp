@@ -96,24 +96,7 @@ namespace firc
 	
 	const std::string &Plugin::getName() const
 	{
-		// Trust that the caller respects the constness
 		return m_name;
-	}
-	
-	//////////////////////////////////
-	// Execution, status, reloading
-	//////////////////////////////////
-
-	void Plugin::increaseExecutionCount()
-	{
-		++m_executionCount;
-	}
-	
-	void Plugin::decreaseExecutionCount()
-	{
-		--m_executionCount;
-		
-		/// @todo Add assert and/or log if m_executionCount < 0
 	}
 } // namespace firc
 } // namespace anp

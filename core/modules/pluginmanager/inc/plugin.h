@@ -59,10 +59,6 @@ namespace firc
 		bool32 isUnloading() const;
 		
 		const std::string &getName() const;
-		
-		// Execution, status, reloading
-		void increaseExecutionCount();
-		void decreaseExecutionCount();
 	private:	
 		DynamicLibrary		m_lib;
 		
@@ -72,7 +68,6 @@ namespace firc
 		std::string			m_name;
 		
 		// Execution
-		uint32				m_executionCount;
 		bool32				m_unloading;
 		uint32				m_unloadReason;
 		

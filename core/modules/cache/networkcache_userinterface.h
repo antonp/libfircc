@@ -41,19 +41,6 @@ namespace firc
 		virtual ~NetworkCacheUserInterface() { }
 
 		/**
-		Returns a ChannelCache which can be used to retrieve
-		information about a particular channel.
-
-		@param name
-		The name of the channel.
-
-		@return
-		Pointer to ChannelCache.
-		*/
-		virtual const ChannelCache *getChannel(
-									const std::string &name) const = 0;
-
-		/**
 		Copy information about a particular channel into an
 		already allocated ChannelCache object.
 

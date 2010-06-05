@@ -55,15 +55,14 @@ namespace firc
 		std::string m_user;
 	};
 
+	// Use to sort on channel only
 	static int channeluserrelation_compareC(const ChannelUserRelation &r1,
 									const ChannelUserRelation &r2)
 	{
-		// TODO: Improve this by also taking nick names into account
-		// So that the table can be sorted on channel (primarily) and
-		// nick names (secondarily)
 		return r1.m_channel.compare(r2.m_channel);
 	}
 
+	// Use to sort on channel, user
 	static int channeluserrelation_compareCU(const ChannelUserRelation &r1,
 									const ChannelUserRelation &r2)
 	{
@@ -79,6 +78,8 @@ namespace firc
 	class NetworkCacheImpl
 	{
 	public:
+		~NetworkCacheImpl();
+
 		const ChannelCache *channel(const std::string &name) const;
 		ChannelCache *channel(const std::string &name);
 		const ChannelCache *getChannelCopy(
@@ -92,15 +93,29 @@ namespace firc
 		std::string m_clientNickName;
 		LogSingletonHelper m_log;
 	private:
-		uint32 getChannelIndex(const std::string &name) const;
-		uint32 getUserIndex(const std::string &name) const;
 		std::vector<UserInfo *> m_users;
 	};
+
+	NetworkCacheImpl::~NetworkCacheImpl()
+	{
+		std::vector<ChannelCache *>::iterator c;
+		for ( c=m_channels.begin(); c != m_channels.end(); c++ )
+		{
+			delete (*c);
+		}
+		m_channels.clear();
+
+		std::vector<UserInfo *>::iterator u;
+		for ( u=m_users.begin(); u != m_users.end(); u++ )
+		{
+			delete (*u);
+		}
+		m_users.clear();
+	}
 
 	const ChannelCache *NetworkCacheImpl::channel(
 										const std::string &name) const
 	{
-//		uint32 index = getChannelIndex(name);
 		ChannelCache tempChan(name);
 		std::vector<ChannelCache *>::const_iterator i = std::lower_bound(
 			m_channels.begin(), m_channels.end(), &tempChan,
@@ -136,14 +151,6 @@ namespace firc
 		return NULL; // Should never happen
 	}
 
-	const ChannelCache *NetworkCacheImpl::getChannelCopy(
-										const std::string &name) const
-	{
-		// TODO: Maybe take a ChannelCache ref to avoid memalloc?
-		const ChannelCache *const srcChannel = this->channel(name);
-		return new ChannelCache(*srcChannel);
-	}
-
 	void NetworkCacheImpl::getChannelCopy(const std::string &name,
 									ChannelCache &dest) const
 	{
@@ -162,71 +169,10 @@ namespace firc
 			return *res.first;
 		} else
 		{
-			throw std::runtime_error("Unable to find user.");
 			return NULL;
 		}
 	}
 	
-	uint32 NetworkCacheImpl::getChannelIndex(
-										const std::string &name) const
-	{
-		// Perform a binary search
-		uint32 upper = m_channels.size();
-		uint32 lower = 0;
-		uint32 pivot = 0;
-		uint32 diff = 0;
-		while ( true )
-		{
-			pivot = (upper-lower)/2;
-			diff=name.compare(m_channels[pivot]->name());
-			if ( diff < 0 )
-			{
-				upper = pivot;
-			} else if ( diff > 0 )
-			{
-				lower = pivot;
-			} else // diff = 0
-			{
-				// Match
-				return pivot;
-			}
-			// TODO: If (upper-lower) is small, what happens?
-			// Will all positions be examined?
-			// Do we need to roundup pivot calculation?
-		}
-		throw std::runtime_error("Unable to find channel.");
-	}
-
-	uint32 NetworkCacheImpl::getUserIndex(
-										const std::string &name) const
-	{
-		// Perform a binary search
-		uint32 upper = m_users.size();
-		uint32 lower = 0;
-		uint32 pivot = 0;
-		uint32 diff = 0;
-		while ( true )
-		{
-			pivot = (upper-lower)/2;
-			diff=name.compare(m_users[pivot]->name());
-			if ( diff < 0 )
-			{
-				upper = pivot;
-			} else if ( diff > 0 )
-			{
-				lower = pivot;
-			} else // diff = 0
-			{
-				// Match
-				return pivot;
-			}
-			// TODO: If (upper-lower) is small, what happens?
-			// Will all positions be examined?
-			// Do we need to roundup pivot calculation?
-		}
-		throw std::runtime_error("Unable to find channel.");
-	}
-
 	// Wrapper functions
 	NetworkCache::NetworkCache():
 	m_impl(new NetworkCacheImpl)
@@ -238,12 +184,6 @@ namespace firc
 		delete m_impl;
 	}
 	
-	const ChannelCache *NetworkCache::getChannel(
-										const std::string &name) const
-	{
-		return m_impl->getChannelCopy(name);
-	}
-
 	void NetworkCache::getChannel(const std::string &name,
 									ChannelCache &dest) const
 	{
@@ -252,6 +192,7 @@ namespace firc
 
 	void NetworkCache::addChannel(const std::string &channel)
 	{
+		
 		// TODO: Cache this channel here, since "addUserToChannel" will
 		// likely be called next, upon some RPL_NAMREPLY
 		ChannelCache *temp = new ChannelCache(channel);
@@ -283,14 +224,7 @@ namespace firc
 							  const std::string &channelName)
 	{
 		ChannelCache *channel = m_impl->channel(channelName);
-		UserInfo *userInfo = NULL;
-		try
-		{
-			userInfo = m_impl->userByName(name);
-		} catch ( std::runtime_error &e )
-		{
-			userInfo = new UserInfo(name, user, host);
-		}
+		
 		ChannelUserRelation newRelation(channelName, name, 0);
 		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
 

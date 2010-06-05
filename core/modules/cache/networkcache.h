@@ -41,8 +41,6 @@ namespace firc
 		NetworkCache();
 		~NetworkCache();
 		
-		const ChannelCache *getChannel(
-									const std::string &name) const;
 		void getChannel(const std::string &name,
 										ChannelCache &dest) const;
 

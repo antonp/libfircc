@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _NETWORKCACHE_H_
 
 #include "networkcache_userinterface.h"
+#include <networkevents.h>
+#include <networkeventsubscribers.h>
 
 namespace anp
 {
@@ -35,7 +37,11 @@ namespace firc
 {
 	class NetworkCacheImpl;
 	
-	class NetworkCache: public NetworkCacheUserInterface
+	class NetworkCache: public NetworkCacheUserInterface,
+						public anp::firc::eventsubscribers::NumericReply,
+						public anp::firc::eventsubscribers::Join,
+						public anp::firc::eventsubscribers::Part,
+						public anp::firc::eventsubscribers::Topic
 	{
 	public:
 		NetworkCache();
@@ -61,6 +67,11 @@ namespace firc
 		void setClientNickName(const std::string &clientNickName);
 		void getClientNickName(std::string &clientNickName) const;
 	private:
+		void receiveEvent(anp::firc::events::NumericReply &event);
+		void receiveEvent(anp::firc::events::Join &event);
+		void receiveEvent(anp::firc::events::Part &event);
+		void receiveEvent(anp::firc::events::Topic &event);
+
 		NetworkCacheImpl *m_impl;
 	};
 }	

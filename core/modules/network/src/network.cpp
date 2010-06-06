@@ -96,7 +96,10 @@ namespace numeric_replies
 		m_connection.send(m_outStr);
 		
 		m_networkCache.setClientNickName(nick);
-		
+		m_eventDispatchers.num.subscribe(&m_networkCache);
+		m_eventDispatchers.join.subscribe(&m_networkCache);
+		m_eventDispatchers.part.subscribe(&m_networkCache);
+		m_eventDispatchers.topic.subscribe(&m_networkCache);
 		
 		m_state = CONNECTED;
 	}
@@ -168,6 +171,8 @@ namespace numeric_replies
 					leftOvers;
 		std::stringstream ss;
 		
+		anp::threading::TryLock lock(m_runMutex);
+
 		while ( TRUE == connected )
 		{			
 			m_stateMutex.lock();
@@ -327,16 +332,6 @@ namespace numeric_replies
 	void Network::msgJoinHandle( const MsgPrefix &origin,
 										const std::string &channel)
 	{
-		std::string clientNick;
-		m_networkCache.getClientNickName(clientNick);
-		if ( origin.nick() == clientNick )
-		{
-			m_networkCache.addChannel(channel);
-		}
-		m_networkCache.addUserToChannel(origin.nick(),
-										origin.user(),
-										origin.host(),
-										channel);
 		events::Join event(*this, origin, channel);
 		m_eventDispatchers.join.dispatch(event);
 	}
@@ -345,17 +340,6 @@ namespace numeric_replies
 										const std::string &channel,
 										const std::string &message)
 	{
-
-		std::string clientNick;
-		m_networkCache.getClientNickName(clientNick);
-		if ( origin.nick() == clientNick )
-		{
-			m_networkCache.removeChannel(channel);
-		} else
-		{
-			m_networkCache.removeUserFromChannel(origin.nick(), channel);
-		}
-
 		events::Part event(*this, origin, channel, message);
 		m_eventDispatchers.part.dispatch(event);
 	}
@@ -372,8 +356,6 @@ namespace numeric_replies
 										const std::string &channel,
 										const std::string &topic)
 	{
-		m_networkCache.setTopic(channel, topic);
-
 		events::Topic event(*this, origin, channel, topic);
 		m_eventDispatchers.topic.dispatch(event);
 	}

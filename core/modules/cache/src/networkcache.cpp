@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../inc/utilities.h"
 #include <stdexcept>
 #include <log_singleton.h>
+#include <anp_threading.h>
 
 namespace anp
 {
@@ -92,12 +93,15 @@ namespace firc
 		std::vector<ChannelUserRelation> m_cuRelations;
 		std::string m_clientNickName;
 		LogSingletonHelper m_log;
+		anp::threading::Mutex m_mutex;
 	private:
 		std::vector<UserInfo *> m_users;
 	};
 
 	NetworkCacheImpl::~NetworkCacheImpl()
 	{
+		anp::threading::Lock lock(m_mutex);
+
 		std::vector<ChannelCache *>::iterator c;
 		for ( c=m_channels.begin(); c != m_channels.end(); c++ )
 		{
@@ -138,14 +142,15 @@ namespace firc
 		ChannelCache tempChan(name);
 		std::vector<ChannelCache *>::iterator i = std::lower_bound(
 			m_channels.begin(), m_channels.end(), &tempChan,
-
-		channelinfo_compare);
+			channelinfo_compare);
 		if ( i != m_channels.end() )
 		{
 			return (*i);
 		} else
 		{
-			throw std::runtime_error("Unable to find channel.");
+			std::stringstream err;
+			err << "Unable to find channel: " << name;
+			throw std::runtime_error(err.str());
 		}
 		throw std::logic_error("Reached an unreachable point in code.");
 		return NULL; // Should never happen
@@ -187,11 +192,14 @@ namespace firc
 	void NetworkCache::getChannel(const std::string &name,
 									ChannelCache &dest) const
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		m_impl->getChannelCopy(name, dest);
 	}
 
 	void NetworkCache::addChannel(const std::string &channel)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
 		
 		// TODO: Cache this channel here, since "addUserToChannel" will
 		// likely be called next, upon some RPL_NAMREPLY
@@ -203,6 +211,8 @@ namespace firc
 
 	void NetworkCache::removeChannel(const std::string &channel)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		ChannelCache temp(channel);
 		std::vector<ChannelCache *> &list = m_impl->m_channels;
 		std::vector<ChannelCache *>::iterator i = 
@@ -223,6 +233,8 @@ namespace firc
 							  const std::string &host,
 							  const std::string &channelName)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		ChannelCache *channel = m_impl->channel(channelName);
 		
 		ChannelUserRelation newRelation(channelName, name, 0);
@@ -272,6 +284,8 @@ namespace firc
 	void NetworkCache::removeUserFromChannel(const std::string &name,
 								const std::string &channelName)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		ChannelUserRelation tempRel(channelName, name, 0);
 		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
 		std::pair<
@@ -311,6 +325,8 @@ namespace firc
 	void NetworkCache::removeAllUsersFromChannel(
 								const std::string &channel)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		ChannelUserRelation tempRel(channel, "", 0);
 		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
 		std::pair<
@@ -328,6 +344,8 @@ namespace firc
 	void NetworkCache::setTopic(const std::string &channelName,
 								const std::string &topic)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		ChannelCache *channel = m_impl->channel(channelName);
 		channel->setTopic(topic);
 	}
@@ -335,13 +353,65 @@ namespace firc
 	void NetworkCache::setClientNickName(
 							const std::string &clientNickName)
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		m_impl->m_clientNickName = clientNickName;
 	}
 
 	void NetworkCache::getClientNickName(
 							std::string &clientNickName) const
 	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+
 		clientNickName = m_impl->m_clientNickName;
+	}
+
+	/////////////////////////////////
+	// Event subscriber interfaces
+	
+	void NetworkCache::receiveEvent(anp::firc::events::NumericReply &event)
+	{
+		const std::string &command = event.command();
+
+		if ( command == "332" ) // RPL_TOPIC
+		{
+			setTopic(event.param(1), event.param(2));
+		}
+	}
+
+	void NetworkCache::receiveEvent(anp::firc::events::Join &event)
+	{
+		const MsgPrefix &origin = event.origin();
+		std::string clientNickName;
+
+		getClientNickName(clientNickName);
+		if ( origin.nick() == clientNickName )
+		{
+			addChannel(event.channel());
+		}
+		addUserToChannel(origin.nick(),
+						 origin.user(),
+						 origin.host(),
+						 event.channel());
+	}
+
+	void NetworkCache::receiveEvent(anp::firc::events::Part &event)
+	{
+		const MsgPrefix &origin = event.origin();
+		std::string clientNickName;
+
+		getClientNickName(clientNickName);
+		if ( origin.nick() == clientNickName )
+		{
+			removeChannel(event.channel());
+		} else
+		{
+			removeUserFromChannel(origin.nick(), event.channel());
+		}
+	}
+	void NetworkCache::receiveEvent(anp::firc::events::Topic &event)
+	{
+		setTopic(event.channel(), event.topic());
 	}
 }
 }

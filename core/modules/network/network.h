@@ -133,6 +133,9 @@ namespace firc
 		
 		NetworkCache m_networkCache;
 
+		anp::threading::Mutex m_runMutex;
+		anp::threading::Mutex m_mutex;
+
 		struct
 		{
 			EventDispatcher<

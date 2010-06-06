@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <channelcache.h>
 #include <unistd.h> // for Sleep
 #include <string.h>
-#include <log.h>
+#include <log_singleton.h>
 #include <tcpconnection.h>
 #include <networkevents.h>
 #include <networkeventsubscribers.h>
@@ -160,9 +160,9 @@ int main(int argc, char *argv[])
 	};
 
 	LogFileWriter logFileWriter("frontend_cpp.log");
-	anp::Log log;
+	anp::LogSingletonHelper log;
 	log.addLogInterface(&logFileWriter);
-	log.addMessage("Log initialized.");
+	log("Log initialized.");
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 	// Quit
 	network->deinit("Time to go! See you!");
 	networkFactory.closeNetwork(network);
-	log.addMessage("main.cpp: Successfully disconnected.");
+	log("main.cpp: Successfully disconnected.");
 	
 	pthread_mutex_destroy(&g_stateMutex);
 	

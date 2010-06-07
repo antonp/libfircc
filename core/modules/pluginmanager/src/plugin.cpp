@@ -57,7 +57,7 @@ namespace firc
 														"pluginInit");
 		m_pf_pluginDeinit			= (PF_pluginDeinit)m_lib.getSymbol(
 														"pluginDeinit");
-		
+
 		// DynamicLibrary::getSymbol should throw an exception if
 		// any of the functions cannot be found, so this should never
 		// happen.

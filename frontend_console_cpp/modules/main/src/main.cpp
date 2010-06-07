@@ -124,6 +124,15 @@ public:
 		std::cout << "[main.cpp <-] Numeric reply "
 			<< event.command() << " received. ("
 			<< event.origin().prefix() << ')' << std::endl;
+		
+		if ( event.command() == "376" ) // RPL_ENDOFMOTD
+		{
+			anp::firc::INetwork &network = event.network();
+				
+			network.sendMessage("JOIN #my-secret-botdev\r\n");
+			network.sendMessage(
+						"PRIVMSG #my-secret-botdev :Hello world!\r\n");
+		}
 	}
 };
 
@@ -196,12 +205,6 @@ int main(int argc, char *argv[])
 	network->eventDispatcherNumericReply().subscribe(&eventHandler);
 
 	network->runMessageReceiverInThread();
-
-	sleep(9);
-	network->sendMessage("JOIN #my-secret-botdev\r\n");
-	network->sendMessage(
-					"PRIVMSG #my-secret-botdev :Hello world!\r\n");
-	sleep(20);
 	
 	// When the quit command has been received, state will equal 1.
 	while ( 0 == state )

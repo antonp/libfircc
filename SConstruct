@@ -1,11 +1,15 @@
-# TODO:
-# 1) Set target parameters through command line
+import glob, os, sys
 
-import glob, os
-
-targetPlatform = 'TARGET_UBUNTU64'
-targetMode = 'TARGET_DEBUG'
-targetCharSize = 'TARGET_ASCII8'
+targetPlatform = ARGUMENTS.get('platform', 'TARGET_LINUX32')
+targetMode = ARGUMENTS.get('mode', 'TARGET_RELEASE')
+if targetMode == 'release':
+	targetMode = 'TARGET_RELEASE'
+elif targetMode == 'debug':
+	targetMode = 'TARGET_DEBUG'
+elif targetMode != 'TARGET_DEBUG' and targetMode != 'TARGET_RELEASE':
+	print 'Invalid mode: ' + targetMode
+	sys.exit(1)
+targetCharSize = ARGUMENTS.get('charsize', 'TARGET_ASCII8')
 
 # "Declarations"
 
@@ -13,9 +17,9 @@ targetCharSize = 'TARGET_ASCII8'
 
 folderIgnoreList = ['.svn', '.git']
 
-###################################
-# Generic functions to build crap #
-###################################
+#####################################
+# Generic functions to build things #
+#####################################
 
 def generateSourceIncDirLists(pathList, incDirList):
 	srcList = []
@@ -39,16 +43,17 @@ def generateSourceIncDirLists(pathList, incDirList):
 
 def buildLibrary(name, pathList, externalIncludeDirList):
 	compOutName = name
+	cppFlags = []
 	
 	# Output path and name
 	if targetMode == 'TARGET_DEBUG':
 		compOutName = 'debug/'+name
+		cppFlags = ['-g']
 	else:
 		compOutName = 'release/'+name
+		cppFlags = ['-O2']
 	
 	srcList = generateSourceIncDirLists(pathList, externalIncludeDirList)
-
-	cppFlags = ['-g']
 
 	target = StaticLibrary(
 		compOutName,
@@ -62,16 +67,17 @@ def buildLibrary(name, pathList, externalIncludeDirList):
 	
 def buildSharedLibrary(name, pathList, externalIncludeDirList, externalLibList):
 	compOutName = name
+	cppFlags = []
 	
 	# Output path and name
 	if targetMode == 'TARGET_DEBUG':
 		compOutName = 'debug/'+name
+		cppFlags = ['-g']
 	else:
-		targetMode == 'release/'+name
+		compOutName = 'release/'+name
+		cppFlags = ['-O2']
 	
 	srcList = generateSourceIncDirLists(pathList, externalIncludeDirList)
-
-	cppFlags = ['-g']
 
 	target = SharedLibrary(
 		compOutName,
@@ -87,16 +93,17 @@ def buildSharedLibrary(name, pathList, externalIncludeDirList, externalLibList):
 
 def buildProgram(name, pathList, externalIncludeDirList, externalLibList, linkFlagList):
 	compOutName = name
+	cppFlags = []
 	
 	# Output path and name
 	if targetMode == 'TARGET_DEBUG':
 		compOutName = 'debug/'+name
+		cppFlags = ['-g']
 	else:
-		targetMode == 'release/'+name
+		compOutName = 'release/'+name
+		cppFlags = ['-O2']
 	
 	srcList = generateSourceIncDirLists(pathList, externalIncludeDirList)
-	
-	cppFlags = ['-g']
 
 	target = Program(
 		compOutName,
@@ -105,24 +112,23 @@ def buildProgram(name, pathList, externalIncludeDirList, externalLibList, linkFl
 		CPPFLAGS=cppFlags,
 		CPPDEFINES=[targetPlatform, targetMode, targetCharSize],
 		LIBS=externalLibList,
-		LIBPATH=('debug' if (targetMode == 'TARGET_DEBUG') else 'release'),
-#		LINKFLAGS=['-E', '-rdynamic', '--export-dynamic']
+		LIBPATH='debug' if targetMode == 'TARGET_DEBUG' else 'release',
 		LINKFLAGS=linkFlagList
 	)
 	
 	return target
 
-###################
-# Build main crap #
-###################
+#####################
+# Build main things #
+#####################
 
-core = buildLibrary(
-	'core',
+irclib = buildLibrary(
+	'firc',
 	['core/modules', 'anppfindep.git', 'anpcommon.git'],
 	['anpbase.git/anp_basecode']
 )
-frontend_console_cpp = buildProgram(
-	'frontend_console_cpp',
+devapp_console = buildProgram(
+	'firc_devapp_console',
 	['frontend_console_cpp/modules'],
 	[
 		'anpbase.git/anp_basecode',
@@ -139,32 +145,8 @@ frontend_console_cpp = buildProgram(
 		'core/modules/networkfactory',
 		'anpcommon.git/eventdispatcher'
 	],
-	['core', 'pthread', 'dl', 'pcrecpp'],
+	['firc', 'pthread', 'dl', 'pcrecpp'],
 	['-rdynamic']
-)
-
-# frontend_console_c = buildProgram(
-#	'frontend_console_c',
-#	'frontend_console_c',
-#	['basecode', 'core/modules/plugin_interface'],
-#	['core', 'pthread', 'dl'],
-#	['-rdynamic']
-# )
-
-test_threading = buildProgram(
-	'test_threading',
-	['test_threading/modules'],
-	['anpbase.git/anp_basecode', 'anppfindep.git/anp_threading', 'anpcommon.git/anp_workerthreads'],
-	['core', 'pthread', 'dl'], # core because anp_workerthreads is compiled into it...
-	['-rdynamic'] #beacuse of dynamic linking
-)
-
-test_parsing = buildProgram(
-	'test_parsing',
-	['test_parsing/modules'],
-	['core/modules/tokenizer'],
-	['pcrecpp', 'core'],
-	[]
 )
 
 # Plugins
@@ -179,8 +161,7 @@ pluginTest1 = buildSharedLibrary(
 		'core/modules/networkfactory'
 	],
 	[])
-#pluginTest2 = buildSharedLibrary('pluginTest2', ['plugindev/pluginTest2/modules'], ['anpbase.git/anp_basecode', 'core/modules/plugin_interface'], [])
 
-Depends(pluginTest1, [core])
-# Depends(frontend_console_c, [core])
-Depends(frontend_console_cpp, [core])
+# Depends(pluginTest1, [irclib])
+Depends(irclib, [pluginTest1])
+Depends(devapp_console, [irclib])

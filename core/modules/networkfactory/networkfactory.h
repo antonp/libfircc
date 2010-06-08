@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class INetwork;
 	class NetworkFactoryImpl;
@@ -60,7 +60,7 @@ namespace firc
 	private:
 		NetworkFactoryImpl *m_impl;
 	};
-} // firc
+} // irc
 } // anp
 
 #endif // _NETWORKFACTORY_H_

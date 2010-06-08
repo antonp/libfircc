@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MESSAGE_RECEIVER_H_
 #define _MESSAGE_RECEIVER_H_
 
-namespace firc
+namespace irc
 {
 	class CMessageReceiver
 	{

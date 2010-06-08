@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class PluginManagerImpl
 	{
@@ -148,5 +148,5 @@ namespace firc
 			throw std::invalid_argument("getPluginInfo() index out of bounds");
 		}
 	}
-} // namespace firc
+} // namespace irc
 } // namespace anp

@@ -68,25 +68,25 @@ private:
 	std::string m_filename;
 };
 
-class EventHandler: public anp::firc::eventsubscribers::Join,
-					public anp::firc::eventsubscribers::Part,
-					public anp::firc::eventsubscribers::PrivMsg,
-					public anp::firc::eventsubscribers::Topic,
-					public anp::firc::eventsubscribers::NumericReply
+class EventHandler: public anp::irc::eventsubscribers::Join,
+					public anp::irc::eventsubscribers::Part,
+					public anp::irc::eventsubscribers::PrivMsg,
+					public anp::irc::eventsubscribers::Topic,
+					public anp::irc::eventsubscribers::NumericReply
 {
 public:
-	void receiveEvent(anp::firc::events::Join &event)
+	void receiveEvent(anp::irc::events::Join &event)
 	{
 		std::cout << "irctest_onJoin: " << event.origin().nick()
 			<< " joined " << event.channel() << std::endl;
 	}
-	void receiveEvent(anp::firc::events::Part &event)
+	void receiveEvent(anp::irc::events::Part &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick()
 			<< " left channel " << event.channel() << ". ("
 			<< event.message() << ")" << std::endl;
 	}
-	void receiveEvent(anp::firc::events::PrivMsg &event)
+	void receiveEvent(anp::irc::events::PrivMsg &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick() << ": "
 			<< event.message() << std::endl;
@@ -102,9 +102,9 @@ public:
 
 		if ( event.target()[0] == '#' && event.message() == "topic?" )
 		{
-			const anp::firc::NetworkCacheUserInterface &cache =
+			const anp::irc::NetworkCacheUserInterface &cache =
 				event.network().networkCache();
-			anp::firc::ChannelCache channel;
+			anp::irc::ChannelCache channel;
 			cache.getChannel(event.target(), channel);
 	
 			std::stringstream ss;
@@ -113,13 +113,13 @@ public:
 			event.network().sendMessage(ss.str());
 		}
 	}
-	void receiveEvent(anp::firc::events::Topic &event)
+	void receiveEvent(anp::irc::events::Topic &event)
 	{
 		std::cout << "[main.cpp <-] " << event.origin().nick()
 			<< " changed the topic for " << event.channel() << " to '"
 			<< event.topic() << "'" << std::endl;
 	}
-	void receiveEvent(anp::firc::events::NumericReply &event)
+	void receiveEvent(anp::irc::events::NumericReply &event)
 	{
 		std::cout << "[main.cpp <-] Numeric reply "
 			<< event.command() << " received. ("
@@ -127,7 +127,7 @@ public:
 		
 		if ( event.command() == "376" ) // RPL_ENDOFMOTD
 		{
-			anp::firc::INetwork &network = event.network();
+			anp::irc::INetwork &network = event.network();
 				
 			network.sendMessage("JOIN #my-secret-botdev\r\n");
 			network.sendMessage(
@@ -176,8 +176,8 @@ int main(int argc, char *argv[])
 	
 	pthread_mutex_init(&g_stateMutex, NULL);
 
-	anp::firc::NetworkFactory networkFactory;
-	anp::firc::PluginManager pluginManager;
+	anp::irc::NetworkFactory networkFactory;
+	anp::irc::PluginManager pluginManager;
 	
 	for ( anp::uint32 i=0; i<sizeof(pluginNames)/sizeof(pluginNames[0]);
 			i++ )
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 		);
 	}
 	
-	anp::firc::INetwork *network = networkFactory.openNetwork(serverAddress,
+	anp::irc::INetwork *network = networkFactory.openNetwork(serverAddress,
 															  serverPort,
 															  "firc10",
 															  "fircclient10",

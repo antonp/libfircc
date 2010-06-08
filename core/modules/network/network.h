@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class PluginManager;
 	class MsgPrefix;
@@ -175,7 +175,7 @@ namespace firc
 		
 		LogSingletonHelper m_log;
 	};
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _NETWORKMANAGER_H_

@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class NetworkFactory;
 	class Plugin;
@@ -61,7 +61,7 @@ namespace firc
 		PluginManagerImpl *m_impl;
 	};
 
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _PLUGINMANAGER_H_

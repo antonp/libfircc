@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class NetworkFactory;
 	
@@ -51,7 +51,7 @@ namespace firc
 	
 	// void pluginDeinit()
 	typedef void (*PF_pluginDeinit)(uint32);
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _PLUGIN_FUNCTIONS_H_

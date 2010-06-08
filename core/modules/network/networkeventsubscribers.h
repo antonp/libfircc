@@ -30,20 +30,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 /**
  * Collection of typedefs to save programmers from excessive typing.
  */
 namespace eventsubscribers
 {
-	typedef anp::ISubscriber<anp::firc::events::Join> Join;
-	typedef anp::ISubscriber<anp::firc::events::Part> Part;
-	typedef anp::ISubscriber<anp::firc::events::PrivMsg> PrivMsg;
-	typedef anp::ISubscriber<anp::firc::events::Topic> Topic;
-	typedef anp::ISubscriber<anp::firc::events::NumericReply> NumericReply;
+	typedef anp::ISubscriber<anp::irc::events::Join> Join;
+	typedef anp::ISubscriber<anp::irc::events::Part> Part;
+	typedef anp::ISubscriber<anp::irc::events::PrivMsg> PrivMsg;
+	typedef anp::ISubscriber<anp::irc::events::Topic> Topic;
+	typedef anp::ISubscriber<anp::irc::events::NumericReply> NumericReply;
 } // namespace eventsubscribers
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _NETWORKEVENTSUBSCRIBERS_H_

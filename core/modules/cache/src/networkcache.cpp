@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 
 	struct ChannelUserRelation
@@ -370,7 +370,7 @@ namespace firc
 	/////////////////////////////////
 	// Event subscriber interfaces
 	
-	void NetworkCache::receiveEvent(anp::firc::events::NumericReply &event)
+	void NetworkCache::receiveEvent(anp::irc::events::NumericReply &event)
 	{
 		const std::string &command = event.command();
 
@@ -380,7 +380,7 @@ namespace firc
 		}
 	}
 
-	void NetworkCache::receiveEvent(anp::firc::events::Join &event)
+	void NetworkCache::receiveEvent(anp::irc::events::Join &event)
 	{
 		const MsgPrefix &origin = event.origin();
 		std::string clientNickName;
@@ -396,7 +396,7 @@ namespace firc
 						 event.channel());
 	}
 
-	void NetworkCache::receiveEvent(anp::firc::events::Part &event)
+	void NetworkCache::receiveEvent(anp::irc::events::Part &event)
 	{
 		const MsgPrefix &origin = event.origin();
 		std::string clientNickName;
@@ -410,7 +410,7 @@ namespace firc
 			removeUserFromChannel(origin.nick(), event.channel());
 		}
 	}
-	void NetworkCache::receiveEvent(anp::firc::events::Topic &event)
+	void NetworkCache::receiveEvent(anp::irc::events::Topic &event)
 	{
 		setTopic(event.channel(), event.topic());
 	}

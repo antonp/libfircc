@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	
 /**
@@ -56,7 +56,7 @@ typedef IEventDispatcherSubscriber<ISubscriber<events::ExceptionOccured> > Excep
 
 } // namespace dispatchers
 namespace dispatchers = eventdispatchers;
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _NETWORK_H_

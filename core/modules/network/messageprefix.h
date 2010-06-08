@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 class MsgPrefix
 {
@@ -58,7 +58,7 @@ protected:
 	std::string m_host;
 	std::string m_prefix;
 };
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _MESSAGE_PREFIX_H_

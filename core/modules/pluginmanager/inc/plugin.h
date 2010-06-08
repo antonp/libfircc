@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	namespace networkfactory
 	{
@@ -73,7 +73,7 @@ namespace firc
 		uint32				m_unloadReason;
 		
 	};
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _PLUGIN_H_

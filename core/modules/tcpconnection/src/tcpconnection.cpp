@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	TCPConnection::TCPConnection(
 		const std::string &hostname,
@@ -138,5 +138,5 @@ namespace firc
 		return FD_ISSET(m_socket, &readFileDescriptorSet);
 	}
 
-} // namespace firc
+} // namespace irc
 } // namespace anp

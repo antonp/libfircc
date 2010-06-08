@@ -34,15 +34,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class NetworkCacheImpl;
 	
 	class NetworkCache: public NetworkCacheUserInterface,
-						public anp::firc::eventsubscribers::NumericReply,
-						public anp::firc::eventsubscribers::Join,
-						public anp::firc::eventsubscribers::Part,
-						public anp::firc::eventsubscribers::Topic
+						public anp::irc::eventsubscribers::NumericReply,
+						public anp::irc::eventsubscribers::Join,
+						public anp::irc::eventsubscribers::Part,
+						public anp::irc::eventsubscribers::Topic
 	{
 	public:
 		NetworkCache();
@@ -68,10 +68,10 @@ namespace firc
 		void setClientNickName(const std::string &clientNickName);
 		void getClientNickName(std::string &clientNickName) const;
 	private:
-		void receiveEvent(anp::firc::events::NumericReply &event);
-		void receiveEvent(anp::firc::events::Join &event);
-		void receiveEvent(anp::firc::events::Part &event);
-		void receiveEvent(anp::firc::events::Topic &event);
+		void receiveEvent(anp::irc::events::NumericReply &event);
+		void receiveEvent(anp::irc::events::Join &event);
+		void receiveEvent(anp::irc::events::Part &event);
+		void receiveEvent(anp::irc::events::Topic &event);
 
 		NetworkCacheImpl *m_impl;
 	};

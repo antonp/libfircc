@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 class INetwork;
 namespace events
@@ -241,33 +241,33 @@ protected:
 class NewNetwork
 {
 public:
-	NewNetwork(anp::firc::INetwork &network):
+	NewNetwork(anp::irc::INetwork &network):
 	m_network(network)
 	{
 	}
 
-	anp::firc::INetwork &network()
+	anp::irc::INetwork &network()
 	{
 		return m_network;
 	}
 protected:
-	anp::firc::INetwork &m_network;
+	anp::irc::INetwork &m_network;
 };
 
 class RemovingNetwork
 {
 public:
-	RemovingNetwork(anp::firc::INetwork &network):
+	RemovingNetwork(anp::irc::INetwork &network):
 	m_network(network)
 	{
 	}
 
-	anp::firc::INetwork &network()
+	anp::irc::INetwork &network()
 	{
 		return m_network;
 	}
 protected:
-	anp::firc::INetwork &m_network;
+	anp::irc::INetwork &m_network;
 };
 
 class ExceptionOccured
@@ -286,7 +286,7 @@ protected:
 };
 
 } // namespace events
-} // namespace firc
+} // namespace irc
 } // namespace anp
 
 #endif // _NETWORKMANAGEREVENTS_H_

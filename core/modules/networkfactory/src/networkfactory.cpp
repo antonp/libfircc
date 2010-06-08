@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-namespace firc
+namespace irc
 {
 	class NetworkFactoryImpl
 	{
@@ -155,5 +155,5 @@ namespace firc
 	{
 		return m_impl->m_removingNetworkDispatcher;
 	}
-} // firc
+} // irc
 } // anp

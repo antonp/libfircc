@@ -36,8 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <networkfactory.h>
 
 using namespace anp;
-using namespace anp::firc;
-using namespace anp::firc::events;
+using namespace anp::irc;
+using namespace anp::irc::events;
 
 using std::cout;
 using std::endl;

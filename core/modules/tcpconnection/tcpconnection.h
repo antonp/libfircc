@@ -49,7 +49,7 @@ namespace anp
 		std::runtime_error(message) { }
 	};
 	
-namespace firc
+namespace irc
 {
 	class TCPConnection
 	{
@@ -67,6 +67,6 @@ namespace firc
 		void clean();
 		int m_socket;
 	};
-} // namespace firc
+} // namespace irc
 } // namespace anp
 #endif

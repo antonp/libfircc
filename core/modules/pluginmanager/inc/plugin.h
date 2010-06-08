@@ -45,6 +45,10 @@ namespace irc
 		class NetworkFactory;
 	}
 	
+	/**
+	 * Represents a single plugin. Plugins can implement their own event
+	 * subscribers and add functionality to the client.
+	 */
 	class Plugin
 	{
 	public:

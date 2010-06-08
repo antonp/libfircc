@@ -39,23 +39,85 @@ namespace irc
 	class INetwork;
 	class NetworkFactoryImpl;
 	
+	/**
+	 * Creates and manages networks.
+	 * 
+	 * Using NetworkFactory is optional, but has the benefit of automatically
+	 * dispatching an event about the new network, and also when a network is
+	 * removed.
+	 */
 	class NetworkFactory
 	{
 	public:
 		NetworkFactory();
 		~NetworkFactory();
 
+		/**
+		 * Opens a new network.
+		 * 
+		 * @param host
+		 * Host to connect to.
+		 * 
+		 * @param port
+		 * Remote port to connect to.
+		 * 
+		 * @param nick
+		 * Nick name to use initially on this network.
+		 * 
+		 * @param user
+		 * User name to use on this network.
+		 * 
+		 * @param realName
+		 * Real name to use on this network.
+		 */
 		INetwork *openNetwork(const std::string &host,
 							  const std::string &port,
 							  const std::string &nick,
 							  const std::string &user,
 							  const std::string &realName);
 
+		/**
+		 * Closes a network.
+		 * 
+		 * @param network
+		 * Network to close.
+		 * 
+		 * @remark
+		 * The network will only be closed through the same
+		 * NetworkFactory that opened it.
+		 */
 		void closeNetwork(INetwork *network);
+
+		/**
+		 * Closes a network.
+		 * 
+		 * @param host
+		 * Host of network to close.
+		 * 
+		 * @param port
+		 * Remote port of network to close.
+		 * 
+		 * @remark
+		 * The network will only be closed through the same
+		 * NetworkFactory that opened it.
+		 */
 		void closeNetwork(const std::string &host,
 						  const std::string &port);
 						  
+		/**
+		 * Retrieves a subscriber interface for the NewNetwork event.
+		 * 
+		 * @return
+		 * Returns a subscriber interface for the NewNetwork event.
+		 */
 		dispatchers::NewNetwork &eventDispatcherNewNetwork();
+
+		/**
+		 * Retrieves a subscriber interface for the RemovingNetwork event.
+		 * 
+		 * @return
+		 * Returns a subscriber interface for the RemovingNetwork event.
+		 */
 		dispatchers::RemovingNetwork &eventDispatcherRemovingNetwork();
 	private:
 		NetworkFactoryImpl *m_impl;

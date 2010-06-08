@@ -40,6 +40,13 @@ namespace irc
 {
 	class TCPConnection;
 	
+	/**
+	 * This class allows sending messages to the server.
+	 * 
+	 * New messages are placed in a queue and then another thread monitors
+	 * this queue and sends them over the network. This monitor ensures
+	 * that the server is not flooded with messages.
+	 */
 	class MessageSender
 	{
 	friend void *threadRunMessageSender(void *arg);
@@ -47,8 +54,20 @@ namespace irc
 		MessageSender(TCPConnection &connection);
 		virtual ~MessageSender();
 
+		/**
+		 * Post a message to the outgoing queue.
+		 * 
+		 * @param message
+		 * The message to send. Nothing is magically added to the message.
+		 */
 		void addMessage(const std::string &message);
 		
+		/**
+		 * Change the cool down time used for anti-flood.
+		 * 
+		 * @param ms
+		 * Cooldown time in milliseconds.
+		 */
 		void setCooldownTime(uint32 ms);
 		
 		/**

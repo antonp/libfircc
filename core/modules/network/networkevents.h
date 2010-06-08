@@ -40,6 +40,9 @@ class INetwork;
 namespace events
 {
 
+/**
+ * Base IRC event class.
+ */
 class IRCEvent
 {
 public:
@@ -50,13 +53,26 @@ public:
 	{
 	}
 	virtual ~IRCEvent() { }
+	
+	/**
+	 * @return
+	 * A network interface.
+	 */
 	INetwork &network() { return m_network; }
+	
+	/**
+	 * @return
+	 * The origin of the event.
+	 */
 	const MsgPrefix &origin() const { return m_origin; }
 protected:
 	INetwork &m_network;
 	const MsgPrefix m_origin;
 };
 
+/**
+ * Base class for all events that includes a channel.
+ */
 class EventWithChannel
 {
 public:
@@ -64,11 +80,20 @@ public:
 	{
 	}
 	virtual ~EventWithChannel() { }
+	
+	/**
+	 * @return
+	 * The channel.
+	 */
 	const std::string &channel() const { return m_channel; }
 protected:
 	std::string m_channel;
 };
 
+/**
+ * Base class for all events that has a target. The target is typically a
+ * channel or a user.
+ */
 class EventWithTarget
 {
 public:
@@ -77,11 +102,19 @@ public:
 	{
 	}
 	virtual ~EventWithTarget() { }
+	
+	/**
+	 * @return
+	 * The target.
+	 */
 	const std::string &target() const { return m_target; }
 protected:
 	std::string m_target;
 };
 
+/**
+ * Base class for all events with a message.
+ */
 class EventWithMessage
 {
 public:
@@ -89,11 +122,19 @@ public:
 	{
 	}
 	virtual ~EventWithMessage() { }
+	
+	/**
+	 * @return
+	 * The message.
+	 */
 	const std::string &message() const { return m_message; }
 protected:
 	std::string m_message;
 };
 
+/**
+ * Base class for events with a command.
+ */
 class EventWithCommand
 {
 public:
@@ -106,6 +147,9 @@ protected:
 	std::string m_command;
 };
 
+/**
+ * Base class for events with a list of parameters.
+ */
 class EventWithParamList
 {
 public:
@@ -117,6 +161,14 @@ public:
 		}
 	}
 	virtual ~EventWithParamList() { }
+	
+	/**
+	 * @param index
+	 * Index of the parameter to retrieve.
+	 * 
+	 * @return
+	 * The requested parameter.
+	 */
 	const std::string &param(uint32 index) const
 	{
 		return m_params[index];
@@ -125,6 +177,12 @@ protected:
 	std::string m_params[15];
 };
 
+/**
+ * The join event is sent whenever the client is notified of a user entering a
+ * channel. This usually only happens when the client is in that particular
+ * channel. The event contains information like nick name of the joining user
+ * and name of the channel.
+ */
 class Join: public IRCEvent, public EventWithChannel
 {
 public:
@@ -137,6 +195,12 @@ public:
 	}
 };
 
+/**
+ * The part event is sent whenever the client is notified of a user leaving a
+ * channel. This usually only happens when the client is in that particular
+ * channel. For this event, the origin is the user leaving the channel. It also
+ * contains the name of the channel and the optional message.
+ */
 class Part: public IRCEvent,
 			public EventWithChannel,
 			public EventWithMessage
@@ -153,6 +217,11 @@ public:
 	}
 };
 
+/**
+ * This event is sent whenever the client receives a PRIVMSG from the server.
+ * For this event, the origin is the user who sent the message. The target is
+ * the user or channel (every user in that channel) receiving the message.
+ */
 class PrivMsg: public IRCEvent,
 				public EventWithTarget,
 				public EventWithMessage
@@ -169,6 +238,11 @@ public:
 	}
 };
 
+/**
+ * This event is sent whenever the client receives the TOPIC message from the
+ * server. This indicates that the topic for a particular channel has changed.
+ * For this event, the origin is the user who changed the topic.
+ */
 class Topic: public IRCEvent,
 			public EventWithChannel
 {
@@ -182,11 +256,22 @@ public:
 	m_topic(topic)
 	{
 	}
+	
+	/**
+	 * @return
+	 * The new topic.
+	 */
 	const std::string &topic() const { return m_topic; }
 protected:
 	std::string m_topic;
 };
 
+/**
+ * This is a generic event which is sent everytime the client receives a
+ * numeric reply from the server. Most IRC messages/commands generate numeric
+ * replies. The complete list of numeric replies can be found in rfc2812.
+ * For this event, the command is the numeric reply.
+ */
 class NumericReply: public IRCEvent,
 					public EventWithCommand,
 					public EventWithParamList
@@ -203,6 +288,10 @@ public:
 	}
 };
 
+/**
+ * This is a generic event which is sent everytime the client receives a
+ * valid irc command.
+ */
 class Command: public IRCEvent,
 			   public EventWithCommand,
 			   public EventWithParamList
@@ -219,6 +308,11 @@ public:
 	}
 };
 
+/**
+ * This event is sent everytime the client receives a PING message form the
+ * server. The client should reply with a PONG message which is currently
+ * handled internally in the library.
+ */
 class Ping: public IRCEvent
 {
 public:
@@ -231,13 +325,28 @@ public:
 	m_server2(server2)
 	{
 	}
+	
+	/**
+	 * @return
+	 * Server 1.
+	 */
 	const std::string &server1() const { return m_server1; }
+	
+	/**
+	 * @return
+	 * Server 2.
+	 */
 	const std::string &server2() const { return m_server2; }
 protected:
 	std::string m_server1;
 	std::string m_server2;
 };
 
+/**
+ * This event is typically sent from a NetworkFactory when a new Network has
+ * been opened (successfully connected and registered to).
+ * This event should be used to subscribe to events for the new network.
+ */
 class NewNetwork
 {
 public:
@@ -246,6 +355,10 @@ public:
 	{
 	}
 
+	/**
+	 * @return
+	 * Interface to the new network.
+	 */
 	anp::irc::INetwork &network()
 	{
 		return m_network;
@@ -254,6 +367,11 @@ protected:
 	anp::irc::INetwork &m_network;
 };
 
+/**
+ * This event is typically sent from a NetworkFactory prior to removing it.
+ * Upon receiving this event, subscribers should unsubscribe and make sure
+ * they throw away all references to the network.
+ */
 class RemovingNetwork
 {
 public:
@@ -262,6 +380,10 @@ public:
 	{
 	}
 
+	/**
+	 * @return
+	 * Interface to the network about to be removed.
+	 */
 	anp::irc::INetwork &network()
 	{
 		return m_network;
@@ -270,6 +392,10 @@ protected:
 	anp::irc::INetwork &m_network;
 };
 
+/**
+ * This event is sent when an exception has occured in a internal thread of the
+ * library.
+ */
 class ExceptionOccured
 {
 public:
@@ -277,6 +403,11 @@ public:
 	{
 		m_exception = e;
 	}
+	
+	/**
+	 * @return
+	 * The exception.
+	 */
 	std::exception &exception()
 	{
 		return m_exception;

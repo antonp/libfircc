@@ -41,12 +41,25 @@ namespace irc
 	class Plugin;
 	class PluginManagerImpl;
 
+	/**
+	 * Manages a list of loaded plugins.
+	 */
 	class PluginManager 
 	{
 	public:
 		PluginManager();
 		~PluginManager();
 
+		/**
+		 * Loads a plugin.
+		 * 
+		 * @param fileName
+		 * Path to the shared library in which the plugin is implemented.
+		 * 
+		 * @param networkFactory
+		 * The network factory exposed to this plugin. Can be used by the plugin
+		 * to subscribe to events and open/close networks.
+		 */
 		void loadPlugin(
 			const int8 *fileName,
 			NetworkFactory &networkFactory,

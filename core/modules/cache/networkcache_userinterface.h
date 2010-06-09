@@ -36,6 +36,10 @@ namespace irc
 {
 	class ChannelCache;
 	
+	/**
+	 * This interface allows for querying the cache for information stored
+	 * about the network.
+	 */
 	class NetworkCacheUserInterface
 	{
 	public:

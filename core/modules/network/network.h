@@ -47,6 +47,9 @@ namespace irc
 	class PluginManager;
 	class MsgPrefix;
 	
+	/**
+	 * Represents the connection and information associated with an IRC network.
+	 */
 	class Network: public INetwork
 	{
 	public:

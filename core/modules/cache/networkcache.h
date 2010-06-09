@@ -37,7 +37,12 @@ namespace anp
 namespace irc
 {
 	class NetworkCacheImpl;
-	
+
+	/**
+	 * This class stores information about the state of a particular network.
+	 * 
+	 * It tracks channels and users.
+	 */
 	class NetworkCache: public NetworkCacheUserInterface,
 						public anp::irc::eventsubscribers::NumericReply,
 						public anp::irc::eventsubscribers::Join,
@@ -48,24 +53,101 @@ namespace irc
 		NetworkCache();
 		~NetworkCache();
 		
+		/**
+		 * Retrieves a snapshot of a channel.
+		 * 
+		 * @param name
+		 * Name of the channel.
+		 * 
+		 * @param dest
+		 * Destination of the snapshot.
+		 */
 		void getChannel(const std::string &name,
 										ChannelCache &dest) const;
 
+		/**
+		 * Adds a channel to the cache.
+		 * 
+		 * @param channel
+		 * Name of the channel.
+		 */
 		void addChannel(const std::string &channel);
+		
+		/**
+		 * Removes all information known about a channel.
+		 * 
+		 * @param channel
+		 * Name of the channel to remove.
+		 */
 		void removeChannel(const std::string &channel);
 
+		/**
+		 * Adds a user to a channel.
+		 * 
+		 * @param name
+		 * Nick name of user.
+		 * 
+		 * @param user
+		 * User name of user.
+		 * 
+		 * @param host
+		 * Host name of user.
+		 * 
+		 * @param channelName
+		 * Name of channel.
+		 */
 		void addUserToChannel(const std::string &name,
 							  const std::string &user,
 							  const std::string &host,
 							  const std::string &channelName);
+							  
+		/**
+		 * Removes a user from a channel.
+		 * 
+		 * @param name
+		 * Nick name of the user.
+		 * 
+		 * @param channelName
+		 * Name of the channel.
+		 */
 		void removeUserFromChannel(const std::string &name,
 									const std::string &channelName);
+									
+		/**
+		 * Removes all users from a channel.
+		 * 
+		 * @param channel
+		 * Name of channel.
+		 */
 		void removeAllUsersFromChannel(
 							const std::string &channel);
 
+		/**
+		 * Sets the topic of a channel.
+		 * 
+		 * @param channelName
+		 * Name of channel.
+		 * 
+		 * @param topic
+		 * New topic.
+		 */
 		void setTopic(const std::string &channelName,
 						const std::string &topic);
+						
+		/**
+		 * Sets the client nick name.
+		 * 
+		 * @param clientNickName
+		 * Client nick name.
+		 */
 		void setClientNickName(const std::string &clientNickName);
+		
+		/**
+		 * Retrieves the client nick name.
+		 * 
+		 * @param [out] clientNickName
+		 * Destination of nick name.
+		 */
 		void getClientNickName(std::string &clientNickName) const;
 	private:
 		void receiveEvent(anp::irc::events::NumericReply &event);

@@ -34,6 +34,14 @@ namespace anp
 {
 namespace irc
 {
+/**
+ * Represents a IRC message prefix.
+ * 
+ * Most IRC messages have a prefix, and in many cases it can be seen as
+ * the origin, or source, of the message. This can often be split into
+ * nick, user and host.
+ * These objects can be retrieved from most events.
+ */
 class MsgPrefix
 {
 public:
@@ -48,9 +56,36 @@ public:
 	{
 	}
 
+	/**
+	 * Retrieves the full prefix as it was received from the server.
+	 * 
+	 * @return
+	 * Prefix string.
+	 */
 	const std::string &prefix() const { return m_prefix; }
+	
+	/**
+	 * Retrieves the nick name of the user represented by this prefix.
+	 * 
+	 * @return
+	 * Nickname string.
+	 */
 	const std::string &nick() const { return m_nick; }
+	
+	/**
+	 * Retrieves the user name of the user represented by this prefix.
+	 * 
+	 * @return
+	 * User string.
+	 */
 	const std::string &user() const { return m_user; }
+	
+	/**
+	 * Retrieves the host of the user represented by this prefix.
+	 * 
+	 * @return
+	 * Host string.
+	 */
 	const std::string &host() const { return m_host; }
 protected:
 	std::string m_nick;

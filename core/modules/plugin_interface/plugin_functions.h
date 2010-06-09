@@ -46,11 +46,33 @@ namespace irc
 
 
 	// Typedefs
-	// uint32 pluginInit(void *fircCore)
-	typedef uint32 (*PF_pluginInit)(NetworkFactory &, void *appContext);
 	
-	// void pluginDeinit()
-	typedef void (*PF_pluginDeinit)(uint32);
+	/**
+	 * This function is called when a plugin is first loaded.
+	 * 
+	 * @param networkFactory
+	 * The NetworkFactory assigned from the frontend. Can be used to open
+	 * new networks and/or subscribe to new networks as well as networks being
+	 * removed.
+	 * 
+	 * @param appContext
+	 * This parameter may be used by the application to pass application
+	 * specific data to the plugin. However, for such needs, it is recommended
+	 * that the application implements it's own plugin manager.
+	 * 
+	 * @return
+	 * Success indicator. Should return 0 on success. It is allowed to throw
+	 * exceptions too.
+	 */
+	typedef uint32 (*PF_pluginInit)(NetworkFactory &networkFactory, void *appContext);
+	
+	/**
+	 * This function is called when a plugin is about to be unloaded.
+	 * 
+	 * @param reason
+	 * The reason for the unload. Usage of this is currently undefined.
+	 */
+	typedef void (*PF_pluginDeinit)(uint32 reason);
 } // namespace irc
 } // namespace anp
 

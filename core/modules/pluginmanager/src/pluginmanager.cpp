@@ -75,16 +75,6 @@ namespace irc
 		m_impl->m_plugins.push_back(plugin);
 	}
 
-	/**
-		@brief
-		Unloads plugin identified by fileName.
-
-		@param fileName
-		Filename of the plugin to unload.
-
-		@param reason
-		Reason for the unload.
-	*/
 	bool PluginManager::unloadPlugin(const std::string &fileName,
 									 uint32 reason)
 	{
@@ -102,10 +92,6 @@ namespace irc
 		return false;
 	}
 	
-	/**
-	 * @brief
-	 * Unloads all currently loaded plugins.
-	 */
 	void PluginManager::unloadAllPlugins()
 	{
 		std::vector<Plugin *> &plugins = m_impl->m_plugins;

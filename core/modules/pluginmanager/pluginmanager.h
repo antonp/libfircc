@@ -65,9 +65,39 @@ namespace irc
 			NetworkFactory &networkFactory,
 			void *appContext
 		);
+		
+		/**
+		 * Unloads plugin identified by fileName.
+		 *
+		 * @param fileName
+		 * Filename of the plugin to unload.
+		 *
+		 * @param reason
+		 * Reason for the unload. Currently undefined.
+		 */
 		bool unloadPlugin(const std::string &fileName, uint32 reason);
+		
+		/**
+		 * Unloads all currently loaded plugins.
+		 */
 		void unloadAllPlugins();
 		uint32 getPluginCount() const;
+		
+		/**
+		 * Retrieves information about a loaded plugin.
+		 * 
+		 * @param index
+		 * Index in the list of plugins.
+		 * 
+		 * @param [out] name
+		 * Name of the plugin at the specified index.
+		 * 
+		 * @remark
+		 * The list of plugins may have been modified from another thread
+		 * since getPluginCount() was called. This may be a problem, depending
+		 * on the application. In that case, be ready to catch
+		 * std::invalid_argument exceptions.
+		 */
 		void getPluginInfo(uint32 index,
 						   std::string &name);
 	private:

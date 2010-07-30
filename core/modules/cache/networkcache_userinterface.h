@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _NETWORKCACHE_USERINTERFACE_H_
 
 #include <string>
+#include <iwritablecontainer.h>
 
 namespace anp
 {
@@ -68,6 +69,18 @@ namespace irc
 		*/
 		virtual void getClientNickName(std::string &clientNickName)
 															const = 0;
+															
+		/**
+		 * Retrieves the userlist of a channel.
+		 * 
+		 * @param name
+		 * The name of the channel.
+		 * 
+		 * @param userLIst
+		 * This container will have the current userlist written to it.
+		 */
+		virtual void getUsersInChannel(const std::string &name,
+								anp::IWritableContainer<std::string> &userList) const = 0;
 	};
 }
 }

@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "networkcache_userinterface.h"
 #include <networkevents.h>
 #include <networkeventsubscribers.h>
+#include <iwritablecontainer.h>
 
 namespace anp
 {
@@ -149,6 +150,9 @@ namespace irc
 		 * Destination of nick name.
 		 */
 		void getClientNickName(std::string &clientNickName) const;
+		
+		void getUsersInChannel(const std::string &name,
+							   anp::IWritableContainer<std::string> &userList) const;
 	private:
 		void receiveEvent(anp::irc::events::NumericReply &event);
 		void receiveEvent(anp::irc::events::Join &event);

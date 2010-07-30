@@ -39,6 +39,10 @@ namespace irc
 {	
 	class NetworkCacheUserInterface;
 
+	/**
+	 * Network interface. Groups information about a IRC network together with
+	 * the connection to it.
+	 */
 	class INetwork
 	{
 	public:

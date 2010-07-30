@@ -143,7 +143,8 @@ devapp_console = buildProgram(
 		'anpcommon.git/log',
 		'core/modules/tcpconnection',
 		'core/modules/networkfactory',
-		'anpcommon.git/eventdispatcher'
+		'anpcommon.git/eventdispatcher',
+		'anpcommon.git/container'
 	],
 	['firc', 'pthread', 'dl', 'pcrecpp'],
 	['-rdynamic']

@@ -366,6 +366,35 @@ namespace irc
 
 		clientNickName = m_impl->m_clientNickName;
 	}
+	
+	void NetworkCache::getUsersInChannel(const std::string &name,
+						   anp::IWritableContainer<std::string> &userList) const
+	{
+		anp::threading::Lock lock(m_impl->m_mutex);
+		
+		ChannelUserRelation tempRel(name, "", 0);
+		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+		std::pair<
+			std::vector<ChannelUserRelation>::iterator,
+			std::vector<ChannelUserRelation>::iterator
+		> range = std::equal_range(table.begin(), table.end(), tempRel,
+									channeluserrelation_compareC);
+// todo: UserList copy constructor
+		if ( range.first != table.end() ) // equal_range() succeeded?
+		{
+			while ( range.first != range.second )
+			{
+				userList.pushBack((*range.first).m_user);
+				range.first++;
+			}
+		} else
+		{
+			std::stringstream ss;
+			ss << "Unable to find channel '" << name << "'.";
+			m_impl->m_log(ss.str());
+			throw std::runtime_error(ss.str());
+		}
+	}
 
 	/////////////////////////////////
 	// Event subscriber interfaces

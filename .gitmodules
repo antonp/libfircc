@@ -6,4 +6,4 @@
 	url = git://github.com/antonp/anpbase.git
 [submodule "anppfindep.git"]
 	path = anppfindep.git
-	url = git://github.com/antonp/anppfindep.git
+	url = git://github.com/antonp/pfindep.git

@@ -71,6 +71,12 @@ namespace irc
 		Spawns a thread that calls runMessageReceiver.
 		*/
 		virtual void runMessageReceiverInThread() = 0;
+
+        /**
+        Runs the message receiver in the current thread, causing it to
+        block until the network is disconnected.
+        */
+        virtual void runMessageReceiver() = 0;
 		
 		/**
 		Retrieves the name of the remote host that this network is connected to.

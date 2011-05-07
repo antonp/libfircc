@@ -196,7 +196,7 @@ namespace numeric_replies
 				continue;
 			}
 			in = buffer;
-
+            m_log.addMessage(in);
 			// Tokenize it and parse it
 			// Start by dividing it up into several messages
 			while ( 1 ) {
@@ -214,11 +214,7 @@ namespace numeric_replies
 				} else {
 					// The message isn't complete, so save it and
 					// add the rest when it arrives
-					if ( currentMessage.length() >= 3 )
-					{
-						leftOvers = currentMessage.erase(
-							currentMessage.length()-3);
-					}
+                    leftOvers += currentMessage;
 					break;
 				}
 				if ( in.length() == 0 )

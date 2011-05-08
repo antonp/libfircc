@@ -31,7 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <basedefs.h>
 #include <anp_threading.h>
 #include <anp_threadsafequeue.h>
-#include <log_singleton.h>
 #include <string>
 
 namespace anp
@@ -78,7 +77,6 @@ namespace irc
 	private:
 		// Should be hidden somehow.. private (for now) or maybe interfaced
 		void monitor();
-		void log(const anp::dstring &message);
 	
 		TCPConnection &m_connection;
 		threading::ThreadSafeQueue<std::string> m_queue;
@@ -88,8 +86,6 @@ namespace irc
 		
 		threading::Event m_newMessage;
 		threading::Thread m_thread;
-		
-		LogSingletonHelper m_log;
 	};
 }
 }

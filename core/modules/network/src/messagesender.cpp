@@ -47,8 +47,7 @@ namespace irc
 			//throw std::invalid_argument("'Invalid MessageSender'");
 			try
 			{
-				LogSingleton::getInstance().addMessage(std::string("MessageSender: Invalid MessageSender."));
-				LogSingleton::releaseInstance();
+                ANPLOGE("libfirc", "Invalid MessageSender.");
 			} catch ( ... )
 			{
 				// we're doomed
@@ -61,7 +60,7 @@ namespace irc
 				ms->monitor();
 			} catch ( std::exception &e )
 			{
-				ms->log(std::string("MessageSender: Exception occured: ")+e.what());
+                ANPLOGE("libfirc", std::string("Exception occured: ")+e.what());
 			}
 		}
 		pthread_exit(0);
@@ -107,7 +106,7 @@ namespace irc
 
 			if ( isDying )
 			{
-				m_log.addMessage("MessageSender: closing thread.");
+                ANPLOGI("libfirc", "closing thread.");
 				break;
 			}
 			
@@ -124,7 +123,7 @@ namespace irc
 				uint32 cooldown = 0;
 				std::string &message = m_queue.front();
 				ss << "-> " << message;
-				m_log.addMessage(ss.str());
+                ANPLOGI("libfirc", ss.str());
 				ss.str("");
 				
 				m_connection.send(message);
@@ -135,10 +134,6 @@ namespace irc
 				empty = m_queue.isEmpty();
 			}
 		}
-	}
-	void MessageSender::log(const anp::dstring &message)
-	{
-		m_log.addMessage(message);
 	}
 }
 }

@@ -250,7 +250,7 @@ namespace irc
 			std::stringstream ss;
 			ss << "(cache) Added '" << name << "' to '"
 				<< channelName << "'.";
-			m_impl->m_log(ss.str());
+			ANPLOGD("libfirc", ss.str());
 			table.insert(
 				std::lower_bound(
 					table.begin(),
@@ -266,7 +266,7 @@ namespace irc
 			ss << "(cache) Didn't add '" << name << "' to '"
 				<< channelName << "' because of binary_search. table.size()="
 				<< table.size();
-			m_impl->m_log(ss.str());
+			ANPLOGD("libfirc", ss.str());
 		}
 	}
 	
@@ -307,7 +307,7 @@ namespace irc
 					std::stringstream ss;
 					ss << "(cache) Removed '" << name
 						<< "' from '" << channelName << "'.";
-					m_impl->m_log(ss.str());
+					ANPLOGD("libfirc", ss.str());
 					erased = true;
 				} else
 				{
@@ -318,7 +318,7 @@ namespace irc
 		{
 			std::stringstream ss;
 			ss << "Unable to find channel '" << channelName << "'.";
-			m_impl->m_log(ss.str());
+			ANPLOGD("libfirc", ss.str());
 			throw std::runtime_error(ss.str());
 		}
 	}
@@ -338,7 +338,7 @@ namespace irc
 		
 		std::stringstream ss;
 		ss << "Erasing all users in " << channel;
-		m_impl->m_log(ss.str());
+		ANPLOGD("libfirc", ss.str());
 		table.erase(range.first, range.second);
 	}
 
@@ -391,7 +391,7 @@ namespace irc
 		{
 			std::stringstream ss;
 			ss << "Unable to find channel '" << name << "'.";
-			m_impl->m_log(ss.str());
+			ANPLOGD("libfirc", ss.str());
 			throw std::runtime_error(ss.str());
 		}
 	}

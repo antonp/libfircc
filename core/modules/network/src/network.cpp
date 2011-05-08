@@ -56,16 +56,16 @@ namespace numeric_replies
 				std::stringstream ss;
 				ss << "Network-MessageReceiverRunner: Exception occured: "
 				   << e.what() << std::endl;
-				LOG_SINGLETON_MSG(ss.str());
+				ANPLOGE("libfirc", ss.str());
 				
 				events::ExceptionOccured event(e);
 				nm->m_eventDispatchers.exceptionOccured.dispatch(event);
 			}
 		} else
 		{
-			LOG_SINGLETON_MSG("Network: threadRunMessageReceiver Network == NULL");
+			ANPLOGE("libfirc", "Network: threadRunMessageReceiver Network == NULL");
 		}
-		LOG_SINGLETON_MSG("Network: closing thread");
+		ANPLOGD("libfirc", "Network: closing thread");
 		pthread_exit(0);
 	}
 	
@@ -80,7 +80,7 @@ namespace numeric_replies
 	{
 		std::string m_outStr;
 		
-		m_log("Successfully connected.");
+		ANPLOGI("libfirc", "Successfully connected.");
 		
 		m_state = REGISTERING;
 		// Nick
@@ -196,7 +196,6 @@ namespace numeric_replies
 				continue;
 			}
 			in = buffer;
-            m_log.addMessage(in);
 			// Tokenize it and parse it
 			// Start by dividing it up into several messages
 			while ( 1 ) {
@@ -208,7 +207,7 @@ namespace numeric_replies
 						leftOvers.erase();
 					}
 					ss << "<- " << currentMessage;
-					m_log.addMessage(ss.str());
+					ANPLOGD("libfirc", ss.str());
 					ss.str("");
 					parseMessage(currentMessage);
 				} else {
@@ -308,7 +307,7 @@ namespace numeric_replies
 			ss << "(lib)Invalid IRC message: " << message
 				<< "(" << "p=" << prefix << "c=" << command << "pa="
 				<< parameters << ")";
-			m_log.addMessage(ss.str());
+			ANPLOGD("libfirc", ss.str());
 			// unknownMessageHandler()!
 		}
 	}

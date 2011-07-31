@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "../tcpconnection.h"
+#include "tcpconnection.h"
 
 #include <string.h>
 #include <netdb.h>

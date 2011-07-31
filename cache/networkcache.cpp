@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <networkcache.h>
 #include <channelcache.h>
 #include <userinfo.h>
-#include "../inc/utilities.h"
+#include "inc/utilities.h"
 #include <stdexcept>
 #include <log_singleton.h>
 #include <anp_threading.h>

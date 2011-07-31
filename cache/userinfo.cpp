@@ -26,7 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <basedefs.h>
-#include "../userinfo.h"
+#include "userinfo.h"
 #include <string>
 #include <sstream>
 

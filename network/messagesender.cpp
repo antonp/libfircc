@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "../inc/messagesender.h"
+#include "inc/messagesender.h"
 
 #include <anp_timing.h>
 #include <anp_threadsafequeue.h>

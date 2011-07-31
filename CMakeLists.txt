@@ -31,6 +31,21 @@ ELSE()
     # Inherit includes from parent instead, and ont care about anpcode
 ENDIF()
 
+SET(ircclient_sources network/messagesender.cpp
+                      network/network.cpp
+                      network/networkfactory.cpp
+                      network/tcpconnection.cpp
+                      network/tokenizer.cpp
+                      cache/channelcache.cpp
+                      cache/networkcache.cpp
+                      cache/userinfo.cpp
+                      cache/utilities.cpp
+                      pluginmanager/plugin.cpp
+                      pluginmanager/pluginmanager.cpp)
+
+INCLUDE_DIRECTORIES(network cache pluginmanager)
+ADD_LIBRARY(fircc SHARED ${ircclient_sources})
+TARGET_LINK_LIBRARIES(fircc anpcode)
 ##### ADD_LIBRARY(anpcode ${COMMON_SRCS})
 
 # pfindep handled by sub make list

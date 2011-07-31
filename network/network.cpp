@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "../network.h"
+#include "network.h"
 #include <tokenizer.h>
 #include <tcpconnection.h>
 #include <messageprefix.h>

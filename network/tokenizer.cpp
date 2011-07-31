@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "../tokenizer.h"
+#include "tokenizer.h"
 #include <string.h>
 
 void tokenizer::tokenize(std::string &dest, std::string &source, char delimeter) {

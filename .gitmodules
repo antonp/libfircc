@@ -1,9 +1,2 @@
-[submodule "anpcommon.git"]
-	path = anpcommon.git
-	url = git://github.com/antonp/anpcommon.git
-[submodule "anpbase.git"]
-	path = anpbase.git
-	url = git://github.com/antonp/anpbase.git
-[submodule "anppfindep.git"]
-	path = anppfindep.git
-	url = git://github.com/antonp/pfindep.git
+
+

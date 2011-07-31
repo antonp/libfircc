@@ -38,6 +38,7 @@
 * Remove frontend_console_cpp
 * Remove test_threading or move it to anp_common as a unit test there
 * Remove test_parsing
+* Add anpcode.git as submodule
 
 
 Finalize:

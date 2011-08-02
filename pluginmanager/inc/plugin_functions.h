@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PLUGIN_FUNCTIONS_H_
 #define _PLUGIN_FUNCTIONS_H_
 
-#include <eventdispatcher.h>
-#include <networkevents.h>
-#include <networkeventdispatchers.h>
+#include <anpcode/eventdispatcher.h>
+#include <fircc/networkevents.h>
+#include <fircc/networkeventdispatchers.h>
 
 namespace anp
 {
@@ -41,7 +41,6 @@ namespace irc
 	// Abbreviations/prefixes:
 	// pf - plugin function, implemented in plugins
 	
-	class INetworkManagerFrontend;
 	class MsgPrefix;
 
 

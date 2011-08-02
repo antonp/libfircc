@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
-#include <basedefs.h>
-#include <anp_dynamic_library.h>
-#include <networkeventdispatchers.h>
+#include <anpcode/basedefs.h>
+#include <anpcode/anp_dynamic_library.h>
+#include <fircc/networkeventdispatchers.h>
 
 #include "plugin_functions.h"
 

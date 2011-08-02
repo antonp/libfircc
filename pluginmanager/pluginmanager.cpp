@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "pluginmanager.h"
+#include <fircc/pluginmanager.h>
 #include "inc/plugin.h"
 
 #include <vector>

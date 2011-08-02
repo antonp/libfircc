@@ -27,10 +27,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "inc/messagesender.h"
 
-#include <anp_timing.h>
-#include <anp_threadsafequeue.h>
-#include <log_singleton.h>
-#include <tcpconnection.h>
+#include <anpcode/anp_timing.h>
+#include <anpcode/anp_threadsafequeue.h>
+#include <anpcode/log_singleton.h>
+#include <fircc/tcpconnection.h>
 #include <sstream>
 
 #include <stdexcept>

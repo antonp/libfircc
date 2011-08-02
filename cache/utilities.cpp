@@ -25,8 +25,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <userinfo.h>
-#include <channelcache.h>
+#include "inc/userinfo.h"
+#include <fircc/channelcache.h>
 
 namespace anp
 {

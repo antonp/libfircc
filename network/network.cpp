@@ -25,10 +25,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "network.h"
-#include <tokenizer.h>
-#include <tcpconnection.h>
-#include <messageprefix.h>
+#include "inc/network.h"
+#include "inc/tokenizer.h"
+#include "inc/tcpconnection.h"
+#include <fircc/messageprefix.h>
 
 #include <sstream>
 #include <stdexcept>

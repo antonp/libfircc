@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MESSAGESENDER_H_
 #define _MESSAGESENDER_H_
 
-#include <basedefs.h>
-#include <anp_threading.h>
-#include <anp_threadsafequeue.h>
+#include <anpcode/basedefs.h>
+#include <anpcode/anp_threading.h>
+#include <anpcode/anp_threadsafequeue.h>
 #include <string>
 
 namespace anp

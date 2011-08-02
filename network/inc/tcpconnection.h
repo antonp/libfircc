@@ -25,64 +25,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef _NETWORKCACHE_USERINTERFACE_H_
-#define _NETWORKCACHE_USERINTERFACE_H_
+#ifndef _TCP_CONNECTION_H_
+#define _TCP_CONNECTION_H_
 
+#include <anpcode/basedefs.h>
+//#include <windows.h>
+//#include <winsock.h>
+#include <cstdio>
 #include <string>
-#include <iwritablecontainer.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdexcept>
+
+#define MAX_HOST_LENGTH 256
+#define MAX_DATA_LENGTH 2048
 
 namespace anp
 {
+	
 namespace irc
 {
-	class ChannelCache;
-	
-	/**
-	 * This interface allows for querying the cache for information stored
-	 * about the network.
-	 */
-	class NetworkCacheUserInterface
+	class TCPConnection
 	{
 	public:
-		virtual ~NetworkCacheUserInterface() { }
-
-		/**
-		Copy information about a particular channel into an
-		already allocated ChannelCache object.
-
-		@param name
-		The name of the channel.
-
-		@param dest
-		The channel information will be written to this ChannelCache
-		object.
-		*/
-		virtual void getChannel(const std::string &name,
-										ChannelCache &dest) const = 0;
-
-		/**
-		Copies the client nick name into the clientNickName
-		parameter.
-
-		@param clientNickName
-		The client nickname will be written to this string.
-		*/
-		virtual void getClientNickName(std::string &clientNickName)
-															const = 0;
-															
-		/**
-		 * Retrieves the userlist of a channel.
-		 * 
-		 * @param name
-		 * The name of the channel.
-		 * 
-		 * @param userLIst
-		 * This container will have the current userlist written to it.
-		 */
-		virtual void getUsersInChannel(const std::string &name,
-								anp::IWritableContainer<std::string> &userList) const = 0;
+		TCPConnection(const std::string &hostname,
+						const std::string &port);
+		virtual ~TCPConnection();
+		void send(const std::string &buffer);
+		void receive(int8 *buffer, uint32 bufferSize);
+		bool32 waitForSocket(uint32 timeoutSeconds,
+					uint32 timeoutMicroseconds);
+	private:
+		void connect(const std::string &hostname,
+					 const std::string &port);
+		void clean();
+		int m_socket;
 	};
-}
-}
-
-#endif // _NETWORKCACHE_USERINTERFACE_H_
+} // namespace irc
+} // namespace anp
+#endif

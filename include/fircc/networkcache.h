@@ -29,9 +29,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _NETWORKCACHE_H_
 
 #include "networkcache_userinterface.h"
-#include <networkevents.h>
-#include <networkeventsubscribers.h>
-#include <iwritablecontainer.h>
+#include <fircc/networkevents.h>
+#include <fircc/networkeventsubscribers.h>
+#include <anpcode/iwritablecontainer.h>
 
 namespace anp
 {

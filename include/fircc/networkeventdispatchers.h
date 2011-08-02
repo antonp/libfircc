@@ -25,48 +25,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef _TCP_CONNECTION_H_
-#define _TCP_CONNECTION_H_
+#ifndef _NETWORK_H_
+#define _NETWORK_H_
 
-#include <basedefs.h>
-//#include <windows.h>
-//#include <winsock.h>
-#include <cstdio>
-#include <string>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdexcept>
-
-#define MAX_HOST_LENGTH 256
-#define MAX_DATA_LENGTH 2048
+#include <anpcode/eventdispatcher.h>
+#include <fircc/networkevents.h>
 
 namespace anp
 {
-	class NetworkException: public std::runtime_error
-	{
-	public:
-		NetworkException(const std::string &message):
-		std::runtime_error(message) { }
-	};
-	
 namespace irc
 {
-	class TCPConnection
-	{
-	public:
-		TCPConnection(const std::string &hostname,
-						const std::string &port);
-		virtual ~TCPConnection();
-		void send(const std::string &buffer);
-		void receive(int8 *buffer, uint32 bufferSize);
-		bool32 waitForSocket(uint32 timeoutSeconds,
-					uint32 timeoutMicroseconds);
-	private:
-		void connect(const std::string &hostname,
-					 const std::string &port);
-		void clean();
-		int m_socket;
-	};
+	
+/**
+	Collection of typedefs for various event dispatcher subscriber interfaces.
+	Provided for increased readability and to avoid having to type too much.
+*/
+namespace eventdispatchers
+{
+
+typedef IEventDispatcherSubscriber<ISubscriber<events::Join> > Join;
+typedef IEventDispatcherSubscriber<ISubscriber<events::Part> > Part;
+typedef IEventDispatcherSubscriber<ISubscriber<events::PrivMsg> > PrivMsg;
+typedef IEventDispatcherSubscriber<ISubscriber<events::Topic> > Topic;
+typedef IEventDispatcherSubscriber<ISubscriber<events::NumericReply> > NumericReply;
+typedef IEventDispatcherSubscriber<ISubscriber<events::Command> > Command;
+typedef IEventDispatcherSubscriber<ISubscriber<events::Ping> > Ping;
+typedef IEventDispatcherSubscriber<ISubscriber<events::NewNetwork> > NewNetwork;
+typedef IEventDispatcherSubscriber<ISubscriber<events::RemovingNetwork> > RemovingNetwork;
+typedef IEventDispatcherSubscriber<ISubscriber<events::ExceptionOccured> > ExceptionOccured;
+
+} // namespace dispatchers
+namespace dispatchers = eventdispatchers;
 } // namespace irc
 } // namespace anp
-#endif
+
+#endif // _NETWORK_H_

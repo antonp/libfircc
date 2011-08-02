@@ -25,10 +25,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <basedefs.h>
+#include <anpcode/basedefs.h>
 #include <string>
-#include "channelcache.h"
-#include "userinfo.h"
+#include <fircc/channelcache.h>
+#include "inc/userinfo.h"
 #include "inc/utilities.h"
 #include <vector>
 #include <algorithm>

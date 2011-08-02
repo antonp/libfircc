@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _NETWORKMANAGEREVENTS_H_
 #define _NETWORKMANAGEREVENTS_H_
 
-#include <basedefs.h>
-#include <eventdispatcher.h>
-#include <messageprefix.h>
+#include <anpcode/basedefs.h>
+#include <anpcode/eventdispatcher.h>
+#include <fircc/messageprefix.h>
 
 namespace anp
 {

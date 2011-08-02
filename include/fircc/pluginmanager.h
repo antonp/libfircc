@@ -28,8 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PLUGINMANAGER_H_
 #define _PLUGINMANAGER_H_
 
-#include <basedefs.h>
-#include <networkeventdispatchers.h>
+#include <anpcode/basedefs.h>
+#include <fircc/networkeventdispatchers.h>
 
 #include <string>
 

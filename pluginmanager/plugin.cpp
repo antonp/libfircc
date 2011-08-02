@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <stdexcept>
 #include <cassert>
-#include <anp_dynamic_library.h>
+#include <anpcode/anp_dynamic_library.h>
 
 namespace anp
 {

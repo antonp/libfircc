@@ -29,8 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _NETWORKFACTORY_H_
 
 #include <string>
-#include <eventdispatcher.h>
-#include <networkeventdispatchers.h>
+#include <anpcode/eventdispatcher.h>
+#include <fircc/networkeventdispatchers.h>
 
 namespace anp
 {

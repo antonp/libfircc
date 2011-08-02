@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "tcpconnection.h"
+#include "inc/tcpconnection.h"
 
 #include <string.h>
 #include <netdb.h>
@@ -34,6 +34,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
+
+	class NetworkException: public std::runtime_error
+	{
+	public:
+		NetworkException(const std::string &message):
+		std::runtime_error(message) { }
+	};
+
 namespace irc
 {
 	TCPConnection::TCPConnection(

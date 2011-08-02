@@ -25,9 +25,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "networkfactory.h"
-#include <networkeventdispatchers.h>
-#include <network.h>
+#include <fircc/networkfactory.h>
+#include <fircc/networkeventdispatchers.h>
+#include "inc/network.h"
 #include <list>
 #include <stdexcept>
 

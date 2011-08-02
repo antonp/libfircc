@@ -25,38 +25,64 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#ifndef _NETWORKCACHE_USERINTERFACE_H_
+#define _NETWORKCACHE_USERINTERFACE_H_
 
-#include <eventdispatcher.h>
-#include <networkevents.h>
+#include <string>
+#include <anpcode/iwritablecontainer.h>
 
 namespace anp
 {
 namespace irc
 {
+	class ChannelCache;
 	
-/**
-	Collection of typedefs for various event dispatcher subscriber interfaces.
-	Provided for increased readability and to avoid having to type too much.
-*/
-namespace eventdispatchers
-{
+	/**
+	 * This interface allows for querying the cache for information stored
+	 * about the network.
+	 */
+	class NetworkCacheUserInterface
+	{
+	public:
+		virtual ~NetworkCacheUserInterface() { }
 
-typedef IEventDispatcherSubscriber<ISubscriber<events::Join> > Join;
-typedef IEventDispatcherSubscriber<ISubscriber<events::Part> > Part;
-typedef IEventDispatcherSubscriber<ISubscriber<events::PrivMsg> > PrivMsg;
-typedef IEventDispatcherSubscriber<ISubscriber<events::Topic> > Topic;
-typedef IEventDispatcherSubscriber<ISubscriber<events::NumericReply> > NumericReply;
-typedef IEventDispatcherSubscriber<ISubscriber<events::Command> > Command;
-typedef IEventDispatcherSubscriber<ISubscriber<events::Ping> > Ping;
-typedef IEventDispatcherSubscriber<ISubscriber<events::NewNetwork> > NewNetwork;
-typedef IEventDispatcherSubscriber<ISubscriber<events::RemovingNetwork> > RemovingNetwork;
-typedef IEventDispatcherSubscriber<ISubscriber<events::ExceptionOccured> > ExceptionOccured;
+		/**
+		Copy information about a particular channel into an
+		already allocated ChannelCache object.
 
-} // namespace dispatchers
-namespace dispatchers = eventdispatchers;
-} // namespace irc
-} // namespace anp
+		@param name
+		The name of the channel.
 
-#endif // _NETWORK_H_
+		@param dest
+		The channel information will be written to this ChannelCache
+		object.
+		*/
+		virtual void getChannel(const std::string &name,
+										ChannelCache &dest) const = 0;
+
+		/**
+		Copies the client nick name into the clientNickName
+		parameter.
+
+		@param clientNickName
+		The client nickname will be written to this string.
+		*/
+		virtual void getClientNickName(std::string &clientNickName)
+															const = 0;
+															
+		/**
+		 * Retrieves the userlist of a channel.
+		 * 
+		 * @param name
+		 * The name of the channel.
+		 * 
+		 * @param userLIst
+		 * This container will have the current userlist written to it.
+		 */
+		virtual void getUsersInChannel(const std::string &name,
+								anp::IWritableContainer<std::string> &userList) const = 0;
+	};
+}
+}
+
+#endif // _NETWORKCACHE_USERINTERFACE_H_

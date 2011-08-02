@@ -28,16 +28,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _NETWORKMANAGER_H_
 #define _NETWORKMANAGER_H_
 
-#include <basedefs.h>
-#include <tcpconnection.h>
-#include <networkcache.h>
-#include "inetwork.h"
-#include "inc/messagesender.h"
-#include <eventdispatcher.h>
-#include <networkevents.h>
-#include <log_singleton.h>
+#include <anpcode/basedefs.h>
+#include "tcpconnection.h"
+#include <fircc/networkcache.h>
+#include <fircc/inetwork.h>
+#include "messagesender.h"
+#include <anpcode/eventdispatcher.h>
+#include <fircc/networkevents.h>
+#include <anpcode/log_singleton.h>
 
-#include <anp_threading.h> // hide?
+#include <anpcode/anp_threading.h> // hide?
 #include <memory>
 
 namespace anp

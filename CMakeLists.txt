@@ -43,8 +43,8 @@ SET(ircclient_sources network/messagesender.cpp
                       pluginmanager/plugin.cpp
                       pluginmanager/pluginmanager.cpp)
 
-INCLUDE_DIRECTORIES(network cache pluginmanager)
 ADD_LIBRARY(fircc SHARED ${ircclient_sources})
+#SET_TARGET_PROPERTIES(fircc PROPERTIES COMPILE_FLAGS "-fPIC")
 TARGET_LINK_LIBRARIES(fircc anpcode)
 ##### ADD_LIBRARY(anpcode ${COMMON_SRCS})
 

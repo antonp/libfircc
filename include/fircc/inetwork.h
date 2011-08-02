@@ -29,9 +29,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _NETWORKMANAGER_FRONTEND_H_
 
 #include <string>
-#include <eventdispatcher.h>
-#include <networkeventdispatchers.h>
-#include <networkevents.h>
+#include <anpcode/eventdispatcher.h>
+#include <fircc/networkeventdispatchers.h>
+#include <fircc/networkevents.h>
 
 namespace anp
 {

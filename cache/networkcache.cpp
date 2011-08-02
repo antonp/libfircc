@@ -25,18 +25,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <basedefs.h>
+#include <anpcode/basedefs.h>
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <sstream>
-#include <networkcache.h>
-#include <channelcache.h>
-#include <userinfo.h>
+#include <fircc/networkcache.h>
+#include <fircc/channelcache.h>
+#include "inc/userinfo.h"
 #include "inc/utilities.h"
 #include <stdexcept>
-#include <log_singleton.h>
-#include <anp_threading.h>
+#include <anpcode/log_singleton.h>
+#include <anpcode/anp_threading.h>
 
 namespace anp
 {

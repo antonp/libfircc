@@ -52,9 +52,11 @@ namespace irc
 						const std::string &port);
 		virtual ~TCPConnection();
 		void send(const std::string &buffer);
-		void receive(int8 *buffer, uint32 bufferSize);
+		ssize_t receive(int8 *buffer, uint32 bufferSize, int flags);
 		bool32 waitForSocket(uint32 timeoutSeconds,
 					uint32 timeoutMicroseconds);
+	    int addSocketToFdSet(fd_set *fds);
+	    bool fd_isset(fd_set *fds);
 	private:
 		void connect(const std::string &hostname,
 					 const std::string &port);

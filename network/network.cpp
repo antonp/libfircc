@@ -167,13 +167,7 @@ namespace numeric_replies
 		bool32 connected = true;
 
 		char buffer[MAX_DATA_LENGTH];
-		std::string in,
-					currentMessage,
-					leftOvers;
-		std::stringstream ss;
 		
-		anp::threading::TryLock lock(m_runMutex);
-
 		while ( TRUE == connected )
 		{			
 			m_stateMutex.lock();
@@ -188,39 +182,70 @@ namespace numeric_replies
 			// 1. Receive a message
 			if ( m_connection.waitForSocket(0, 500000) )
 			{
-				m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0]));
+				m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0]), 0);
 			} else
 			{
 				// There was no data available from the server
 				// check again
 				continue;
 			}
-			in = buffer;
-			// Tokenize it and parse it
-			// Start by dividing it up into several messages
-			while ( 1 ) {
-				if ( tokenize(currentMessage, in, "\r\n") ) {
-					// if there was something left from the previous
-					// parsing run, add it here
-					if ( leftOvers.length() > 0 ) {
-						currentMessage = leftOvers + currentMessage;
-						leftOvers.erase();
-					}
-					ss << "<- " << currentMessage;
-					ANPLOGD("libfirc", ss.str());
-					ss.str("");
-					parseMessage(currentMessage);
-				} else {
-					// The message isn't complete, so save it and
-					// add the rest when it arrives
-                    leftOvers += currentMessage;
-					break;
-				}
-				if ( in.length() == 0 )
-					break;
-			}			
+			processData(buffer);
 		}
 	}
+
+    void Network::tryReceive()
+    {
+        char buffer[MAX_DATA_LENGTH];
+        ssize_t ret;
+        
+        while ( 0 < (ret = m_connection.receive(buffer, sizeof(buffer)/sizeof(buffer[0]), MSG_DONTWAIT)) )
+        {
+            processData(buffer);        
+        }
+        
+    }
+
+    int Network::addSocketToFdSet(fd_set *readfds)
+    {
+        return m_connection.addSocketToFdSet(readfds);
+    }
+    
+    bool Network::internalSocketInSet(fd_set *fds)
+    {
+        return m_connection.fd_isset(fds);
+    }
+
+    void Network::processData(const char *data)
+    {
+        std::stringstream ss;
+
+        m_in = data;
+        // Tokenize it and parse it
+        // Start by dividing it up into several messages
+        while ( 1 ) {
+            if ( tokenizer::tokenize(m_currentMessage, m_in, "\r\n") ) {
+    	        // if there was something left from the previous
+                // parsing run, add it here
+                if ( m_leftOvers.length() > 0 ) {
+                    m_currentMessage = m_leftOvers + m_currentMessage;
+                    m_leftOvers.erase();
+                }
+                ss << "<- " << m_currentMessage;
+                ANPLOGD("libfirc", ss.str());
+                ss.str("");
+                parseMessage(m_currentMessage);
+            } else {
+                // The message isn't complete, so save it and
+                // add the rest when it arrives
+                m_leftOvers += m_currentMessage;
+                break;
+            }
+            if ( m_in.length() == 0 )
+            {
+                break;
+            }
+        }	
+    }
 
 	void parseParams(std::string &all, std::string list[])
 	{

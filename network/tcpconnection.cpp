@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <netdb.h>
 #include <stdexcept>
 #include <sstream>
+#include <errno.h>
 
 namespace anp
 {
@@ -120,13 +121,23 @@ namespace irc
 		}
 	}
 
-	void TCPConnection::receive(int8 *buffer, uint32 bufferSize)
+	ssize_t TCPConnection::receive(int8 *buffer, uint32 bufferSize, int flags)
 	{
+        ssize_t ret;	
+	
 		memset((void *)buffer, 0, bufferSize);
-		if ( 0 >= ::recv(m_socket, buffer, bufferSize, 0) )
+		if ( 0 >= (ret = ::recv(m_socket, buffer, bufferSize, flags)) )
 		{
-			throw NetworkException("Failed to recv(), connection closed");
+		    // This is becoming very ugly, need to consider refactoring or getting rid of this class
+		    if ( ret == -1 && (int)(flags & MSG_DONTWAIT) == MSG_DONTWAIT && errno == EAGAIN )
+		    {
+                // No problem occured, there's just no data to recv without blocking.
+		    } else
+		    {
+			    throw NetworkException("Failed to recv(), connection closed");		    
+		    }
 		}
+		return ret;
 	}
 
 	bool32 TCPConnection::waitForSocket(uint32 timeoutSeconds,
@@ -145,6 +156,29 @@ namespace irc
 		}
 		return FD_ISSET(m_socket, &readFileDescriptorSet);
 	}
+	
+    int TCPConnection::addSocketToFdSet(fd_set *fds)
+    {
+        if ( fds != NULL )
+        {
+            FD_SET(m_socket, fds);
+        } else
+        {
+            throw std::invalid_argument("fd_set fds was NULL");
+        }
+        return (int)m_socket;
+    }
+    
+    bool TCPConnection::fd_isset(fd_set *fds)
+    {
+        if ( fds != NULL )
+        {
+            return FD_ISSET(m_socket, fds);
+        } else
+        {
+            throw std::invalid_argument("fd_set fds was NULL");
+        }
+    }
 
 } // namespace irc
 } // namespace anp

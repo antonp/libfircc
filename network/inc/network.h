@@ -71,6 +71,11 @@ namespace irc
 		void runMessageReceiverInThread();
 		// Blocking
 		void runMessageReceiver();
+
+        // Synchronous, but doesn't block if no data.
+        void tryReceive();
+        int addSocketToFdSet(fd_set *readfds);
+        bool internalSocketInSet(fd_set *fds);
 		
 		void sendMessage(const std::string &message);
 		
@@ -98,6 +103,7 @@ namespace irc
 		dispatchers::ExceptionOccured &eventDispatcherExceptionOccured();
 
 	private:
+	    void processData(const char *data);
 		void parseMessage(const std::string &message);
 		void msgPingHandle( const MsgPrefix &origin,
 							const std::string &server1,
@@ -137,8 +143,12 @@ namespace irc
 		
 		NetworkCache m_networkCache;
 
-		anp::threading::Mutex m_runMutex;
 		anp::threading::Mutex m_mutex;
+		
+		// Parsing buffers
+        std::string m_in,
+					m_currentMessage,
+					m_leftOvers;
 
 		struct
 		{

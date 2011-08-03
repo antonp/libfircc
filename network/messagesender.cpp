@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <anpcode/anp_timing.h>
 #include <anpcode/anp_threadsafequeue.h>
 #include <anpcode/log_singleton.h>
-#include <fircc/tcpconnection.h>
+#include "inc/tcpconnection.h"
 #include <sstream>
 
 #include <stdexcept>

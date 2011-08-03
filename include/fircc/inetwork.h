@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <anpcode/eventdispatcher.h>
 #include <fircc/networkeventdispatchers.h>
 #include <fircc/networkevents.h>
+#include <sys/select.h>
 
 namespace anp
 {
@@ -77,6 +78,37 @@ namespace irc
         block until the network is disconnected.
         */
         virtual void runMessageReceiver() = 0;
+
+        /**
+        Try receiving data and process it. Returns immediately
+        if no data available.
+
+        Hint: Use select() to determine if this network's socket
+        can be read without blocking.
+
+        @see addSocketToFdSet
+        @see internalSocketInSet
+        */
+        virtual void tryReceive() = 0;
+
+        /**
+        Adds the read socket of the internal network connection to
+        the supplied set of file descriptors.
+        Use this method together with tryReceive to implement a
+        single-threaded multi-connection client.
+
+        @return The max descriptor, "nfds" parameter in the select() function.
+
+        @see tryReceive
+        @see internalSocketInSet
+        */
+        virtual int addSocketToFdSet(fd_set *readfds) = 0;
+        
+        /**
+        Tests to see if the internal socket/file descriptor is part of the
+        set.
+        */
+        virtual bool internalSocketInSet(fd_set *fds) = 0;
 		
 		/**
 		Retrieves the name of the remote host that this network is connected to.

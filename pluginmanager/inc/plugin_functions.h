@@ -63,7 +63,7 @@ namespace irc
 	 * Success indicator. Should return 0 on success. It is allowed to throw
 	 * exceptions too.
 	 */
-	typedef uint32 (*PF_pluginInit)(NetworkFactory &networkFactory, void *appContext);
+	typedef unsigned int (*PF_pluginInit)(NetworkFactory &networkFactory, void *appContext);
 	
 	/**
 	 * This function is called when a plugin is about to be unloaded.
@@ -71,7 +71,7 @@ namespace irc
 	 * @param reason
 	 * The reason for the unload. Usage of this is currently undefined.
 	 */
-	typedef void (*PF_pluginDeinit)(uint32 reason);
+	typedef void (*PF_pluginDeinit)(unsigned int reason);
 } // namespace irc
 } // namespace anp
 

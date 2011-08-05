@@ -28,9 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _NETWORKMANAGEREVENTS_H_
 #define _NETWORKMANAGEREVENTS_H_
 
-#include <anpcode/basedefs.h>
 #include <anpcode/eventdispatcher.h>
 #include <fircc/messageprefix.h>
+#include <string>
 
 namespace anp
 {
@@ -155,7 +155,7 @@ class EventWithParamList
 public:
 	EventWithParamList(const std::string params[])
 	{
-		for ( uint32 i=0; i<15; ++i )
+		for ( unsigned int i=0; i<15; ++i )
 		{
 			m_params[i] = params[i];
 		}
@@ -169,7 +169,7 @@ public:
 	 * @return
 	 * The requested parameter.
 	 */
-	const std::string &param(uint32 index) const
+	const std::string &param(unsigned int index) const
 	{
 		return m_params[index];
 	}

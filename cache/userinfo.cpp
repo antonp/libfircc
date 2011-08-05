@@ -25,7 +25,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <anpcode/basedefs.h>
 #include "inc/userinfo.h"
 #include <string>
 #include <sstream>
@@ -36,8 +35,9 @@ namespace irc
 {
 	struct UserInfoImpl
 	{
-		UserInfoImpl(const std::string &name, const std::string &user,
-												const std::string &host):
+		UserInfoImpl(const std::string &name,
+		             const std::string &user,
+                     const std::string &host):
 		m_name(name),
 		m_user(user),
 		m_host(host),
@@ -65,7 +65,7 @@ namespace irc
 		std::string m_user;
 		std::string m_host;
 		mutable std::string m_userString;
-		mutable bool32 m_userStringIsDirty;
+		mutable bool m_userStringIsDirty;
 	};
 
 	UserInfo::UserInfo(const std::string &name, const std::string &user,

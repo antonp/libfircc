@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PLUGINMANAGER_H_
 #define _PLUGINMANAGER_H_
 
-#include <anpcode/basedefs.h>
 #include <fircc/networkeventdispatchers.h>
 
 #include <string>
@@ -61,7 +60,7 @@ namespace irc
 		 * to subscribe to events and open/close networks.
 		 */
 		void loadPlugin(
-			const int8 *fileName,
+			const char *fileName,
 			NetworkFactory &networkFactory,
 			void *appContext
 		);
@@ -75,13 +74,13 @@ namespace irc
 		 * @param reason
 		 * Reason for the unload. Currently undefined.
 		 */
-		bool unloadPlugin(const std::string &fileName, uint32 reason);
+		bool unloadPlugin(const std::string &fileName, unsigned int reason);
 		
 		/**
 		 * Unloads all currently loaded plugins.
 		 */
 		void unloadAllPlugins();
-		uint32 getPluginCount() const;
+		unsigned int getPluginCount() const;
 		
 		/**
 		 * Retrieves information about a loaded plugin.
@@ -98,7 +97,7 @@ namespace irc
 		 * on the application. In that case, be ready to catch
 		 * std::invalid_argument exceptions.
 		 */
-		void getPluginInfo(uint32 index,
+		void getPluginInfo(unsigned int index,
 						   std::string &name);
 	private:
 		PluginManagerImpl *m_impl;

@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _TCP_CONNECTION_H_
 #define _TCP_CONNECTION_H_
 
-#include <anpcode/basedefs.h>
 //#include <windows.h>
 //#include <winsock.h>
 #include <cstdio>
@@ -52,9 +51,9 @@ namespace irc
 						const std::string &port);
 		virtual ~TCPConnection();
 		void send(const std::string &buffer);
-		ssize_t receive(int8 *buffer, uint32 bufferSize, int flags);
-		bool32 waitForSocket(uint32 timeoutSeconds,
-					uint32 timeoutMicroseconds);
+		ssize_t receive(char *buffer, unsigned int bufferSize, int flags);
+		bool waitForSocket(unsigned int timeoutSeconds,
+					unsigned int timeoutMicroseconds);
 	    int addSocketToFdSet(fd_set *fds);
 	    bool fd_isset(fd_set *fds);
 	private:

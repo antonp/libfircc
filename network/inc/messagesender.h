@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _MESSAGESENDER_H_
 #define _MESSAGESENDER_H_
 
-#include <anpcode/basedefs.h>
 #include <anpcode/anp_threading.h>
 #include <anpcode/anp_threadsafequeue.h>
 #include <string>
@@ -67,7 +66,7 @@ namespace irc
 		 * @param ms
 		 * Cooldown time in milliseconds.
 		 */
-		void setCooldownTime(uint32 ms);
+		void setCooldownTime(unsigned int ms);
 		
 		/**
 		 * Forces the monitor to stop, without letting it
@@ -81,8 +80,8 @@ namespace irc
 		TCPConnection &m_connection;
 		threading::ThreadSafeQueue<std::string> m_queue;
 		
-		threading::ProtectedData<uint32, 5000> m_cooldownTime;
-		threading::ProtectedData<bool32, false> m_isDying;
+		threading::ProtectedData<unsigned int, 5000> m_cooldownTime;
+		threading::ProtectedData<bool, false> m_isDying;
 		
 		threading::Event m_newMessage;
 		threading::Thread m_thread;

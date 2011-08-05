@@ -44,7 +44,7 @@ namespace irc
 	 * NULL terminated string representing the fileName
 	 */
 	Plugin::Plugin(
-		const int8 *fileName,
+		const char *fileName,
 		NetworkFactory &networkFactory,
 		void *appContext
 	):
@@ -65,10 +65,7 @@ namespace irc
 		
 		// Call init function
 		m_name = fileName;
-		uint32 res = pf_pluginInit(
-			networkFactory,
-			appContext
-		);
+		unsigned int res = pf_pluginInit(networkFactory, appContext);
 		if ( res == 0 )
 		{
 			throw std::runtime_error("pluginInit returned 0");
@@ -80,17 +77,17 @@ namespace irc
 		m_pf_pluginDeinit(m_unloadReason);
 	}
 	
-	void Plugin::setUnloadReason(uint32 reason)
+	void Plugin::setUnloadReason(unsigned int reason)
 	{
 		m_unloadReason = reason;
 	}
 	
-	void Plugin::setUnloading(bool32 unloading)
+	void Plugin::setUnloading(bool unloading)
 	{
 		m_unloading = unloading;
 	}
 	
-	bool32 Plugin::isUnloading() const
+	bool Plugin::isUnloading() const
 	{
 		return m_unloading;
 	}

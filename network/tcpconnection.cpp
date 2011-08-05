@@ -121,7 +121,7 @@ namespace irc
 		}
 	}
 
-	ssize_t TCPConnection::receive(int8 *buffer, uint32 bufferSize, int flags)
+	ssize_t TCPConnection::receive(char *buffer, unsigned int bufferSize, int flags)
 	{
         ssize_t ret;	
 	
@@ -140,8 +140,8 @@ namespace irc
 		return ret;
 	}
 
-	bool32 TCPConnection::waitForSocket(uint32 timeoutSeconds,
-										uint32 timeoutMicroseconds)
+	bool TCPConnection::waitForSocket(unsigned int timeoutSeconds,
+                                      unsigned int timeoutMicroseconds)
 	{
 		timeval timeout;
 		timeout.tv_sec = timeoutSeconds;

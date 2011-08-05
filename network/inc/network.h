@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _NETWORKMANAGER_H_
 #define _NETWORKMANAGER_H_
 
-#include <anpcode/basedefs.h>
 #include "tcpconnection.h"
 #include <fircc/networkcache.h>
 #include <fircc/inetwork.h>
@@ -53,7 +52,7 @@ namespace irc
 	class Network: public INetwork
 	{
 	public:
-		Network(const int8 *host, const int8 *port,
+		Network(const char *host, const char *port,
 				const std::string &nick, const std::string &user,
 				const std::string &realName);
 		~Network();

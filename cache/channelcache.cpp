@@ -25,7 +25,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <anpcode/basedefs.h>
 #include <string>
 #include <fircc/channelcache.h>
 #include "inc/userinfo.h"

@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
-#include <anpcode/basedefs.h>
 #include <anpcode/anp_dynamic_library.h>
 #include <fircc/networkeventdispatchers.h>
 
@@ -53,15 +52,15 @@ namespace irc
 	{
 	public:
 		Plugin(
-			const int8 *fileName,
+			const char *fileName,
 			NetworkFactory &networkFactory,
 			void *appContext
 		);
 		~Plugin();
 		
-		void setUnloadReason(uint32 reason);
-		void setUnloading(bool32 unloading);
-		bool32 isUnloading() const;
+		void setUnloadReason(unsigned int reason);
+		void setUnloading(bool unloading);
+		bool isUnloading() const;
 		
 		const std::string &getName() const;
 	private:	
@@ -73,8 +72,8 @@ namespace irc
 		std::string			m_name;
 		
 		// Execution
-		bool32				m_unloading;
-		uint32				m_unloadReason;
+		bool				m_unloading;
+        unsigned int        m_unloadReason;
 		
 	};
 } // namespace irc

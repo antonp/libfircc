@@ -41,7 +41,7 @@ namespace irc
 {
 namespace numeric_replies
 {
-	const int8 *const RPL_NAMREPLY = "353";
+	const char *const RPL_NAMREPLY = "353";
 }
 	void *Network::threadRunMessageReceiver(void *arg)
 	{
@@ -69,7 +69,7 @@ namespace numeric_replies
 		pthread_exit(0);
 	}
 	
-	Network::Network(const int8 *host, const int8 *port,
+	Network::Network(const char *host, const char *port,
 					 const std::string &nick, const std::string &user,
 					 const std::string &realName):
 	m_state(CONNECTING),
@@ -164,11 +164,11 @@ namespace numeric_replies
 	{
 		using tokenizer::tokenize;
 		State state = UNKNOWN;
-		bool32 connected = true;
+		bool connected = true;
 
 		char buffer[MAX_DATA_LENGTH];
 		
-		while ( TRUE == connected )
+		while ( connected )
 		{			
 			m_stateMutex.lock();
 			state = m_state;
@@ -281,15 +281,15 @@ namespace numeric_replies
 		static
 		RE numPattern("^[[:digit:]]{3}$");
 
-		bool32 validMessage = ircMsgPattern.FullMatch(message, (void *)0,
+		bool validMessage = ircMsgPattern.FullMatch(message, (void *)0,
 			&prefix, &command, &parameters);
 
 		if ( validMessage )
 		{
-			bool32 validUser = prefixPattern.FullMatch(prefix,
-														&nick,
-														&user,
-														&host);
+			bool validUser = prefixPattern.FullMatch(prefix,
+                                                     &nick,
+                                                     &user,
+                                                     &host);
 			MsgPrefix msgPrefix(prefix, nick, user, host);
 
 			parseParams(parameters, params);

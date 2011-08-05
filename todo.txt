@@ -42,7 +42,8 @@
 * Add anpcode.git as submodule
 * (cache) userinfo.h public and getUsersInChannel returning instances of UserInfo!
 * (cache) use sqlite for implementation!
-* use cstdint instead of own typedefs
+(Done)* use cstdint instead of own typedefs
+* look over pluginmanager/unloading
 
 Finalize:
 * tidy include directives

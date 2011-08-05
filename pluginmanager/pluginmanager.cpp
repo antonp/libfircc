@@ -62,7 +62,7 @@ namespace irc
 	 * NULL terminated string representing the fileName
 	 */
 	void PluginManager::loadPlugin(
-		const int8 *fileName,
+		const char *fileName,
 		NetworkFactory &networkFactory,
 		void *appContext
 	)
@@ -76,10 +76,10 @@ namespace irc
 	}
 
 	bool PluginManager::unloadPlugin(const std::string &fileName,
-									 uint32 reason)
+									 unsigned int reason)
 	{
 		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		for ( uint32 i=0; i<plugins.size(); ++i )
+		for ( unsigned int i=0; i<plugins.size(); ++i )
 		{
 			if ( plugins[i]->getName() == fileName )
 			{
@@ -95,9 +95,9 @@ namespace irc
 	void PluginManager::unloadAllPlugins()
 	{
 		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		uint32 size = plugins.size();
+		unsigned int size = plugins.size();
 		Plugin *p = NULL;
-		for ( uint32 i=0; i<size; ++i )
+		for ( unsigned int i=0; i<size; ++i )
 		{
 			p = plugins[i];
 			if ( NULL == p )
@@ -115,16 +115,16 @@ namespace irc
 		plugins.clear();
 	}
 	
-	uint32 PluginManager::getPluginCount() const
+	unsigned int PluginManager::getPluginCount() const
 	{
 		return m_impl->m_plugins.size();
 	}
 	
-	void PluginManager::getPluginInfo(uint32 index,
+	void PluginManager::getPluginInfo(unsigned int index,
 									  std::string &name)
 	{
 		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		uint32 size = plugins.size();
+		unsigned int size = plugins.size();
 		
 		if ( size > index && NULL != plugins[index] )
 		{

@@ -85,7 +85,7 @@ namespace irc
 		m_newMessage.signal();
 	}
 
-	void MessageSender::setCooldownTime(uint32 ms)
+	void MessageSender::setCooldownTime(unsigned int ms)
 	{
 		m_cooldownTime.set(ms);
 	}
@@ -101,7 +101,7 @@ namespace irc
 		std::stringstream ss;
 		while ( true )
 		{
-			bool32 isDying = true;
+			bool isDying = true;
 			m_isDying.get(isDying);
 
 			if ( isDying )
@@ -112,7 +112,7 @@ namespace irc
 			
 			m_newMessage.wait();
 						
-			bool32 empty = m_queue.isEmpty();
+			bool empty = m_queue.isEmpty();
 			while ( !empty )
 			{
 				if ( isDying )
@@ -120,7 +120,7 @@ namespace irc
 					return;
 				}
 				
-				uint32 cooldown = 0;
+				unsigned int cooldown = 0;
 				std::string &message = m_queue.front();
 				ss << "-> " << message;
                 ANPLOGI("libfirc", ss.str());

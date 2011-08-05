@@ -25,7 +25,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <anpcode/basedefs.h>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -37,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 #include <anpcode/log_singleton.h>
 #include <anpcode/anp_threading.h>
+#include <stdint.h>
 
 namespace anp
 {
@@ -46,13 +46,13 @@ namespace irc
 	struct ChannelUserRelation
 	{
 		ChannelUserRelation(const std::string &channel,
-									const std::string &user, uint32 modes):
+                            const std::string &user, uint32_t modes):
 		m_channel(channel),
 		m_user(user),
 		m_modes(modes)
 		{
 		}
-		uint32 m_modes;
+		uint32_t m_modes;
 		std::string m_channel;
 		std::string m_user;
 	};
@@ -283,7 +283,7 @@ namespace irc
 		Assumes there's no duplicate entries.
 	*/
 	void NetworkCache::removeUserFromChannel(const std::string &name,
-								const std::string &channelName)
+                                             const std::string &channelName)
 	{
 		anp::threading::Lock lock(m_impl->m_mutex);
 
@@ -298,7 +298,7 @@ namespace irc
 		if ( range.first != table.end() ) // equal_range() succeeded?
 		{
 			// infinite loop while ( range.first != range.second )
-			bool32 erased = false;
+			bool erased = false;
 			while ( !erased && range.first != range.second )
 			{
 				if ( (*range.first).m_user == name )
@@ -368,7 +368,7 @@ namespace irc
 	}
 	
 	void NetworkCache::getUsersInChannel(const std::string &name,
-						   anp::IWritableContainer<std::string> &userList) const
+                        anp::IWritableContainer<std::string> &userList) const
 	{
 		anp::threading::Lock lock(m_impl->m_mutex);
 		

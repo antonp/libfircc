@@ -44,10 +44,13 @@ SET(ircclient_sources network/messagesender.cpp
                       pluginmanager/pluginmanager.cpp)
 
 ADD_LIBRARY(fircc SHARED ${ircclient_sources})
-#SET_TARGET_PROPERTIES(fircc PROPERTIES COMPILE_FLAGS "-fPIC")
 TARGET_LINK_LIBRARIES(fircc anpcode)
-##### ADD_LIBRARY(anpcode ${COMMON_SRCS})
-
-# pfindep handled by sub make list
-#ADD_SUBDIRECTORY(pfindep)
+SET_TARGET_PROPERTIES(fircc
+                      PROPERTIES
+                      COMPILE_FLAGS "-fPIC"
+                      VERSION 1.0.0
+                      SOVERSION 1)
+INSTALL(TARGETS fircc
+        DESTINATION lib
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 

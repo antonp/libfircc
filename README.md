@@ -1,29 +1,19 @@
 # Introduction
-firc is an IRC client library written in C\+\+.
+fircc is an IRC client library written in C\+\+.
 
 # Goals
 To create a library that is
 
 -	Something I can use to quickly develop IRC bots
-	or clients quickly
+	or clients
 -   Working (stable)
 -   Flexible
 -   Easy to understand
 -   Easy to use
 -   Easy to expand
 
-And personally I would also like to
-
--   Learn more about open source projects.
--   Become more familiar with writing portable code.
-
-# Current status
-Nothing has been released yet.
-Using the library is not recommended yet as APIs might still
-change. This may be frustrating. You are welcome to try though.
-
 ## Name
-The project does not have a very good name, firc is temporary.
+The project does not have a very good name, fircc is temporary.
 
 ## Current features
 
@@ -39,11 +29,11 @@ The project does not have a very good name, firc is temporary.
 -   Let worker threads handle eventdispatching.
 -   DCC ?
 -   Windows compatibility
--   Bindings to other languages.
+-   Bindings to other languages. (working on bindings for Pawn and Python).
 
 ## Contact
-I would be happy to receive feedback (good or bad) and
+I would be happy to receive feedback and
 suggestions. You can reach me by email.
 
-Anton Petersson <anton-vcs at anp dot nu>
+Anton Petersson <anton at anp dot nu>
 

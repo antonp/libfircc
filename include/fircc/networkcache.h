@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _NETWORKCACHE_H_
 #define _NETWORKCACHE_H_
 
-#include "networkcache_userinterface.h"
+#include <fircc/networkcache_userinterface.h>
 #include <fircc/networkevents.h>
 #include <fircc/networkeventsubscribers.h>
 #include <anpcode/iwritablecontainer.h>

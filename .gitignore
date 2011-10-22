@@ -3,3 +3,4 @@
 debug/*
 .sconsign.dblite
 *.swp
+docs/*

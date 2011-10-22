@@ -54,3 +54,16 @@ INSTALL(TARGETS fircc
         DESTINATION lib
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
+INSTALL(FILES include/fircc/channelcache.h
+              include/fircc/inetwork.h
+              include/fircc/messageprefix.h
+              include/fircc/networkcache.h
+              include/fircc/networkcache_userinterface.h
+              include/fircc/networkeventdispatchers.h
+              include/fircc/networkevents.h
+              include/fircc/networkeventsubscribers.h
+              include/fircc/networkfactory.h
+              include/fircc/pluginmanager.h
+        DESTINATION include/fircc
+        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+

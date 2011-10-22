@@ -35,7 +35,7 @@ namespace anp
 namespace irc
 {
 /**
- * Represents a IRC message prefix.
+ * Represents an IRC message prefix.
  * 
  * Most IRC messages have a prefix, and in many cases it can be seen as
  * the origin, or source, of the message. This can often be split into

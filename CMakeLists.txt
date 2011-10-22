@@ -28,8 +28,10 @@ IF(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
 
     ADD_SUBDIRECTORY(anpcode.git/source)
 ELSE()
-    # Inherit includes from parent instead, and ont care about anpcode
+    # Inherit includes from parent instead, and don't care about anpcode
 ENDIF()
+
+ADD_SUBDIRECTORY(samples/consoleapp)
 
 SET(ircclient_sources network/messagesender.cpp
                       network/network.cpp
@@ -50,6 +52,7 @@ SET_TARGET_PROPERTIES(fircc
                       COMPILE_FLAGS "-fPIC"
                       VERSION 1.0.0
                       SOVERSION 1)
+
 INSTALL(TARGETS fircc
         DESTINATION lib
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)

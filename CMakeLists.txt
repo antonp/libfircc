@@ -2,7 +2,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT(ircclient)
+PROJECT(fircc)
 
 # defs can be handled from here
 
@@ -20,13 +20,9 @@ ENDIF(UNIX)
 
 # Are we building standalone or as a subdir of another project?
 IF(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    MESSAGE(FATAL_ERROR "Building standalone is not properly configured yet")
+    INCLUDE_DIRECTORIES(anpcode.git/include/anpcode)
 
-    INCLUDE_DIRECTORIES(anpcode.git/source/defs)
-    INCLUDE_DIRECTORIES(anpcode.git/source/common)
-    INCLUDE_DIRECTORIES(anpcode.git/source/pfindep)
-
-    ADD_SUBDIRECTORY(anpcode.git/source)
+    ADD_SUBDIRECTORY(anpcode.git)
 ELSE()
     # Inherit includes from parent instead, and don't care about anpcode
 ENDIF()
@@ -69,4 +65,14 @@ INSTALL(FILES include/fircc/channelcache.h
               include/fircc/pluginmanager.h
         DESTINATION include/fircc
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+# ---- CPack ----
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Manages connections to irc networks")
+SET(CPACK_PACKAGE_VENDOR "Anton Petersson")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+SET(CPACK_PACKAGE_VERSION_MAJOR "0")
+SET(CPACK_PACKAGE_VERSION_MINOR "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+
+INCLUDE(CPack)
 

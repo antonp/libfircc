@@ -66,9 +66,9 @@ namespace irc
 		// Call init function
 		m_name = fileName;
 		unsigned int res = pf_pluginInit(networkFactory, appContext);
-		if ( res == 0 )
+		if ( res != 0 )
 		{
-			throw std::runtime_error("pluginInit returned 0");
+			throw std::runtime_error("pluginInit returned non-zero");
 		}
 	}
 	

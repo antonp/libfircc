@@ -20,7 +20,8 @@ ENDIF(UNIX)
 
 # Are we building standalone or as a subdir of another project?
 IF(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    INCLUDE_DIRECTORIES(anpcode.git/include/anpcode)
+    INCLUDE_DIRECTORIES(anpcode.git/include
+                        include)
 
     ADD_SUBDIRECTORY(anpcode.git)
 ELSE()

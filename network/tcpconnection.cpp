@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 #include <sstream>
 #include <errno.h>
+#include <unistd.h>
 
 namespace anp
 {

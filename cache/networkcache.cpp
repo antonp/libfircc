@@ -210,24 +210,25 @@ namespace irc
 			list.end(), temp, channelinfo_compare), temp);
 	}
 
-	void NetworkCache::removeChannel(const std::string &channel)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
-
-		ChannelCache temp(channel);
-		std::vector<ChannelCache *> &list = m_impl->m_channels;
-		std::vector<ChannelCache *>::iterator i = 
-		i = std::lower_bound(list.begin(),
-			list.end(), &temp, channelinfo_compare);
-		if ( i != list.end() )
+    void NetworkCache::removeChannel(const std::string &channel)
+    {
 		{
-			delete (*i);
-			list.erase(i);
-		}
+            anp::threading::Lock lock(m_impl->m_mutex);
 
-		// Remove entries in relation table
-		removeAllUsersFromChannel(channel);
-	}
+            ChannelCache temp(channel);
+            std::vector<ChannelCache *> &list = m_impl->m_channels;
+            std::vector<ChannelCache *>::iterator i =
+            i = std::lower_bound(list.begin(),
+                list.end(), &temp, channelinfo_compare);
+            if ( i != list.end() )
+            {
+                delete (*i);
+                list.erase(i);
+            }
+        } // End of lock scope.
+        // Remove entries in relation table
+        removeAllUsersFromChannel(channel);
+    }
 
 	void NetworkCache::addUserToChannel(const std::string &name,
 							  const std::string &user,

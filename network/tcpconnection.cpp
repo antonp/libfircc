@@ -37,127 +37,127 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace anp
 {
 
-	class NetworkException: public std::runtime_error
-	{
-	public:
-		NetworkException(const std::string &message):
-		std::runtime_error(message) { }
-	};
+    class NetworkException: public std::runtime_error
+    {
+    public:
+        NetworkException(const std::string &message):
+        std::runtime_error(message) { }
+    };
 
 namespace irc
 {
-	TCPConnection::TCPConnection(
-		const std::string &hostname,
-		const std::string &port
-	)
-	{
-		TCPConnection::connect(hostname, port);
-	}
+    TCPConnection::TCPConnection(
+        const std::string &hostname,
+        const std::string &port
+    )
+    {
+        TCPConnection::connect(hostname, port);
+    }
 
-	TCPConnection::~TCPConnection(void)
-	{
-		::close(m_socket);
-		clean();
-	}
+    TCPConnection::~TCPConnection(void)
+    {
+        ::close(m_socket);
+        clean();
+    }
 
-	void TCPConnection::clean()
-	{
-	}
+    void TCPConnection::clean()
+    {
+    }
 
-	void TCPConnection::connect(
-		const std::string &hostname,
-		const std::string &port)
-	{
-		struct addrinfo hints;
-		struct addrinfo *pServInfoFirst = NULL;
-		struct addrinfo *pServInfoCurrent = NULL;
-		memset((void *)&hints, 0, sizeof(hints));
-		hints.ai_family = PF_UNSPEC;
-		hints.ai_socktype = SOCK_STREAM; // TCP
-		
-		getaddrinfo(hostname.c_str(), port.c_str(), &hints,
-					&pServInfoFirst);
-		
-		if ( pServInfoFirst == NULL )
-		{
-			throw NetworkException("Failed to getaddrinfo()!");
-		}
-		
-		for ( pServInfoCurrent=pServInfoFirst;
-			  pServInfoCurrent != NULL;
-			  pServInfoCurrent = pServInfoCurrent->ai_next )
-		{
-			m_socket = ::socket(pServInfoCurrent->ai_family,
-								pServInfoCurrent->ai_socktype,
-								pServInfoCurrent->ai_protocol);
-			if ( -1 == m_socket )
-			{
-				// Failed
-				throw NetworkException("Failed to create socket file descriptor");
-			}
-			
-			if ( -1 == ::connect(	m_socket,
-									pServInfoCurrent->ai_addr,
-									pServInfoCurrent->ai_addrlen) )
-			{
-				continue;
-			} else
-			{
-				// Success
-				freeaddrinfo(pServInfoFirst);
-				return;
-			}
-		}
-		
-		// Failed to connect
-		freeaddrinfo(pServInfoFirst);
-		throw NetworkException("Failed to connect");
-	}
+    void TCPConnection::connect(
+        const std::string &hostname,
+        const std::string &port)
+    {
+        struct addrinfo hints;
+        struct addrinfo *pServInfoFirst = NULL;
+        struct addrinfo *pServInfoCurrent = NULL;
+        memset((void *)&hints, 0, sizeof(hints));
+        hints.ai_family = PF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM; // TCP
 
-	void TCPConnection::send(const std::string &buffer)
-	{
-		if ( 0 >= ::send(m_socket, buffer.c_str(), (int)buffer.length(), 0) )
-		{
-			throw NetworkException("Failed to send()");
-		}
-	}
+        getaddrinfo(hostname.c_str(), port.c_str(), &hints,
+                    &pServInfoFirst);
 
-	ssize_t TCPConnection::receive(char *buffer, unsigned int bufferSize, int flags)
-	{
-        ssize_t ret;	
-	
-		memset((void *)buffer, 0, bufferSize);
-		if ( 0 >= (ret = ::recv(m_socket, buffer, bufferSize, flags)) )
-		{
-		    // This is becoming very ugly, need to consider refactoring or getting rid of this class
-		    if ( ret == -1 && (int)(flags & MSG_DONTWAIT) == MSG_DONTWAIT && errno == EAGAIN )
-		    {
+        if ( pServInfoFirst == NULL )
+        {
+            throw NetworkException("Failed to getaddrinfo()!");
+        }
+
+        for ( pServInfoCurrent=pServInfoFirst;
+              pServInfoCurrent != NULL;
+              pServInfoCurrent = pServInfoCurrent->ai_next )
+        {
+            m_socket = ::socket(pServInfoCurrent->ai_family,
+                                pServInfoCurrent->ai_socktype,
+                                pServInfoCurrent->ai_protocol);
+            if ( -1 == m_socket )
+            {
+                // Failed
+                throw NetworkException("Failed to create socket file descriptor");
+            }
+
+            if ( -1 == ::connect(   m_socket,
+                                    pServInfoCurrent->ai_addr,
+                                    pServInfoCurrent->ai_addrlen) )
+            {
+                continue;
+            } else
+            {
+                // Success
+                freeaddrinfo(pServInfoFirst);
+                return;
+            }
+        }
+
+        // Failed to connect
+        freeaddrinfo(pServInfoFirst);
+        throw NetworkException("Failed to connect");
+    }
+
+    void TCPConnection::send(const std::string &buffer)
+    {
+        if ( 0 >= ::send(m_socket, buffer.c_str(), (int)buffer.length(), 0) )
+        {
+            throw NetworkException("Failed to send()");
+        }
+    }
+
+    ssize_t TCPConnection::receive(char *buffer, unsigned int bufferSize, int flags)
+    {
+        ssize_t ret;
+
+        memset((void *)buffer, 0, bufferSize);
+        if ( 0 >= (ret = ::recv(m_socket, buffer, bufferSize, flags)) )
+        {
+            // This is becoming very ugly, need to consider refactoring or getting rid of this class
+            if ( ret == -1 && (int)(flags & MSG_DONTWAIT) == MSG_DONTWAIT && errno == EAGAIN )
+            {
                 // No problem occured, there's just no data to recv without blocking.
-		    } else
-		    {
-			    throw NetworkException("Failed to recv(), connection closed");		    
-		    }
-		}
-		return ret;
-	}
+            } else
+            {
+                throw NetworkException("Failed to recv(), connection closed");
+            }
+        }
+        return ret;
+    }
 
-	bool TCPConnection::waitForSocket(unsigned int timeoutSeconds,
+    bool TCPConnection::waitForSocket(unsigned int timeoutSeconds,
                                       unsigned int timeoutMicroseconds)
-	{
-		timeval timeout;
-		timeout.tv_sec = timeoutSeconds;
-		timeout.tv_usec = timeoutMicroseconds;
-		fd_set readFileDescriptorSet;
-		FD_ZERO(&readFileDescriptorSet);
-		FD_SET(m_socket, &readFileDescriptorSet);
-		if ( (-1) == ::select(m_socket+1, &readFileDescriptorSet,
-						NULL, NULL, &timeout) )
-		{
-			throw NetworkException("select() returned -1");
-		}
-		return FD_ISSET(m_socket, &readFileDescriptorSet);
-	}
-	
+    {
+        timeval timeout;
+        timeout.tv_sec = timeoutSeconds;
+        timeout.tv_usec = timeoutMicroseconds;
+        fd_set readFileDescriptorSet;
+        FD_ZERO(&readFileDescriptorSet);
+        FD_SET(m_socket, &readFileDescriptorSet);
+        if ( (-1) == ::select(m_socket+1, &readFileDescriptorSet,
+                        NULL, NULL, &timeout) )
+        {
+            throw NetworkException("select() returned -1");
+        }
+        return FD_ISSET(m_socket, &readFileDescriptorSet);
+    }
+
     int TCPConnection::addSocketToFdSet(fd_set *fds)
     {
         if ( fds != NULL )
@@ -169,7 +169,7 @@ namespace irc
         }
         return (int)m_socket;
     }
-    
+
     bool TCPConnection::fd_isset(fd_set *fds)
     {
         if ( fds != NULL )

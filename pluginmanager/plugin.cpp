@@ -35,66 +35,66 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace anp
 {
 namespace irc
-{	
-	/**
-	 * @brief
-	 * Creates a plugin by loading it from file.
-	 * 
-	 * @param fileName
-	 * NULL terminated string representing the fileName
-	 */
-	Plugin::Plugin(
-		const char *fileName,
-		NetworkFactory &networkFactory,
-		void *appContext
-	):
-		m_lib(fileName),
-		m_name("n/a"),
-		m_pf_pluginDeinit(NULL),
-		m_unloadReason(0)
-	{		
-		PF_pluginInit pf_pluginInit	= (PF_pluginInit)m_lib.getSymbol(
-														"pluginInit");
-		m_pf_pluginDeinit			= (PF_pluginDeinit)m_lib.getSymbol(
-														"pluginDeinit");
+{
+    /**
+     * @brief
+     * Creates a plugin by loading it from file.
+     *
+     * @param fileName
+     * NULL terminated string representing the fileName
+     */
+    Plugin::Plugin(
+        const char *fileName,
+        NetworkFactory &networkFactory,
+        void *appContext
+    ):
+        m_lib(fileName),
+        m_name("n/a"),
+        m_pf_pluginDeinit(NULL),
+        m_unloadReason(0)
+    {
+        PF_pluginInit pf_pluginInit = (PF_pluginInit)m_lib.getSymbol(
+                                                        "pluginInit");
+        m_pf_pluginDeinit           = (PF_pluginDeinit)m_lib.getSymbol(
+                                                        "pluginDeinit");
 
-		// DynamicLibrary::getSymbol should throw an exception if
-		// any of the functions cannot be found, so this should never
-		// happen.
-		assert(NULL != pf_pluginInit && NULL != m_pf_pluginDeinit);
-		
-		// Call init function
-		m_name = fileName;
-		unsigned int res = pf_pluginInit(networkFactory, appContext);
-		if ( res != 0 )
-		{
-			throw std::runtime_error("pluginInit returned non-zero");
-		}
-	}
-	
-	Plugin::~Plugin()
-	{
-		m_pf_pluginDeinit(m_unloadReason);
-	}
-	
-	void Plugin::setUnloadReason(unsigned int reason)
-	{
-		m_unloadReason = reason;
-	}
-	
-	void Plugin::setUnloading(bool unloading)
-	{
-		m_unloading = unloading;
-	}
-	
-	bool Plugin::isUnloading() const
-	{
-		return m_unloading;
-	}
-	
-	const std::string &Plugin::getName() const
-	{
-		return m_name;
-	}
+        // DynamicLibrary::getSymbol should throw an exception if
+        // any of the functions cannot be found, so this should never
+        // happen.
+        assert(NULL != pf_pluginInit && NULL != m_pf_pluginDeinit);
+
+        // Call init function
+        m_name = fileName;
+        unsigned int res = pf_pluginInit(networkFactory, appContext);
+        if ( res != 0 )
+        {
+            throw std::runtime_error("pluginInit returned non-zero");
+        }
+    }
+
+    Plugin::~Plugin()
+    {
+        m_pf_pluginDeinit(m_unloadReason);
+    }
+
+    void Plugin::setUnloadReason(unsigned int reason)
+    {
+        m_unloadReason = reason;
+    }
+
+    void Plugin::setUnloading(bool unloading)
+    {
+        m_unloading = unloading;
+    }
+
+    bool Plugin::isUnloading() const
+    {
+        return m_unloading;
+    }
+
+    const std::string &Plugin::getName() const
+    {
+        return m_name;
+    }
 } // namespace irc
 } // namespace anp

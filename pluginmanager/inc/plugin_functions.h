@@ -36,42 +36,42 @@ namespace anp
 {
 namespace irc
 {
-	class NetworkFactory;
-	
-	// Abbreviations/prefixes:
-	// pf - plugin function, implemented in plugins
-	
-	class MsgPrefix;
+    class NetworkFactory;
+
+    // Abbreviations/prefixes:
+    // pf - plugin function, implemented in plugins
+
+    class MsgPrefix;
 
 
-	// Typedefs
-	
-	/**
-	 * This function is called when a plugin is first loaded.
-	 * 
-	 * @param networkFactory
-	 * The NetworkFactory assigned from the frontend. Can be used to open
-	 * new networks and/or subscribe to new networks as well as networks being
-	 * removed.
-	 * 
-	 * @param appContext
-	 * This parameter may be used by the application to pass application
-	 * specific data to the plugin. However, for such needs, it is recommended
-	 * that the application implements it's own plugin manager.
-	 * 
-	 * @return
-	 * Success indicator. Should return 0 on success. It is allowed to throw
-	 * exceptions too.
-	 */
-	typedef unsigned int (*PF_pluginInit)(NetworkFactory &networkFactory, void *appContext);
-	
-	/**
-	 * This function is called when a plugin is about to be unloaded.
-	 * 
-	 * @param reason
-	 * The reason for the unload. Usage of this is currently undefined.
-	 */
-	typedef void (*PF_pluginDeinit)(unsigned int reason);
+    // Typedefs
+
+    /**
+     * This function is called when a plugin is first loaded.
+     *
+     * @param networkFactory
+     * The NetworkFactory assigned from the frontend. Can be used to open
+     * new networks and/or subscribe to new networks as well as networks being
+     * removed.
+     *
+     * @param appContext
+     * This parameter may be used by the application to pass application
+     * specific data to the plugin. However, for such needs, it is recommended
+     * that the application implements it's own plugin manager.
+     *
+     * @return
+     * Success indicator. Should return 0 on success. It is allowed to throw
+     * exceptions too.
+     */
+    typedef unsigned int (*PF_pluginInit)(NetworkFactory &networkFactory, void *appContext);
+
+    /**
+     * This function is called when a plugin is about to be unloaded.
+     *
+     * @param reason
+     * The reason for the unload. Usage of this is currently undefined.
+     */
+    typedef void (*PF_pluginDeinit)(unsigned int reason);
 } // namespace irc
 } // namespace anp
 

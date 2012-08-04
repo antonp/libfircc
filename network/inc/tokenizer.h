@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 
 namespace tokenizer {
-	void tokenize(std::string &dest, std::string &source, char delimeter=' ');
-	bool tokenize(std::string &dest, std::string &source, const char *delimeter);
+    void tokenize(std::string &dest, std::string &source, char delimeter=' ');
+    bool tokenize(std::string &dest, std::string &source, const char *delimeter);
 };
 
 #endif // _TOKENIZER_H_

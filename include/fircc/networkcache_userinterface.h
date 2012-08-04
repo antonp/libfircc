@@ -35,53 +35,53 @@ namespace anp
 {
 namespace irc
 {
-	class ChannelCache;
-	
-	/**
-	 * This interface allows for querying the cache for information stored
-	 * about the network.
-	 */
-	class NetworkCacheUserInterface
-	{
-	public:
-		virtual ~NetworkCacheUserInterface() { }
+    class ChannelCache;
 
-		/**
-		Copy information about a particular channel into an
-		already allocated ChannelCache object.
+    /**
+     * This interface allows for querying the cache for information stored
+     * about the network.
+     */
+    class NetworkCacheUserInterface
+    {
+    public:
+        virtual ~NetworkCacheUserInterface() { }
 
-		@param name
-		The name of the channel.
+        /**
+        Copy information about a particular channel into an
+        already allocated ChannelCache object.
 
-		@param dest
-		The channel information will be written to this ChannelCache
-		object.
-		*/
-		virtual void getChannel(const std::string &name,
-										ChannelCache &dest) const = 0;
+        @param name
+        The name of the channel.
 
-		/**
-		Copies the client nick name into the clientNickName
-		parameter.
+        @param dest
+        The channel information will be written to this ChannelCache
+        object.
+        */
+        virtual void getChannel(const std::string &name,
+                                        ChannelCache &dest) const = 0;
 
-		@param clientNickName
-		The client nickname will be written to this string.
-		*/
-		virtual void getClientNickName(std::string &clientNickName)
-															const = 0;
-															
-		/**
-		 * Retrieves the userlist of a channel.
-		 * 
-		 * @param name
-		 * The name of the channel.
-		 * 
-		 * @param userLIst
-		 * This container will have the current userlist written to it.
-		 */
-		virtual void getUsersInChannel(const std::string &name,
-								anp::IWritableContainer<std::string> &userList) const = 0;
-	};
+        /**
+        Copies the client nick name into the clientNickName
+        parameter.
+
+        @param clientNickName
+        The client nickname will be written to this string.
+        */
+        virtual void getClientNickName(std::string &clientNickName)
+                                                            const = 0;
+
+        /**
+         * Retrieves the userlist of a channel.
+         *
+         * @param name
+         * The name of the channel.
+         *
+         * @param userLIst
+         * This container will have the current userlist written to it.
+         */
+        virtual void getUsersInChannel(const std::string &name,
+                                anp::IWritableContainer<std::string> &userList) const = 0;
+    };
 }
 }
 

@@ -64,7 +64,7 @@ public:
                  const std::string &file,
                  const std::string &line)
     {
-		std::cout << tag << " [" << file << ':' << line << "] " <<  message << std::endl;
+        std::cout << tag << " [" << file << ':' << line << "] " <<  message << std::endl;
     }
 };
 
@@ -72,107 +72,107 @@ public:
 // You only need to implement receiveEvent for the events that
 // you want to handle.
 class EventHandler: public anp::irc::eventsubscribers::Join,
-					public anp::irc::eventsubscribers::Part,
-					public anp::irc::eventsubscribers::PrivMsg,
-					public anp::irc::eventsubscribers::Topic,
-					public anp::irc::eventsubscribers::NumericReply
+                    public anp::irc::eventsubscribers::Part,
+                    public anp::irc::eventsubscribers::PrivMsg,
+                    public anp::irc::eventsubscribers::Topic,
+                    public anp::irc::eventsubscribers::NumericReply
 {
 public:
-	void receiveEvent(anp::irc::events::Join &event)
-	{
+    void receiveEvent(anp::irc::events::Join &event)
+    {
         // todo
-	}
-	void receiveEvent(anp::irc::events::Part &event)
-	{
+    }
+    void receiveEvent(anp::irc::events::Part &event)
+    {
         // todo
-	}
-	void receiveEvent(anp::irc::events::PrivMsg &event)
-	{
-		if ( event.target()[0] == '#' && event.message() == "topic?" )
-		{
-			const anp::irc::NetworkCacheUserInterface &cache =
-				event.network().networkCache();
-			anp::irc::ChannelCache channel;
-			cache.getChannel(event.target(), channel);
-	
-			std::stringstream ss;
-			ss << "PRIVMSG " << channel.name() << " :The topic for "
-				<< channel.name() << " is " << channel.topic() << ".\r\n";
-			event.network().sendMessage(ss.str());
-		}
-	}
-	void receiveEvent(anp::irc::events::Topic &event)
-	{
+    }
+    void receiveEvent(anp::irc::events::PrivMsg &event)
+    {
+        if ( event.target()[0] == '#' && event.message() == "topic?" )
+        {
+            const anp::irc::NetworkCacheUserInterface &cache =
+                event.network().networkCache();
+            anp::irc::ChannelCache channel;
+            cache.getChannel(event.target(), channel);
+
+            std::stringstream ss;
+            ss << "PRIVMSG " << channel.name() << " :The topic for "
+                << channel.name() << " is " << channel.topic() << ".\r\n";
+            event.network().sendMessage(ss.str());
+        }
+    }
+    void receiveEvent(anp::irc::events::Topic &event)
+    {
         // todo
-	}
-	void receiveEvent(anp::irc::events::NumericReply &event)
-	{
+    }
+    void receiveEvent(anp::irc::events::NumericReply &event)
+    {
         // I'm using this event as a trigger for entering
         // a channel.
-		if ( event.command() == "376" ) // RPL_ENDOFMOTD
-		{
-			anp::irc::INetwork &network = event.network();
-				
-			network.sendMessage("JOIN #libfircc\r\n");
-			network.sendMessage(
-						"PRIVMSG #libfircc :Hello world!\r\n");
-		}
-	}
+        if ( event.command() == "376" ) // RPL_ENDOFMOTD
+        {
+            anp::irc::INetwork &network = event.network();
+
+            network.sendMessage("JOIN #libfircc\r\n");
+            network.sendMessage(
+                        "PRIVMSG #libfircc :Hello world!\r\n");
+        }
+    }
 };
 
 // The entrypoint for this sample app.
 // You can pass it an address and a port
 // to override the hardcoded values.
 int main(int argc, char *argv[])
-{	
-	std::string hostAddr = HOST_ADDR,
-				hostPort = HOST_PORT;
+{
+    std::string hostAddr = HOST_ADDR,
+                hostPort = HOST_PORT;
 
-	if ( argc >= 3 )
-	{
-		hostAddr = argv[1];
-		hostPort = argv[2];
-	}
+    if ( argc >= 3 )
+    {
+        hostAddr = argv[1];
+        hostPort = argv[2];
+    }
 
     // Initialize logging
     LogConsoleWriter logConsoleWriter;
-	anp::LogSingletonHelper log;
+    anp::LogSingletonHelper log;
     log.addLogInterface(&logConsoleWriter);
-	ANPLOGI(LOGTAG, "Log initialized.");
-	
+    ANPLOGI(LOGTAG, "Log initialized.");
+
     // Connect to the irc network
-	anp::irc::NetworkFactory networkFactory;
-	anp::irc::INetwork *network = networkFactory.openNetwork(hostAddr,
+    anp::irc::NetworkFactory networkFactory;
+    anp::irc::INetwork *network = networkFactory.openNetwork(hostAddr,
                                                              hostPort,
                                                              NICK,
                                                              USER,
                                                              REALNAME);
-	
+
     // Subscribe to events (optional)
-	EventHandler eventHandler;
-	network->eventDispatcherJoin().subscribe(&eventHandler);
-	network->eventDispatcherPart().subscribe(&eventHandler);
-	network->eventDispatcherPrivMsg().subscribe(&eventHandler);
-	network->eventDispatcherTopic().subscribe(&eventHandler);
-	network->eventDispatcherNumericReply().subscribe(&eventHandler);
+    EventHandler eventHandler;
+    network->eventDispatcherJoin().subscribe(&eventHandler);
+    network->eventDispatcherPart().subscribe(&eventHandler);
+    network->eventDispatcherPrivMsg().subscribe(&eventHandler);
+    network->eventDispatcherTopic().subscribe(&eventHandler);
+    network->eventDispatcherNumericReply().subscribe(&eventHandler);
 
     // Declare some variables to support i/o multiplexing (optional)
     // This allows us to wait for input from multiple sources without
     // using multiple threads.
     static const int TIMEOUT = 250000;
-	timeval timeout;
-	fd_set fds;
-	
-	int maxfds_network;
-	int nfds;
-	
-	// When the quit command has been received, state will equal 1.
-	while ( true )
-	{
-		FD_ZERO(&fds);
-	    FD_SET(fileno(stdin), &fds);
+    timeval timeout;
+    fd_set fds;
+
+    int maxfds_network;
+    int nfds;
+
+    // When the quit command has been received, state will equal 1.
+    while ( true )
+    {
+        FD_ZERO(&fds);
+        FD_SET(fileno(stdin), &fds);
         maxfds_network = network->addSocketToFdSet(&fds);
-	    nfds = (maxfds_network > fileno(stdin) ? maxfds_network : fileno(stdin)) + 1;
+        nfds = (maxfds_network > fileno(stdin) ? maxfds_network : fileno(stdin)) + 1;
         timeout.tv_sec = 0;
         timeout.tv_usec = TIMEOUT;
 
@@ -182,19 +182,19 @@ int main(int argc, char *argv[])
             if ( FD_ISSET(fileno(stdin), &fds) )
             {
                 // Input available from stdin.
-			    std::string command;
-			    std::getline(std::cin, command);
+                std::string command;
+                std::getline(std::cin, command);
 
-			    if ( command == "die" )
-			    {
+                if ( command == "die" )
+                {
                     // Shutdown command received, shutting down.
-				    break;
-			    } else
-			    {
+                    break;
+                } else
+                {
                     // Something else received, try sending it (raw)
                     // over the network.
-				    network->sendMessage(command+"\r\n");
-			    }            
+                    network->sendMessage(command+"\r\n");
+                }
             }
             if ( network->internalSocketInSet(&fds) )
             {
@@ -204,12 +204,12 @@ int main(int argc, char *argv[])
                 network->tryReceive();
             }
         }
-	}
-	
-	// Quit
-	network->deinit(QUITMSG);
-	networkFactory.closeNetwork(network);
+    }
+
+    // Quit
+    network->deinit(QUITMSG);
+    networkFactory.closeNetwork(network);
     ANPLOGI(LOGTAG, "Successfully disconnected.");
 
-	return 0;
+    return 0;
 }

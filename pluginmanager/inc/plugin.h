@@ -39,43 +39,43 @@ namespace anp
 {
 namespace irc
 {
-	namespace networkfactory
-	{
-		class NetworkFactory;
-	}
-	
-	/**
-	 * Represents a single plugin. Plugins can implement their own event
-	 * subscribers and add functionality to the client.
-	 */
-	class Plugin
-	{
-	public:
-		Plugin(
-			const char *fileName,
-			NetworkFactory &networkFactory,
-			void *appContext
-		);
-		~Plugin();
-		
-		void setUnloadReason(unsigned int reason);
-		void setUnloading(bool unloading);
-		bool isUnloading() const;
-		
-		const std::string &getName() const;
-	private:	
-		DynamicLibrary		m_lib;
-		
-		PF_pluginDeinit		m_pf_pluginDeinit;
-		
-		// Info
-		std::string			m_name;
-		
-		// Execution
-		bool				m_unloading;
+    namespace networkfactory
+    {
+        class NetworkFactory;
+    }
+
+    /**
+     * Represents a single plugin. Plugins can implement their own event
+     * subscribers and add functionality to the client.
+     */
+    class Plugin
+    {
+    public:
+        Plugin(
+            const char *fileName,
+            NetworkFactory &networkFactory,
+            void *appContext
+        );
+        ~Plugin();
+
+        void setUnloadReason(unsigned int reason);
+        void setUnloading(bool unloading);
+        bool isUnloading() const;
+
+        const std::string &getName() const;
+    private:
+        DynamicLibrary      m_lib;
+
+        PF_pluginDeinit     m_pf_pluginDeinit;
+
+        // Info
+        std::string         m_name;
+
+        // Execution
+        bool                m_unloading;
         unsigned int        m_unloadReason;
-		
-	};
+
+    };
 } // namespace irc
 } // namespace anp
 

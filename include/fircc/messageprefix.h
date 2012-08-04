@@ -36,7 +36,7 @@ namespace irc
 {
 /**
  * Represents an IRC message prefix.
- * 
+ *
  * Most IRC messages have a prefix, and in many cases it can be seen as
  * the origin, or source, of the message. This can often be split into
  * nick, user and host.
@@ -45,53 +45,53 @@ namespace irc
 class MsgPrefix
 {
 public:
-	MsgPrefix(	const std::string &prefix,
-				const std::string &nick,
-				const std::string &user,
-				const std::string &host):
-	m_prefix(prefix),
-	m_nick(nick),
-	m_user(user),
-	m_host(host)
-	{
-	}
+    MsgPrefix(  const std::string &prefix,
+                const std::string &nick,
+                const std::string &user,
+                const std::string &host):
+    m_prefix(prefix),
+    m_nick(nick),
+    m_user(user),
+    m_host(host)
+    {
+    }
 
-	/**
-	 * Retrieves the full prefix as it was received from the server.
-	 * 
-	 * @return
-	 * Prefix string.
-	 */
-	const std::string &prefix() const { return m_prefix; }
-	
-	/**
-	 * Retrieves the nick name of the user represented by this prefix.
-	 * 
-	 * @return
-	 * Nickname string.
-	 */
-	const std::string &nick() const { return m_nick; }
-	
-	/**
-	 * Retrieves the user name of the user represented by this prefix.
-	 * 
-	 * @return
-	 * User string.
-	 */
-	const std::string &user() const { return m_user; }
-	
-	/**
-	 * Retrieves the host of the user represented by this prefix.
-	 * 
-	 * @return
-	 * Host string.
-	 */
-	const std::string &host() const { return m_host; }
+    /**
+     * Retrieves the full prefix as it was received from the server.
+     *
+     * @return
+     * Prefix string.
+     */
+    const std::string &prefix() const { return m_prefix; }
+
+    /**
+     * Retrieves the nick name of the user represented by this prefix.
+     *
+     * @return
+     * Nickname string.
+     */
+    const std::string &nick() const { return m_nick; }
+
+    /**
+     * Retrieves the user name of the user represented by this prefix.
+     *
+     * @return
+     * User string.
+     */
+    const std::string &user() const { return m_user; }
+
+    /**
+     * Retrieves the host of the user represented by this prefix.
+     *
+     * @return
+     * Host string.
+     */
+    const std::string &host() const { return m_host; }
 protected:
-	std::string m_nick;
-	std::string m_user;
-	std::string m_host;
-	std::string m_prefix;
+    std::string m_nick;
+    std::string m_user;
+    std::string m_host;
+    std::string m_prefix;
 };
 } // namespace irc
 } // namespace anp

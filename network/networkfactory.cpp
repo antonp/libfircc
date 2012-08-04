@@ -35,125 +35,125 @@ namespace anp
 {
 namespace irc
 {
-	class NetworkFactoryImpl
-	{
-	public:
-		NetworkFactoryImpl()
-		{
-		}
-	
-		~NetworkFactoryImpl()
-		{
-			std::list<INetwork *>::iterator i;
-			for ( i=m_networks.begin(); i != m_networks.end(); i++ )
-			{
-				try
-				{
-					events::RemovingNetwork removingNetworkEvent(*(*i));
-					m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
-					delete (*i);
-				} catch ( std::exception &e )
-				{
-					// drop/log
-				}
-			}
-		}
-		
-		void closeNetwork(INetwork *network)
-		{
-			for ( std::list<INetwork *>::iterator i=m_networks.begin();
-			      i != m_networks.end(); i++ )
-			{
-				if ( (*i) == network )
-				{
-					events::RemovingNetwork removingNetworkEvent(*network);
-					m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
-					delete network;
-					m_networks.erase(i);
-					return;
-				}
-			}
-			throw std::runtime_error("closeNetwork() couldn't find network");
-		}
-		
-		void closeNetwork(const std::string &host, const std::string &port)
-		{
-			for ( std::list<INetwork *>::iterator i=m_networks.begin();
-			      i != m_networks.end(); i++ )
-			{
-				if ( (*i)->host() == host && (*i)->port() == port )
-				{
-					events::RemovingNetwork removingNetworkEvent(*(*i));
-					m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
-					delete (*i);
-					m_networks.erase(i);
-					return;
-				}
-			}
-			throw std::runtime_error("closeNetwork() couldn't find network");			
-		}
-	
-		EventDispatcher<
-			ISubscriber<events::NewNetwork>,
-			events::NewNetwork
-		> m_newNetworkDispatcher;
-		
-		EventDispatcher<
-			ISubscriber<events::RemovingNetwork>,
-			events::RemovingNetwork
-		> m_removingNetworkDispatcher;
-		
-		std::list<INetwork *> m_networks;
-	};
+    class NetworkFactoryImpl
+    {
+    public:
+        NetworkFactoryImpl()
+        {
+        }
 
-	NetworkFactory::NetworkFactory(): m_impl(new NetworkFactoryImpl)
-	{
-	}
+        ~NetworkFactoryImpl()
+        {
+            std::list<INetwork *>::iterator i;
+            for ( i=m_networks.begin(); i != m_networks.end(); i++ )
+            {
+                try
+                {
+                    events::RemovingNetwork removingNetworkEvent(*(*i));
+                    m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
+                    delete (*i);
+                } catch ( std::exception &e )
+                {
+                    // drop/log
+                }
+            }
+        }
 
-	NetworkFactory::~NetworkFactory()
-	{
-		delete m_impl;
-	}
+        void closeNetwork(INetwork *network)
+        {
+            for ( std::list<INetwork *>::iterator i=m_networks.begin();
+                  i != m_networks.end(); i++ )
+            {
+                if ( (*i) == network )
+                {
+                    events::RemovingNetwork removingNetworkEvent(*network);
+                    m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
+                    delete network;
+                    m_networks.erase(i);
+                    return;
+                }
+            }
+            throw std::runtime_error("closeNetwork() couldn't find network");
+        }
 
-	INetwork *NetworkFactory::openNetwork(const std::string &host,
-										  const std::string &port,
-										  const std::string &nick,
-										  const std::string &user,
-										  const std::string &realName)
-	{
-		Network *network = new Network(host.c_str(),
-									   port.c_str(),
-									   nick,
-									   user,
-									   realName);
-		m_impl->m_networks.push_back(network);
-		
-		events::NewNetwork newNetworkEvent(*network);
-		m_impl->m_newNetworkDispatcher.dispatch(newNetworkEvent);
-		return network;
-	}
-	
-	void NetworkFactory::closeNetwork(INetwork *network)
-	{
-		m_impl->closeNetwork(network);
-	}
+        void closeNetwork(const std::string &host, const std::string &port)
+        {
+            for ( std::list<INetwork *>::iterator i=m_networks.begin();
+                  i != m_networks.end(); i++ )
+            {
+                if ( (*i)->host() == host && (*i)->port() == port )
+                {
+                    events::RemovingNetwork removingNetworkEvent(*(*i));
+                    m_removingNetworkDispatcher.dispatch(removingNetworkEvent);
+                    delete (*i);
+                    m_networks.erase(i);
+                    return;
+                }
+            }
+            throw std::runtime_error("closeNetwork() couldn't find network");
+        }
 
-	void NetworkFactory::closeNetwork(const std::string &host,
-									  const std::string &port)
-	{
-		m_impl->closeNetwork(host, port);
-	}
-	
-	dispatchers::NewNetwork &
-	NetworkFactory::eventDispatcherNewNetwork()
-	{
-		return m_impl->m_newNetworkDispatcher;
-	}
-		
-	dispatchers::RemovingNetwork &
-	NetworkFactory::eventDispatcherRemovingNetwork()
-	{
-		return m_impl->m_removingNetworkDispatcher;
-	}
+        EventDispatcher<
+            ISubscriber<events::NewNetwork>,
+            events::NewNetwork
+        > m_newNetworkDispatcher;
+
+        EventDispatcher<
+            ISubscriber<events::RemovingNetwork>,
+            events::RemovingNetwork
+        > m_removingNetworkDispatcher;
+
+        std::list<INetwork *> m_networks;
+    };
+
+    NetworkFactory::NetworkFactory(): m_impl(new NetworkFactoryImpl)
+    {
+    }
+
+    NetworkFactory::~NetworkFactory()
+    {
+        delete m_impl;
+    }
+
+    INetwork *NetworkFactory::openNetwork(const std::string &host,
+                                          const std::string &port,
+                                          const std::string &nick,
+                                          const std::string &user,
+                                          const std::string &realName)
+    {
+        Network *network = new Network(host.c_str(),
+                                       port.c_str(),
+                                       nick,
+                                       user,
+                                       realName);
+        m_impl->m_networks.push_back(network);
+
+        events::NewNetwork newNetworkEvent(*network);
+        m_impl->m_newNetworkDispatcher.dispatch(newNetworkEvent);
+        return network;
+    }
+
+    void NetworkFactory::closeNetwork(INetwork *network)
+    {
+        m_impl->closeNetwork(network);
+    }
+
+    void NetworkFactory::closeNetwork(const std::string &host,
+                                      const std::string &port)
+    {
+        m_impl->closeNetwork(host, port);
+    }
+
+    dispatchers::NewNetwork &
+    NetworkFactory::eventDispatcherNewNetwork()
+    {
+        return m_impl->m_newNetworkDispatcher;
+    }
+
+    dispatchers::RemovingNetwork &
+    NetworkFactory::eventDispatcherRemovingNetwork()
+    {
+        return m_impl->m_removingNetworkDispatcher;
+    }
 } // irc
 } // anp

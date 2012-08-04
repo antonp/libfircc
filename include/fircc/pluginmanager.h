@@ -36,72 +36,72 @@ namespace anp
 {
 namespace irc
 {
-	class NetworkFactory;
-	class Plugin;
-	class PluginManagerImpl;
+    class NetworkFactory;
+    class Plugin;
+    class PluginManagerImpl;
 
-	/**
-	 * Manages a list of loaded plugins.
-	 */
-	class PluginManager 
-	{
-	public:
-		PluginManager();
-		~PluginManager();
+    /**
+     * Manages a list of loaded plugins.
+     */
+    class PluginManager
+    {
+    public:
+        PluginManager();
+        ~PluginManager();
 
-		/**
-		 * Loads a plugin.
-		 * 
-		 * @param fileName
-		 * Path to the shared library in which the plugin is implemented.
-		 * 
-		 * @param networkFactory
-		 * The network factory exposed to this plugin. Can be used by the plugin
-		 * to subscribe to events and open/close networks.
-		 */
-		void loadPlugin(
-			const char *fileName,
-			NetworkFactory &networkFactory,
-			void *appContext
-		);
-		
-		/**
-		 * Unloads plugin identified by fileName.
-		 *
-		 * @param fileName
-		 * Filename of the plugin to unload.
-		 *
-		 * @param reason
-		 * Reason for the unload. Currently undefined.
-		 */
-		bool unloadPlugin(const std::string &fileName, unsigned int reason);
-		
-		/**
-		 * Unloads all currently loaded plugins.
-		 */
-		void unloadAllPlugins();
-		unsigned int getPluginCount() const;
-		
-		/**
-		 * Retrieves information about a loaded plugin.
-		 * 
-		 * @param index
-		 * Index in the list of plugins.
-		 * 
-		 * @param [out] name
-		 * Name of the plugin at the specified index.
-		 * 
-		 * @remark
-		 * The list of plugins may have been modified from another thread
-		 * since getPluginCount() was called. This may be a problem, depending
-		 * on the application. In that case, be ready to catch
-		 * std::invalid_argument exceptions.
-		 */
-		void getPluginInfo(unsigned int index,
-						   std::string &name);
-	private:
-		PluginManagerImpl *m_impl;
-	};
+        /**
+         * Loads a plugin.
+         *
+         * @param fileName
+         * Path to the shared library in which the plugin is implemented.
+         *
+         * @param networkFactory
+         * The network factory exposed to this plugin. Can be used by the plugin
+         * to subscribe to events and open/close networks.
+         */
+        void loadPlugin(
+            const char *fileName,
+            NetworkFactory &networkFactory,
+            void *appContext
+        );
+
+        /**
+         * Unloads plugin identified by fileName.
+         *
+         * @param fileName
+         * Filename of the plugin to unload.
+         *
+         * @param reason
+         * Reason for the unload. Currently undefined.
+         */
+        bool unloadPlugin(const std::string &fileName, unsigned int reason);
+
+        /**
+         * Unloads all currently loaded plugins.
+         */
+        void unloadAllPlugins();
+        unsigned int getPluginCount() const;
+
+        /**
+         * Retrieves information about a loaded plugin.
+         *
+         * @param index
+         * Index in the list of plugins.
+         *
+         * @param [out] name
+         * Name of the plugin at the specified index.
+         *
+         * @remark
+         * The list of plugins may have been modified from another thread
+         * since getPluginCount() was called. This may be a problem, depending
+         * on the application. In that case, be ready to catch
+         * std::invalid_argument exceptions.
+         */
+        void getPluginInfo(unsigned int index,
+                           std::string &name);
+    private:
+        PluginManagerImpl *m_impl;
+    };
 
 } // namespace irc
 } // namespace anp

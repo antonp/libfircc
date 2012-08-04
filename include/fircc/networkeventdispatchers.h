@@ -35,10 +35,10 @@ namespace anp
 {
 namespace irc
 {
-	
+
 /**
-	Collection of typedefs for various event dispatcher subscriber interfaces.
-	Provided for increased readability and to avoid having to type too much.
+    Collection of typedefs for various event dispatcher subscriber interfaces.
+    Provided for increased readability and to avoid having to type too much.
 */
 namespace eventdispatchers
 {

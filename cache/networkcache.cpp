@@ -43,176 +43,176 @@ namespace anp
 namespace irc
 {
 
-	struct ChannelUserRelation
-	{
-		ChannelUserRelation(const std::string &channel,
+    struct ChannelUserRelation
+    {
+        ChannelUserRelation(const std::string &channel,
                             const std::string &user, uint32_t modes):
-		m_channel(channel),
-		m_user(user),
-		m_modes(modes)
-		{
-		}
-		uint32_t m_modes;
-		std::string m_channel;
-		std::string m_user;
-	};
+        m_channel(channel),
+        m_user(user),
+        m_modes(modes)
+        {
+        }
+        uint32_t m_modes;
+        std::string m_channel;
+        std::string m_user;
+    };
 
-	// Use to sort on channel only
-	static int channeluserrelation_compareC(const ChannelUserRelation &r1,
-									const ChannelUserRelation &r2)
-	{
-		return r1.m_channel.compare(r2.m_channel);
-	}
+    // Use to sort on channel only
+    static int channeluserrelation_compareC(const ChannelUserRelation &r1,
+                                    const ChannelUserRelation &r2)
+    {
+        return r1.m_channel.compare(r2.m_channel);
+    }
 
-	// Use to sort on channel, user
-	static int channeluserrelation_compareCU(const ChannelUserRelation &r1,
-									const ChannelUserRelation &r2)
-	{
-		int ret = r1.m_channel.compare(r2.m_channel);
-		if ( 0 == ret )
-		{
-			return r1.m_user.compare(r2.m_user);
-		}
-		return ret;
-	}
+    // Use to sort on channel, user
+    static int channeluserrelation_compareCU(const ChannelUserRelation &r1,
+                                    const ChannelUserRelation &r2)
+    {
+        int ret = r1.m_channel.compare(r2.m_channel);
+        if ( 0 == ret )
+        {
+            return r1.m_user.compare(r2.m_user);
+        }
+        return ret;
+    }
 
-	// pImpl object
-	class NetworkCacheImpl
-	{
-	public:
-		~NetworkCacheImpl();
+    // pImpl object
+    class NetworkCacheImpl
+    {
+    public:
+        ~NetworkCacheImpl();
 
-		const ChannelCache *channel(const std::string &name) const;
-		ChannelCache *channel(const std::string &name);
-		const ChannelCache *getChannelCopy(
-										const std::string &name) const;
-		void getChannelCopy(const std::string &name,
-												ChannelCache &dest) const;
-		
-		UserInfo *userByName(const std::string &name);
-		std::vector<ChannelCache *> m_channels;
-		std::vector<ChannelUserRelation> m_cuRelations;
-		std::string m_clientNickName;
-		LogSingletonHelper m_log;
-		anp::threading::Mutex m_mutex;
-	private:
-		std::vector<UserInfo *> m_users;
-	};
+        const ChannelCache *channel(const std::string &name) const;
+        ChannelCache *channel(const std::string &name);
+        const ChannelCache *getChannelCopy(
+                                        const std::string &name) const;
+        void getChannelCopy(const std::string &name,
+                                                ChannelCache &dest) const;
 
-	NetworkCacheImpl::~NetworkCacheImpl()
-	{
-		anp::threading::Lock lock(m_mutex);
+        UserInfo *userByName(const std::string &name);
+        std::vector<ChannelCache *> m_channels;
+        std::vector<ChannelUserRelation> m_cuRelations;
+        std::string m_clientNickName;
+        LogSingletonHelper m_log;
+        anp::threading::Mutex m_mutex;
+    private:
+        std::vector<UserInfo *> m_users;
+    };
 
-		std::vector<ChannelCache *>::iterator c;
-		for ( c=m_channels.begin(); c != m_channels.end(); c++ )
-		{
-			delete (*c);
-		}
-		m_channels.clear();
+    NetworkCacheImpl::~NetworkCacheImpl()
+    {
+        anp::threading::Lock lock(m_mutex);
 
-		std::vector<UserInfo *>::iterator u;
-		for ( u=m_users.begin(); u != m_users.end(); u++ )
-		{
-			delete (*u);
-		}
-		m_users.clear();
-	}
+        std::vector<ChannelCache *>::iterator c;
+        for ( c=m_channels.begin(); c != m_channels.end(); c++ )
+        {
+            delete (*c);
+        }
+        m_channels.clear();
 
-	const ChannelCache *NetworkCacheImpl::channel(
-										const std::string &name) const
-	{
-		ChannelCache tempChan(name);
-		std::vector<ChannelCache *>::const_iterator i = std::lower_bound(
-			m_channels.begin(), m_channels.end(), &tempChan,
+        std::vector<UserInfo *>::iterator u;
+        for ( u=m_users.begin(); u != m_users.end(); u++ )
+        {
+            delete (*u);
+        }
+        m_users.clear();
+    }
 
-		channelinfo_compare);
-		if ( i != m_channels.end() )
-		{
-			return (*i);
-		} else
-		{
-			throw std::runtime_error("Unable to find channel.");
-		}
-		throw std::logic_error("Reached an unreachable point in code.");
-		return NULL; // Should never happen
-	}
+    const ChannelCache *NetworkCacheImpl::channel(
+                                        const std::string &name) const
+    {
+        ChannelCache tempChan(name);
+        std::vector<ChannelCache *>::const_iterator i = std::lower_bound(
+            m_channels.begin(), m_channels.end(), &tempChan,
 
-	ChannelCache *NetworkCacheImpl::channel(
-										const std::string &name)
-	{
-		ChannelCache tempChan(name);
-		std::vector<ChannelCache *>::iterator i = std::lower_bound(
-			m_channels.begin(), m_channels.end(), &tempChan,
-			channelinfo_compare);
-		if ( i != m_channels.end() )
-		{
-			return (*i);
-		} else
-		{
-			std::stringstream err;
-			err << "Unable to find channel: " << name;
-			throw std::runtime_error(err.str());
-		}
-		throw std::logic_error("Reached an unreachable point in code.");
-		return NULL; // Should never happen
-	}
+        channelinfo_compare);
+        if ( i != m_channels.end() )
+        {
+            return (*i);
+        } else
+        {
+            throw std::runtime_error("Unable to find channel.");
+        }
+        throw std::logic_error("Reached an unreachable point in code.");
+        return NULL; // Should never happen
+    }
 
-	void NetworkCacheImpl::getChannelCopy(const std::string &name,
-									ChannelCache &dest) const
-	{
-		dest = *this->channel(name);
-	}
+    ChannelCache *NetworkCacheImpl::channel(
+                                        const std::string &name)
+    {
+        ChannelCache tempChan(name);
+        std::vector<ChannelCache *>::iterator i = std::lower_bound(
+            m_channels.begin(), m_channels.end(), &tempChan,
+            channelinfo_compare);
+        if ( i != m_channels.end() )
+        {
+            return (*i);
+        } else
+        {
+            std::stringstream err;
+            err << "Unable to find channel: " << name;
+            throw std::runtime_error(err.str());
+        }
+        throw std::logic_error("Reached an unreachable point in code.");
+        return NULL; // Should never happen
+    }
 
-	UserInfo *NetworkCacheImpl::userByName(const std::string &name) {
-		UserInfo temp(name, "", "");
-		std::pair<
-			std::vector<UserInfo *>::iterator,
-			std::vector<UserInfo *>::iterator
-		> res = std::equal_range(m_users.begin(), m_users.end(),
-							&temp, userinfo_compare);
-		if ( res.first != m_users.end() )
-		{
-			return *res.first;
-		} else
-		{
-			return NULL;
-		}
-	}
-	
-	// Wrapper functions
-	NetworkCache::NetworkCache():
-	m_impl(new NetworkCacheImpl)
-	{
-	}
+    void NetworkCacheImpl::getChannelCopy(const std::string &name,
+                                    ChannelCache &dest) const
+    {
+        dest = *this->channel(name);
+    }
 
-	NetworkCache::~NetworkCache()
-	{
-		delete m_impl;
-	}
-	
-	void NetworkCache::getChannel(const std::string &name,
-									ChannelCache &dest) const
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+    UserInfo *NetworkCacheImpl::userByName(const std::string &name) {
+        UserInfo temp(name, "", "");
+        std::pair<
+            std::vector<UserInfo *>::iterator,
+            std::vector<UserInfo *>::iterator
+        > res = std::equal_range(m_users.begin(), m_users.end(),
+                            &temp, userinfo_compare);
+        if ( res.first != m_users.end() )
+        {
+            return *res.first;
+        } else
+        {
+            return NULL;
+        }
+    }
 
-		m_impl->getChannelCopy(name, dest);
-	}
+    // Wrapper functions
+    NetworkCache::NetworkCache():
+    m_impl(new NetworkCacheImpl)
+    {
+    }
 
-	void NetworkCache::addChannel(const std::string &channel)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
-		
-		// TODO: Cache this channel here, since "addUserToChannel" will
-		// likely be called next, upon some RPL_NAMREPLY
-		ChannelCache *temp = new ChannelCache(channel);
-		std::vector<ChannelCache *> &list = m_impl->m_channels;
-		list.insert(std::lower_bound(list.begin(),
-			list.end(), temp, channelinfo_compare), temp);
-	}
+    NetworkCache::~NetworkCache()
+    {
+        delete m_impl;
+    }
+
+    void NetworkCache::getChannel(const std::string &name,
+                                    ChannelCache &dest) const
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+
+        m_impl->getChannelCopy(name, dest);
+    }
+
+    void NetworkCache::addChannel(const std::string &channel)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+
+        // TODO: Cache this channel here, since "addUserToChannel" will
+        // likely be called next, upon some RPL_NAMREPLY
+        ChannelCache *temp = new ChannelCache(channel);
+        std::vector<ChannelCache *> &list = m_impl->m_channels;
+        list.insert(std::lower_bound(list.begin(),
+            list.end(), temp, channelinfo_compare), temp);
+    }
 
     void NetworkCache::removeChannel(const std::string &channel)
     {
-		{
+        {
             anp::threading::Lock lock(m_impl->m_mutex);
 
             ChannelCache temp(channel);
@@ -230,219 +230,219 @@ namespace irc
         removeAllUsersFromChannel(channel);
     }
 
-	void NetworkCache::addUserToChannel(const std::string &name,
-							  const std::string &user,
-							  const std::string &host,
-							  const std::string &channelName)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+    void NetworkCache::addUserToChannel(const std::string &name,
+                              const std::string &user,
+                              const std::string &host,
+                              const std::string &channelName)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
 
-		ChannelCache *channel = m_impl->channel(channelName);
-		
-		ChannelUserRelation newRelation(channelName, name, 0);
-		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+        ChannelCache *channel = m_impl->channel(channelName);
 
-		// Avoid duplicates (drop duplicates silently without
-		// exceptions or anything)
-		if ( table.empty() || !std::binary_search(table.begin(), 
-				table.end(), newRelation,
-				channeluserrelation_compareCU) )
-		{
-			std::stringstream ss;
-			ss << "(cache) Added '" << name << "' to '"
-				<< channelName << "'.";
-			ANPLOGD("libfirc", ss.str());
-			table.insert(
-				std::lower_bound(
-					table.begin(),
-					table.end(),
-					newRelation,
-					channeluserrelation_compareCU
-				),
-				newRelation
-			);
-		} else
-		{
-			std::stringstream ss;
-			ss << "(cache) Didn't add '" << name << "' to '"
-				<< channelName << "' because of binary_search. table.size()="
-				<< table.size();
-			ANPLOGD("libfirc", ss.str());
-		}
-	}
-	
-	/**
-		Removes a channel - user relation.
+        ChannelUserRelation newRelation(channelName, name, 0);
+        std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
 
-		@param name
-		Nickname of the user.
+        // Avoid duplicates (drop duplicates silently without
+        // exceptions or anything)
+        if ( table.empty() || !std::binary_search(table.begin(), 
+                table.end(), newRelation,
+                channeluserrelation_compareCU) )
+        {
+            std::stringstream ss;
+            ss << "(cache) Added '" << name << "' to '"
+                << channelName << "'.";
+            ANPLOGD("libfirc", ss.str());
+            table.insert(
+                std::lower_bound(
+                    table.begin(),
+                    table.end(),
+                    newRelation,
+                    channeluserrelation_compareCU
+                ),
+                newRelation
+            );
+        } else
+        {
+            std::stringstream ss;
+            ss << "(cache) Didn't add '" << name << "' to '"
+                << channelName << "' because of binary_search. table.size()="
+                << table.size();
+            ANPLOGD("libfirc", ss.str());
+        }
+    }
 
-		@param channelName
-		Name of the channel.
+    /**
+        Removes a channel - user relation.
 
-		@remark
-		Assumes there's no duplicate entries.
-	*/
-	void NetworkCache::removeUserFromChannel(const std::string &name,
+        @param name
+        Nickname of the user.
+
+        @param channelName
+        Name of the channel.
+
+        @remark
+        Assumes there's no duplicate entries.
+    */
+    void NetworkCache::removeUserFromChannel(const std::string &name,
                                              const std::string &channelName)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
 
-		ChannelUserRelation tempRel(channelName, name, 0);
-		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
-		std::pair<
-			std::vector<ChannelUserRelation>::iterator,
-			std::vector<ChannelUserRelation>::iterator
-		> range = std::equal_range(table.begin(), table.end(), tempRel,
-									channeluserrelation_compareC);
+        ChannelUserRelation tempRel(channelName, name, 0);
+        std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+        std::pair<
+            std::vector<ChannelUserRelation>::iterator,
+            std::vector<ChannelUserRelation>::iterator
+        > range = std::equal_range(table.begin(), table.end(), tempRel,
+                                    channeluserrelation_compareC);
 
-		if ( range.first != table.end() ) // equal_range() succeeded?
-		{
-			// infinite loop while ( range.first != range.second )
-			bool erased = false;
-			while ( !erased && range.first != range.second )
-			{
-				if ( (*range.first).m_user == name )
-				{
-					range.first = table.erase(range.first);
-					std::stringstream ss;
-					ss << "(cache) Removed '" << name
-						<< "' from '" << channelName << "'.";
-					ANPLOGD("libfirc", ss.str());
-					erased = true;
-				} else
-				{
-					range.first++;
-				}
-			}
-		} else
-		{
-			std::stringstream ss;
-			ss << "Unable to find channel '" << channelName << "'.";
-			ANPLOGD("libfirc", ss.str());
-			throw std::runtime_error(ss.str());
-		}
-	}
+        if ( range.first != table.end() ) // equal_range() succeeded?
+        {
+            // infinite loop while ( range.first != range.second )
+            bool erased = false;
+            while ( !erased && range.first != range.second )
+            {
+                if ( (*range.first).m_user == name )
+                {
+                    range.first = table.erase(range.first);
+                    std::stringstream ss;
+                    ss << "(cache) Removed '" << name
+                        << "' from '" << channelName << "'.";
+                    ANPLOGD("libfirc", ss.str());
+                    erased = true;
+                } else
+                {
+                    range.first++;
+                }
+            }
+        } else
+        {
+            std::stringstream ss;
+            ss << "Unable to find channel '" << channelName << "'.";
+            ANPLOGD("libfirc", ss.str());
+            throw std::runtime_error(ss.str());
+        }
+    }
 
-	void NetworkCache::removeAllUsersFromChannel(
-								const std::string &channel)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+    void NetworkCache::removeAllUsersFromChannel(
+                                const std::string &channel)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
 
-		ChannelUserRelation tempRel(channel, "", 0);
-		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
-		std::pair<
-			std::vector<ChannelUserRelation>::iterator,
-			std::vector<ChannelUserRelation>::iterator
-		> range = std::equal_range(table.begin(), table.end(), tempRel,
-									channeluserrelation_compareC);
-		
-		std::stringstream ss;
-		ss << "Erasing all users in " << channel;
-		ANPLOGD("libfirc", ss.str());
-		table.erase(range.first, range.second);
-	}
+        ChannelUserRelation tempRel(channel, "", 0);
+        std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+        std::pair<
+            std::vector<ChannelUserRelation>::iterator,
+            std::vector<ChannelUserRelation>::iterator
+        > range = std::equal_range(table.begin(), table.end(), tempRel,
+                                    channeluserrelation_compareC);
 
-	void NetworkCache::setTopic(const std::string &channelName,
-								const std::string &topic)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+        std::stringstream ss;
+        ss << "Erasing all users in " << channel;
+        ANPLOGD("libfirc", ss.str());
+        table.erase(range.first, range.second);
+    }
 
-		ChannelCache *channel = m_impl->channel(channelName);
-		channel->setTopic(topic);
-	}
+    void NetworkCache::setTopic(const std::string &channelName,
+                                const std::string &topic)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
 
-	void NetworkCache::setClientNickName(
-							const std::string &clientNickName)
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+        ChannelCache *channel = m_impl->channel(channelName);
+        channel->setTopic(topic);
+    }
 
-		m_impl->m_clientNickName = clientNickName;
-	}
+    void NetworkCache::setClientNickName(
+                            const std::string &clientNickName)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
 
-	void NetworkCache::getClientNickName(
-							std::string &clientNickName) const
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
+        m_impl->m_clientNickName = clientNickName;
+    }
 
-		clientNickName = m_impl->m_clientNickName;
-	}
-	
-	void NetworkCache::getUsersInChannel(const std::string &name,
+    void NetworkCache::getClientNickName(
+                            std::string &clientNickName) const
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+
+        clientNickName = m_impl->m_clientNickName;
+    }
+
+    void NetworkCache::getUsersInChannel(const std::string &name,
                         anp::IWritableContainer<std::string> &userList) const
-	{
-		anp::threading::Lock lock(m_impl->m_mutex);
-		
-		ChannelUserRelation tempRel(name, "", 0);
-		std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
-		std::pair<
-			std::vector<ChannelUserRelation>::iterator,
-			std::vector<ChannelUserRelation>::iterator
-		> range = std::equal_range(table.begin(), table.end(), tempRel,
-									channeluserrelation_compareC);
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+
+        ChannelUserRelation tempRel(name, "", 0);
+        std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+        std::pair<
+            std::vector<ChannelUserRelation>::iterator,
+            std::vector<ChannelUserRelation>::iterator
+        > range = std::equal_range(table.begin(), table.end(), tempRel,
+                                    channeluserrelation_compareC);
 // todo: UserList copy constructor
-		if ( range.first != table.end() ) // equal_range() succeeded?
-		{
-			while ( range.first != range.second )
-			{
-				userList.pushBack((*range.first).m_user);
-				range.first++;
-			}
-		} else
-		{
-			std::stringstream ss;
-			ss << "Unable to find channel '" << name << "'.";
-			ANPLOGD("libfirc", ss.str());
-			throw std::runtime_error(ss.str());
-		}
-	}
+        if ( range.first != table.end() ) // equal_range() succeeded?
+        {
+            while ( range.first != range.second )
+            {
+                userList.pushBack((*range.first).m_user);
+                range.first++;
+            }
+        } else
+        {
+            std::stringstream ss;
+            ss << "Unable to find channel '" << name << "'.";
+            ANPLOGD("libfirc", ss.str());
+            throw std::runtime_error(ss.str());
+        }
+    }
 
-	/////////////////////////////////
-	// Event subscriber interfaces
-	
-	void NetworkCache::receiveEvent(anp::irc::events::NumericReply &event)
-	{
-		const std::string &command = event.command();
+    /////////////////////////////////
+    // Event subscriber interfaces
 
-		if ( command == "332" ) // RPL_TOPIC
-		{
-			setTopic(event.param(1), event.param(2));
-		}
-	}
+    void NetworkCache::receiveEvent(anp::irc::events::NumericReply &event)
+    {
+        const std::string &command = event.command();
 
-	void NetworkCache::receiveEvent(anp::irc::events::Join &event)
-	{
-		const MsgPrefix &origin = event.origin();
-		std::string clientNickName;
+        if ( command == "332" ) // RPL_TOPIC
+        {
+            setTopic(event.param(1), event.param(2));
+        }
+    }
 
-		getClientNickName(clientNickName);
-		if ( origin.nick() == clientNickName )
-		{
-			addChannel(event.channel());
-		}
-		addUserToChannel(origin.nick(),
-						 origin.user(),
-						 origin.host(),
-						 event.channel());
-	}
+    void NetworkCache::receiveEvent(anp::irc::events::Join &event)
+    {
+        const MsgPrefix &origin = event.origin();
+        std::string clientNickName;
 
-	void NetworkCache::receiveEvent(anp::irc::events::Part &event)
-	{
-		const MsgPrefix &origin = event.origin();
-		std::string clientNickName;
+        getClientNickName(clientNickName);
+        if ( origin.nick() == clientNickName )
+        {
+            addChannel(event.channel());
+        }
+        addUserToChannel(origin.nick(),
+                         origin.user(),
+                         origin.host(),
+                         event.channel());
+    }
 
-		getClientNickName(clientNickName);
-		if ( origin.nick() == clientNickName )
-		{
-			removeChannel(event.channel());
-		} else
-		{
-			removeUserFromChannel(origin.nick(), event.channel());
-		}
-	}
-	void NetworkCache::receiveEvent(anp::irc::events::Topic &event)
-	{
-		setTopic(event.channel(), event.topic());
-	}
+    void NetworkCache::receiveEvent(anp::irc::events::Part &event)
+    {
+        const MsgPrefix &origin = event.origin();
+        std::string clientNickName;
+
+        getClientNickName(clientNickName);
+        if ( origin.nick() == clientNickName )
+        {
+            removeChannel(event.channel());
+        } else
+        {
+            removeUserFromChannel(origin.nick(), event.channel());
+        }
+    }
+    void NetworkCache::receiveEvent(anp::irc::events::Topic &event)
+    {
+        setTopic(event.channel(), event.topic());
+    }
 }
 }

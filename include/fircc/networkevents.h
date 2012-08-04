@@ -46,28 +46,28 @@ namespace events
 class IRCEvent
 {
 public:
-	IRCEvent(INetwork &network,
-			const MsgPrefix &origin):
-	m_network(network),
-	m_origin(origin)
-	{
-	}
-	virtual ~IRCEvent() { }
-	
-	/**
-	 * @return
-	 * A network interface.
-	 */
-	INetwork &network() { return m_network; }
-	
-	/**
-	 * @return
-	 * The origin of the event.
-	 */
-	const MsgPrefix &origin() const { return m_origin; }
+    IRCEvent(INetwork &network,
+            const MsgPrefix &origin):
+    m_network(network),
+    m_origin(origin)
+    {
+    }
+    virtual ~IRCEvent() { }
+
+    /**
+     * @return
+     * A network interface.
+     */
+    INetwork &network() { return m_network; }
+
+    /**
+     * @return
+     * The origin of the event.
+     */
+    const MsgPrefix &origin() const { return m_origin; }
 protected:
-	INetwork &m_network;
-	const MsgPrefix m_origin;
+    INetwork &m_network;
+    const MsgPrefix m_origin;
 };
 
 /**
@@ -76,18 +76,18 @@ protected:
 class EventWithChannel
 {
 public:
-	EventWithChannel(const std::string &channel): m_channel(channel)
-	{
-	}
-	virtual ~EventWithChannel() { }
-	
-	/**
-	 * @return
-	 * The channel.
-	 */
-	const std::string &channel() const { return m_channel; }
+    EventWithChannel(const std::string &channel): m_channel(channel)
+    {
+    }
+    virtual ~EventWithChannel() { }
+
+    /**
+     * @return
+     * The channel.
+     */
+    const std::string &channel() const { return m_channel; }
 protected:
-	std::string m_channel;
+    std::string m_channel;
 };
 
 /**
@@ -97,19 +97,19 @@ protected:
 class EventWithTarget
 {
 public:
-	EventWithTarget(const std::string &target):
-	m_target(target)
-	{
-	}
-	virtual ~EventWithTarget() { }
-	
-	/**
-	 * @return
-	 * The target.
-	 */
-	const std::string &target() const { return m_target; }
+    EventWithTarget(const std::string &target):
+    m_target(target)
+    {
+    }
+    virtual ~EventWithTarget() { }
+
+    /**
+     * @return
+     * The target.
+     */
+    const std::string &target() const { return m_target; }
 protected:
-	std::string m_target;
+    std::string m_target;
 };
 
 /**
@@ -118,18 +118,18 @@ protected:
 class EventWithMessage
 {
 public:
-	EventWithMessage(const std::string &message): m_message(message)
-	{
-	}
-	virtual ~EventWithMessage() { }
-	
-	/**
-	 * @return
-	 * The message.
-	 */
-	const std::string &message() const { return m_message; }
+    EventWithMessage(const std::string &message): m_message(message)
+    {
+    }
+    virtual ~EventWithMessage() { }
+
+    /**
+     * @return
+     * The message.
+     */
+    const std::string &message() const { return m_message; }
 protected:
-	std::string m_message;
+    std::string m_message;
 };
 
 /**
@@ -138,13 +138,13 @@ protected:
 class EventWithCommand
 {
 public:
-	EventWithCommand(const std::string &command): m_command(command)
-	{
-	}
-	virtual ~EventWithCommand() { }
-	const std::string &command() const { return m_command; }
+    EventWithCommand(const std::string &command): m_command(command)
+    {
+    }
+    virtual ~EventWithCommand() { }
+    const std::string &command() const { return m_command; }
 protected:
-	std::string m_command;
+    std::string m_command;
 };
 
 /**
@@ -153,28 +153,28 @@ protected:
 class EventWithParamList
 {
 public:
-	EventWithParamList(const std::string params[])
-	{
-		for ( unsigned int i=0; i<15; ++i )
-		{
-			m_params[i] = params[i];
-		}
-	}
-	virtual ~EventWithParamList() { }
-	
-	/**
-	 * @param index
-	 * Index of the parameter to retrieve.
-	 * 
-	 * @return
-	 * The requested parameter.
-	 */
-	const std::string &param(unsigned int index) const
-	{
-		return m_params[index];
-	}
+    EventWithParamList(const std::string params[])
+    {
+        for ( unsigned int i=0; i<15; ++i )
+        {
+            m_params[i] = params[i];
+        }
+    }
+    virtual ~EventWithParamList() { }
+
+    /**
+     * @param index
+     * Index of the parameter to retrieve.
+     *
+     * @return
+     * The requested parameter.
+     */
+    const std::string &param(unsigned int index) const
+    {
+        return m_params[index];
+    }
 protected:
-	std::string m_params[15];
+    std::string m_params[15];
 };
 
 /**
@@ -186,13 +186,13 @@ protected:
 class Join: public IRCEvent, public EventWithChannel
 {
 public:
-	Join(INetwork &network,
-		const MsgPrefix &origin,
-		const std::string &channel):
-	IRCEvent(network, origin),
-	EventWithChannel(channel)
-	{
-	}
+    Join(INetwork &network,
+        const MsgPrefix &origin,
+        const std::string &channel):
+    IRCEvent(network, origin),
+    EventWithChannel(channel)
+    {
+    }
 };
 
 /**
@@ -202,19 +202,19 @@ public:
  * contains the name of the channel and the optional message.
  */
 class Part: public IRCEvent,
-			public EventWithChannel,
-			public EventWithMessage
+            public EventWithChannel,
+            public EventWithMessage
 {
 public:
-	Part(INetwork &network,
-		const MsgPrefix &origin,
-		const std::string &channel,
-		const std::string &message):
-	IRCEvent(network, origin),
-	EventWithChannel(channel),
-	EventWithMessage(message)
-	{
-	}
+    Part(INetwork &network,
+        const MsgPrefix &origin,
+        const std::string &channel,
+        const std::string &message):
+    IRCEvent(network, origin),
+    EventWithChannel(channel),
+    EventWithMessage(message)
+    {
+    }
 };
 
 /**
@@ -223,19 +223,19 @@ public:
  * the user or channel (every user in that channel) receiving the message.
  */
 class PrivMsg: public IRCEvent,
-				public EventWithTarget,
-				public EventWithMessage
+                public EventWithTarget,
+                public EventWithMessage
 {
 public:
-	PrivMsg(INetwork &network,
-			const MsgPrefix &origin,
-			const std::string &target,
-			const std::string &message):
-	IRCEvent(network, origin),
-	EventWithTarget(target),
-	EventWithMessage(message)
-	{
-	}
+    PrivMsg(INetwork &network,
+            const MsgPrefix &origin,
+            const std::string &target,
+            const std::string &message):
+    IRCEvent(network, origin),
+    EventWithTarget(target),
+    EventWithMessage(message)
+    {
+    }
 };
 
 /**
@@ -244,26 +244,26 @@ public:
  * For this event, the origin is the user who changed the topic.
  */
 class Topic: public IRCEvent,
-			public EventWithChannel
+            public EventWithChannel
 {
 public:
-	Topic(INetwork &network,
-			const MsgPrefix &origin,
-			const std::string &channel,
-			const std::string &topic):
-	IRCEvent(network, origin),
-	EventWithChannel(channel),
-	m_topic(topic)
-	{
-	}
-	
-	/**
-	 * @return
-	 * The new topic.
-	 */
-	const std::string &topic() const { return m_topic; }
+    Topic(INetwork &network,
+            const MsgPrefix &origin,
+            const std::string &channel,
+            const std::string &topic):
+    IRCEvent(network, origin),
+    EventWithChannel(channel),
+    m_topic(topic)
+    {
+    }
+
+    /**
+     * @return
+     * The new topic.
+     */
+    const std::string &topic() const { return m_topic; }
 protected:
-	std::string m_topic;
+    std::string m_topic;
 };
 
 /**
@@ -273,19 +273,19 @@ protected:
  * For this event, the command is the numeric reply.
  */
 class NumericReply: public IRCEvent,
-					public EventWithCommand,
-					public EventWithParamList
+                    public EventWithCommand,
+                    public EventWithParamList
 {
 public:
-	NumericReply(INetwork &network,
-					const MsgPrefix &origin,
-					const std::string &command,
-					const std::string params[]):
-	IRCEvent(network, origin),
-	EventWithCommand(command),
-	EventWithParamList(params)
-	{
-	}
+    NumericReply(INetwork &network,
+                    const MsgPrefix &origin,
+                    const std::string &command,
+                    const std::string params[]):
+    IRCEvent(network, origin),
+    EventWithCommand(command),
+    EventWithParamList(params)
+    {
+    }
 };
 
 /**
@@ -293,19 +293,19 @@ public:
  * valid irc command.
  */
 class Command: public IRCEvent,
-			   public EventWithCommand,
-			   public EventWithParamList
+               public EventWithCommand,
+               public EventWithParamList
 {
 public:
-	Command(INetwork &network,
-			const MsgPrefix &origin,
-			const std::string &command,
-			const std::string params[]):
-	IRCEvent(network, origin),
-	EventWithCommand(command),
-	EventWithParamList(params)
-	{
-	}
+    Command(INetwork &network,
+            const MsgPrefix &origin,
+            const std::string &command,
+            const std::string params[]):
+    IRCEvent(network, origin),
+    EventWithCommand(command),
+    EventWithParamList(params)
+    {
+    }
 };
 
 /**
@@ -316,30 +316,30 @@ public:
 class Ping: public IRCEvent
 {
 public:
-	Ping(INetwork &network,
-		const MsgPrefix &origin,
-		const std::string &server1,
-		const std::string &server2):
-	IRCEvent(network, origin),
-	m_server1(server1),
-	m_server2(server2)
-	{
-	}
-	
-	/**
-	 * @return
-	 * Server 1.
-	 */
-	const std::string &server1() const { return m_server1; }
-	
-	/**
-	 * @return
-	 * Server 2.
-	 */
-	const std::string &server2() const { return m_server2; }
+    Ping(INetwork &network,
+        const MsgPrefix &origin,
+        const std::string &server1,
+        const std::string &server2):
+    IRCEvent(network, origin),
+    m_server1(server1),
+    m_server2(server2)
+    {
+    }
+
+    /**
+     * @return
+     * Server 1.
+     */
+    const std::string &server1() const { return m_server1; }
+
+    /**
+     * @return
+     * Server 2.
+     */
+    const std::string &server2() const { return m_server2; }
 protected:
-	std::string m_server1;
-	std::string m_server2;
+    std::string m_server1;
+    std::string m_server2;
 };
 
 /**
@@ -350,21 +350,21 @@ protected:
 class NewNetwork
 {
 public:
-	NewNetwork(anp::irc::INetwork &network):
-	m_network(network)
-	{
-	}
+    NewNetwork(anp::irc::INetwork &network):
+    m_network(network)
+    {
+    }
 
-	/**
-	 * @return
-	 * Interface to the new network.
-	 */
-	anp::irc::INetwork &network()
-	{
-		return m_network;
-	}
+    /**
+     * @return
+     * Interface to the new network.
+     */
+    anp::irc::INetwork &network()
+    {
+        return m_network;
+    }
 protected:
-	anp::irc::INetwork &m_network;
+    anp::irc::INetwork &m_network;
 };
 
 /**
@@ -375,21 +375,21 @@ protected:
 class RemovingNetwork
 {
 public:
-	RemovingNetwork(anp::irc::INetwork &network):
-	m_network(network)
-	{
-	}
+    RemovingNetwork(anp::irc::INetwork &network):
+    m_network(network)
+    {
+    }
 
-	/**
-	 * @return
-	 * Interface to the network about to be removed.
-	 */
-	anp::irc::INetwork &network()
-	{
-		return m_network;
-	}
+    /**
+     * @return
+     * Interface to the network about to be removed.
+     */
+    anp::irc::INetwork &network()
+    {
+        return m_network;
+    }
 protected:
-	anp::irc::INetwork &m_network;
+    anp::irc::INetwork &m_network;
 };
 
 /**
@@ -399,21 +399,21 @@ protected:
 class ExceptionOccured
 {
 public:
-	ExceptionOccured(std::exception &e)
-	{
-		m_exception = e;
-	}
-	
-	/**
-	 * @return
-	 * The exception.
-	 */
-	std::exception &exception()
-	{
-		return m_exception;
-	}
+    ExceptionOccured(std::exception &e)
+    {
+        m_exception = e;
+    }
+
+    /**
+     * @return
+     * The exception.
+     */
+    std::exception &exception()
+    {
+        return m_exception;
+    }
 protected:
-	std::exception m_exception;
+    std::exception m_exception;
 };
 
 } // namespace events

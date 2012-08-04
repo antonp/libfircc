@@ -43,150 +43,150 @@ namespace anp
 {
 namespace irc
 {
-	class PluginManager;
-	class MsgPrefix;
-	
-	/**
-	 * Represents the connection and information associated with an IRC network.
-	 */
-	class Network: public INetwork
-	{
-	public:
-		Network(const char *host, const char *port,
-				const std::string &nick, const std::string &user,
-				const std::string &realName);
-		~Network();
-		
-		void deinit(const std::string &message);
-		enum State
-		{
-			CONNECTING=0,
-			REGISTERING,
-			CONNECTED,
-			SHUTTING_DOWN,
-			UNKNOWN
-		};
-		// Non-blocking, creates a thread on it's own
-		void runMessageReceiverInThread();
-		// Blocking
-		void runMessageReceiver();
+    class PluginManager;
+    class MsgPrefix;
+
+    /**
+     * Represents the connection and information associated with an IRC network.
+     */
+    class Network: public INetwork
+    {
+    public:
+        Network(const char *host, const char *port,
+                const std::string &nick, const std::string &user,
+                const std::string &realName);
+        ~Network();
+
+        void deinit(const std::string &message);
+        enum State
+        {
+            CONNECTING=0,
+            REGISTERING,
+            CONNECTED,
+            SHUTTING_DOWN,
+            UNKNOWN
+        };
+        // Non-blocking, creates a thread on it's own
+        void runMessageReceiverInThread();
+        // Blocking
+        void runMessageReceiver();
 
         // Synchronous, but doesn't block if no data.
         void tryReceive();
         int addSocketToFdSet(fd_set *readfds);
         bool internalSocketInSet(fd_set *fds);
-		
-		void sendMessage(const std::string &message);
-		
-		const std::string &host();
-		const std::string &port();
-		
-		// Network cache stuff
-		const NetworkCacheUserInterface &networkCache() const;
 
-		// Event stuff
-		dispatchers::Join &eventDispatcherJoin();
+        void sendMessage(const std::string &message);
 
-		dispatchers::Part &eventDispatcherPart();
+        const std::string &host();
+        const std::string &port();
 
-		dispatchers::PrivMsg &eventDispatcherPrivMsg();
+        // Network cache stuff
+        const NetworkCacheUserInterface &networkCache() const;
 
-		dispatchers::Topic &eventDispatcherTopic();
+        // Event stuff
+        dispatchers::Join &eventDispatcherJoin();
 
-		dispatchers::NumericReply &eventDispatcherNumericReply();
-		
-		dispatchers::Command &eventDispatcherCommand();
-			
-		dispatchers::Ping &eventDispatcherPing();
-			
-		dispatchers::ExceptionOccured &eventDispatcherExceptionOccured();
+        dispatchers::Part &eventDispatcherPart();
 
-	private:
-	    void processData(const char *data);
-		void parseMessage(const std::string &message);
-		void msgPingHandle( const MsgPrefix &origin,
-							const std::string &server1,
-							const std::string &server2);
-		void msgJoinHandle(	const MsgPrefix &origin,
-							const std::string &channel);
-		void msgPartHandle(	const MsgPrefix &origin,
-							const std::string &channel,
-							const std::string &message);
-		void msgPrivMsgHandle(	const MsgPrefix &origin,
-								const std::string &target,
-								const std::string &message);
-		void msgTopicHandle(const MsgPrefix &origin,
-							const std::string &channel,
-							const std::string &topic);
-		void msgNumHandleRPL_NAMREPLY(
-								const std::string &channel,
-								const std::string &userlist);
-		void msgNumHandle(const MsgPrefix &origin,
-							const std::string &command,
-							const std::string params[]);
-		void msgCommandHandle(const MsgPrefix &origin,
-							  const std::string &command,
-							  const std::string params[]);
-							
-		static void *threadRunMessageReceiver(void *arg);
+        dispatchers::PrivMsg &eventDispatcherPrivMsg();
 
-		State m_state;
-		threading::Mutex m_stateMutex;
-		
-		TCPConnection m_connection;
-		std::string m_host;
-		std::string m_port;
-		
-		std::auto_ptr<threading::Thread> m_receiverThread;
-		std::auto_ptr<MessageSender> m_messageSender;
-		
-		NetworkCache m_networkCache;
+        dispatchers::Topic &eventDispatcherTopic();
 
-		anp::threading::Mutex m_mutex;
-		
-		// Parsing buffers
+        dispatchers::NumericReply &eventDispatcherNumericReply();
+
+        dispatchers::Command &eventDispatcherCommand();
+
+        dispatchers::Ping &eventDispatcherPing();
+
+        dispatchers::ExceptionOccured &eventDispatcherExceptionOccured();
+
+    private:
+        void processData(const char *data);
+        void parseMessage(const std::string &message);
+        void msgPingHandle( const MsgPrefix &origin,
+                            const std::string &server1,
+                            const std::string &server2);
+        void msgJoinHandle( const MsgPrefix &origin,
+                            const std::string &channel);
+        void msgPartHandle( const MsgPrefix &origin,
+                            const std::string &channel,
+                            const std::string &message);
+        void msgPrivMsgHandle(  const MsgPrefix &origin,
+                                const std::string &target,
+                                const std::string &message);
+        void msgTopicHandle(const MsgPrefix &origin,
+                            const std::string &channel,
+                            const std::string &topic);
+        void msgNumHandleRPL_NAMREPLY(
+                                const std::string &channel,
+                                const std::string &userlist);
+        void msgNumHandle(const MsgPrefix &origin,
+                            const std::string &command,
+                            const std::string params[]);
+        void msgCommandHandle(const MsgPrefix &origin,
+                              const std::string &command,
+                              const std::string params[]);
+
+        static void *threadRunMessageReceiver(void *arg);
+
+        State m_state;
+        threading::Mutex m_stateMutex;
+
+        TCPConnection m_connection;
+        std::string m_host;
+        std::string m_port;
+
+        std::auto_ptr<threading::Thread> m_receiverThread;
+        std::auto_ptr<MessageSender> m_messageSender;
+
+        NetworkCache m_networkCache;
+
+        anp::threading::Mutex m_mutex;
+
+        // Parsing buffers
         std::string m_in,
-					m_currentMessage,
-					m_leftOvers;
+                    m_currentMessage,
+                    m_leftOvers;
 
-		struct
-		{
-			EventDispatcher<
-				ISubscriber<events::Join>,
-				events::Join
-			> join;
-			EventDispatcher<
-				ISubscriber<events::Part>,
-				events::Part
-			> part;
-			EventDispatcher<
-				ISubscriber<events::PrivMsg>,
-				events::PrivMsg
-			> privMsg;
-			EventDispatcher<
-				ISubscriber<events::Topic>,
-				events::Topic
-			> topic;
-			EventDispatcher<
-				ISubscriber<events::NumericReply>,
-				events::NumericReply
-			> num;
-			EventDispatcher<
-				ISubscriber<events::Command>,
-				events::Command
-			> command;
-			EventDispatcher<
-				ISubscriber<events::Ping>,
-				events::Ping
-			> ping;
-			EventDispatcher<
-				ISubscriber<events::ExceptionOccured>,
-				events::ExceptionOccured
-			> exceptionOccured;
-		} m_eventDispatchers;
-		
-		LogSingletonHelper m_log;
-	};
+        struct
+        {
+            EventDispatcher<
+                ISubscriber<events::Join>,
+                events::Join
+            > join;
+            EventDispatcher<
+                ISubscriber<events::Part>,
+                events::Part
+            > part;
+            EventDispatcher<
+                ISubscriber<events::PrivMsg>,
+                events::PrivMsg
+            > privMsg;
+            EventDispatcher<
+                ISubscriber<events::Topic>,
+                events::Topic
+            > topic;
+            EventDispatcher<
+                ISubscriber<events::NumericReply>,
+                events::NumericReply
+            > num;
+            EventDispatcher<
+                ISubscriber<events::Command>,
+                events::Command
+            > command;
+            EventDispatcher<
+                ISubscriber<events::Ping>,
+                events::Ping
+            > ping;
+            EventDispatcher<
+                ISubscriber<events::ExceptionOccured>,
+                events::ExceptionOccured
+            > exceptionOccured;
+        } m_eventDispatchers;
+
+        LogSingletonHelper m_log;
+    };
 } // namespace irc
 } // namespace anp
 

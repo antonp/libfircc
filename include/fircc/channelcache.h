@@ -34,21 +34,21 @@ namespace anp
 {
 namespace irc
 {
-	class ChannelCacheImpl;
-	
-	class ChannelCache
-	{
-	public:
-		ChannelCache(const std::string &name="",
-						const std::string &topic="");
-		ChannelCache(const ChannelCache &channelCache);
-	
-		const std::string &name() const;
-		void setTopic(const std::string &topic);
-		const std::string &topic() const;
-	private:
-		ChannelCacheImpl *m_impl;
-	};
+    class ChannelCacheImpl;
+
+    class ChannelCache
+    {
+    public:
+        ChannelCache(const std::string &name="",
+                        const std::string &topic="");
+        ChannelCache(const ChannelCache &channelCache);
+
+        const std::string &name() const;
+        void setTopic(const std::string &topic);
+        const std::string &topic() const;
+    private:
+        ChannelCacheImpl *m_impl;
+    };
 }
 }
 

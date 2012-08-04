@@ -41,27 +41,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace anp
 {
-	
+
 namespace irc
 {
-	class TCPConnection
-	{
-	public:
-		TCPConnection(const std::string &hostname,
-						const std::string &port);
-		virtual ~TCPConnection();
-		void send(const std::string &buffer);
-		ssize_t receive(char *buffer, unsigned int bufferSize, int flags);
-		bool waitForSocket(unsigned int timeoutSeconds,
-					unsigned int timeoutMicroseconds);
-	    int addSocketToFdSet(fd_set *fds);
-	    bool fd_isset(fd_set *fds);
-	private:
-		void connect(const std::string &hostname,
-					 const std::string &port);
-		void clean();
-		int m_socket;
-	};
+    class TCPConnection
+    {
+    public:
+        TCPConnection(const std::string &hostname,
+                        const std::string &port);
+        virtual ~TCPConnection();
+        void send(const std::string &buffer);
+        ssize_t receive(char *buffer, unsigned int bufferSize, int flags);
+        bool waitForSocket(unsigned int timeoutSeconds,
+                    unsigned int timeoutMicroseconds);
+        int addSocketToFdSet(fd_set *fds);
+        bool fd_isset(fd_set *fds);
+    private:
+        void connect(const std::string &hostname,
+                     const std::string &port);
+        void clean();
+        int m_socket;
+    };
 } // namespace irc
 } // namespace anp
 #endif

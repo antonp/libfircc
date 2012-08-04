@@ -39,101 +39,101 @@ namespace anp
 {
 namespace irc
 {
-	void *threadRunMessageSender(void *arg)
-	{
-		MessageSender *ms = (MessageSender *)arg;
-		if ( NULL == ms )
-		{
-			//throw std::invalid_argument("'Invalid MessageSender'");
-			try
-			{
+    void *threadRunMessageSender(void *arg)
+    {
+        MessageSender *ms = (MessageSender *)arg;
+        if ( NULL == ms )
+        {
+            //throw std::invalid_argument("'Invalid MessageSender'");
+            try
+            {
                 ANPLOGE("libfirc", "Invalid MessageSender.");
-			} catch ( ... )
-			{
-				// we're doomed
-			}
-			
-		} else
-		{
-			try
-			{
-				ms->monitor();
-			} catch ( std::exception &e )
-			{
+            } catch ( ... )
+            {
+                // we're doomed
+            }
+
+        } else
+        {
+            try
+            {
+                ms->monitor();
+            } catch ( std::exception &e )
+            {
                 ANPLOGE("libfirc", std::string("Exception occured: ")+e.what());
-			}
-		}
-		pthread_exit(0);
-	}
-	
-	MessageSender::MessageSender(TCPConnection &connection):
-	m_connection(connection)
-	{
-		m_isDying.set(false);
-		m_thread.create(NULL, threadRunMessageSender, (void *)this);
-	}
-	
-	MessageSender::~MessageSender()
-	{
-		stop();
-		m_thread.join(NULL);
-	}
-	
-	void MessageSender::addMessage(const std::string &message)
-	{
-		m_queue.push(message);
-		m_newMessage.signal();
-	}
+            }
+        }
+        pthread_exit(0);
+    }
 
-	void MessageSender::setCooldownTime(unsigned int ms)
-	{
-		m_cooldownTime.set(ms);
-	}
-	
-	void MessageSender::stop()
-	{
-		m_isDying.set(true);
-		m_newMessage.signal();
-	}
-	
-	void MessageSender::monitor()
-	{
-		std::stringstream ss;
-		while ( true )
-		{
-			bool isDying = true;
-			m_isDying.get(isDying);
+    MessageSender::MessageSender(TCPConnection &connection):
+    m_connection(connection)
+    {
+        m_isDying.set(false);
+        m_thread.create(NULL, threadRunMessageSender, (void *)this);
+    }
 
-			if ( isDying )
-			{
+    MessageSender::~MessageSender()
+    {
+        stop();
+        m_thread.join(NULL);
+    }
+
+    void MessageSender::addMessage(const std::string &message)
+    {
+        m_queue.push(message);
+        m_newMessage.signal();
+    }
+
+    void MessageSender::setCooldownTime(unsigned int ms)
+    {
+        m_cooldownTime.set(ms);
+    }
+
+    void MessageSender::stop()
+    {
+        m_isDying.set(true);
+        m_newMessage.signal();
+    }
+
+    void MessageSender::monitor()
+    {
+        std::stringstream ss;
+        while ( true )
+        {
+            bool isDying = true;
+            m_isDying.get(isDying);
+
+            if ( isDying )
+            {
                 ANPLOGI("libfirc", "closing thread.");
-				break;
-			}
-			
-			m_newMessage.wait();
-						
-			bool empty = m_queue.isEmpty();
-			while ( !empty )
-			{
-				if ( isDying )
-				{
-					return;
-				}
-				
-				unsigned int cooldown = 0;
-				std::string &message = m_queue.front();
-				ss << "-> " << message;
+                break;
+            }
+
+            m_newMessage.wait();
+
+            bool empty = m_queue.isEmpty();
+            while ( !empty )
+            {
+                if ( isDying )
+                {
+                    return;
+                }
+
+                unsigned int cooldown = 0;
+                std::string &message = m_queue.front();
+                ss << "-> " << message;
                 ANPLOGI("libfirc", ss.str());
-				ss.str("");
-				
-				m_connection.send(message);
-				m_queue.pop();
-				m_cooldownTime.get(cooldown);
-				timing::sleepMilliseconds(cooldown);
-				
-				empty = m_queue.isEmpty();
-			}
-		}
-	}
+                ss.str("");
+
+                m_connection.send(message);
+                m_queue.pop();
+                m_cooldownTime.get(cooldown);
+                timing::sleepMilliseconds(cooldown);
+
+                empty = m_queue.isEmpty();
+            }
+        }
+    }
 }
 }

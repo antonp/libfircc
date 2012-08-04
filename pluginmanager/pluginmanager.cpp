@@ -36,103 +36,103 @@ namespace anp
 {
 namespace irc
 {
-	class PluginManagerImpl
-	{
-	public:
-		
-		std::vector<Plugin *> m_plugins;
-	};
-	
-	PluginManager::PluginManager():
-	m_impl(new PluginManagerImpl)
-	{
-	}
-	
-	PluginManager::~PluginManager()
-	{
-		unloadAllPlugins();
-		delete m_impl;
-	}
-	
-	/**
-	 * @brief
-	 * Load a single plugin.
-	 * 
-	 * @param fileName
-	 * NULL terminated string representing the fileName
-	 */
-	void PluginManager::loadPlugin(
-		const char *fileName,
-		NetworkFactory &networkFactory,
-		void *appContext
-	)
-	{
-		Plugin *plugin = new Plugin(
-			fileName,
-			networkFactory,
-			appContext
-		);
-		m_impl->m_plugins.push_back(plugin);
-	}
+    class PluginManagerImpl
+    {
+    public:
 
-	bool PluginManager::unloadPlugin(const std::string &fileName,
-									 unsigned int reason)
-	{
-		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		for ( unsigned int i=0; i<plugins.size(); ++i )
-		{
-			if ( plugins[i]->getName() == fileName )
-			{
-				plugins[i]->setUnloadReason(reason);
-				delete plugins[i];
-				plugins.erase(plugins.begin()+i);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	void PluginManager::unloadAllPlugins()
-	{
-		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		unsigned int size = plugins.size();
-		Plugin *p = NULL;
-		for ( unsigned int i=0; i<size; ++i )
-		{
-			p = plugins[i];
-			if ( NULL == p )
-			{
-				// weird, but ok skip this one then
-				continue;
-			} else
-			{
-				p->setUnloadReason(0); // Revise '0'
-				delete p;
-				p = NULL;
-				plugins[i] = NULL;
-			}
-		}
-		plugins.clear();
-	}
-	
-	unsigned int PluginManager::getPluginCount() const
-	{
-		return m_impl->m_plugins.size();
-	}
-	
-	void PluginManager::getPluginInfo(unsigned int index,
-									  std::string &name)
-	{
-		std::vector<Plugin *> &plugins = m_impl->m_plugins;
-		unsigned int size = plugins.size();
-		
-		if ( size > index && NULL != plugins[index] )
-		{
-			name = plugins[index]->getName();
-		} else
-		{
-			throw std::invalid_argument("getPluginInfo() index out of bounds");
-		}
-	}
+        std::vector<Plugin *> m_plugins;
+    };
+
+    PluginManager::PluginManager():
+    m_impl(new PluginManagerImpl)
+    {
+    }
+
+    PluginManager::~PluginManager()
+    {
+        unloadAllPlugins();
+        delete m_impl;
+    }
+
+    /**
+     * @brief
+     * Load a single plugin.
+     *
+     * @param fileName
+     * NULL terminated string representing the fileName
+     */
+    void PluginManager::loadPlugin(
+        const char *fileName,
+        NetworkFactory &networkFactory,
+        void *appContext
+    )
+    {
+        Plugin *plugin = new Plugin(
+            fileName,
+            networkFactory,
+            appContext
+        );
+        m_impl->m_plugins.push_back(plugin);
+    }
+
+    bool PluginManager::unloadPlugin(const std::string &fileName,
+                                     unsigned int reason)
+    {
+        std::vector<Plugin *> &plugins = m_impl->m_plugins;
+        for ( unsigned int i=0; i<plugins.size(); ++i )
+        {
+            if ( plugins[i]->getName() == fileName )
+            {
+                plugins[i]->setUnloadReason(reason);
+                delete plugins[i];
+                plugins.erase(plugins.begin()+i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void PluginManager::unloadAllPlugins()
+    {
+        std::vector<Plugin *> &plugins = m_impl->m_plugins;
+        unsigned int size = plugins.size();
+        Plugin *p = NULL;
+        for ( unsigned int i=0; i<size; ++i )
+        {
+            p = plugins[i];
+            if ( NULL == p )
+            {
+                // weird, but ok skip this one then
+                continue;
+            } else
+            {
+                p->setUnloadReason(0); // Revise '0'
+                delete p;
+                p = NULL;
+                plugins[i] = NULL;
+            }
+        }
+        plugins.clear();
+    }
+
+    unsigned int PluginManager::getPluginCount() const
+    {
+        return m_impl->m_plugins.size();
+    }
+
+    void PluginManager::getPluginInfo(unsigned int index,
+                                      std::string &name)
+    {
+        std::vector<Plugin *> &plugins = m_impl->m_plugins;
+        unsigned int size = plugins.size();
+
+        if ( size > index && NULL != plugins[index] )
+        {
+            name = plugins[index]->getName();
+        } else
+        {
+            throw std::invalid_argument("getPluginInfo() index out of bounds");
+        }
+    }
 } // namespace irc
 } // namespace anp

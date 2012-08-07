@@ -31,7 +31,7 @@ INSTALLING libfircc
 COLLABORATION
 
   The collaboration is mostly taking place at github.
-  See https://github.com/antonp/firc .
+  See https://github.com/antonp/libfircc .
 
   Suggestions, feedback and bug reports are
   welcome.
@@ -43,5 +43,5 @@ COLLABORATION
 
   There is also a bug tracker at
 
-  https://github.com/antonp/firc/issues
+  https://github.com/antonp/libfircc/issues
 

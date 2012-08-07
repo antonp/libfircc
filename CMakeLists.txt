@@ -51,7 +51,7 @@ SET_TARGET_PROPERTIES(fircc
                       SOVERSION 1)
 
 INSTALL(TARGETS fircc
-        DESTINATION lib
+        DESTINATION lib${LIB_SUFFIX}
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 INSTALL(FILES include/fircc/channelcache.h

@@ -1,0 +1,49 @@
+SOFTWARE DEPENDENCIES
+
+  libfircc can be built and used on both 32- and
+  64bit systems.
+
+  In order to use libfircc you need to have the
+  following libraries installed:
+
+  - libpcrecpp
+  - libdl
+  - libpthread
+
+BUILDING AND INSTALLING ON LINUX
+
+  CMake (www.cmake.org) is used to build and install
+  libfircc. Install the latest version available.
+
+  To build libfircc with CMake on a typical Linux
+  distribution, follow these steps:
+
+  1. Create a subdirectory within the main libfircc
+     directory. You can call it "build". Navigate
+     (cd) into this subdirectory.
+
+  2. To build the lib, type:
+
+     cmake .. # This should generate a makefile
+     make # This should compile and link libfircc.
+
+     This should generate libfircc.so and
+     libanpcode.so .
+
+  3. To install the lib (which might require root
+     access), type:
+
+     make install
+
+     This should install the lib in (default)
+     /usr/local/lib and /usr/local/include .
+
+  Refer to the CMake documentation for more
+  details.
+
+  Please report any build problems at
+  https://github.com/antonp/firc/issues .
+
+BUILDING AND INSTALLING ON WINDOWS
+
+Building for Windows is currently not supported.

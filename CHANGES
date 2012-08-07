@@ -1,0 +1,13 @@
+CHANGES
+
+Version 0.1.1
+Released 2012-08-07.
+
+- Bugfix: Plugin init error-handling corrected.
+- Bugfix: Deadlock when the library tried to PART a channel.
+          Reported by Timothy Zorn.
+
+Version 0.1.0
+Released 2011-10-23.
+
+- Initial release.

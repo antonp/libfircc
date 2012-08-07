@@ -1,0 +1,47 @@
+    libfircc v0.1.1
+
+WHAT IS libfircc?
+
+  libfircc is an IRC client library written in C++.
+
+WHAT ARE THE GOALS FOR THE PROJECT?
+
+  The goal is to create a flexible, easy to understand,
+  library that can be used to quickly develop IRC bots
+  and clients.
+
+FEATURES
+
+  - Connect to multiple servers/networks
+  - Anti-flood implemented with an outgoing message queue
+  - Event system (IRC messages, new connections, etc)
+  - Cache/database that keeps track of channels and users
+  - Simple plugin manager
+  - Thread safety
+
+  - (Planned) DCC
+  - (Planned) Windows compatibility
+  - (Planned) Bindings to other languages; Pawn and Python
+
+INSTALLING libfircc
+
+  See the accompanying INSTALL file for instructions on
+  how to build and install the library.
+
+COLLABORATION
+
+  The collaboration is mostly taking place at github.
+  See https://github.com/antonp/firc .
+
+  Suggestions, feedback and bug reports are
+  welcome.
+
+  There is no mailing list setup, but you can send
+  feedback and questions to
+
+  Anton Petersson < anton at anp dot nu >
+
+  There is also a bug tracker at
+
+  https://github.com/antonp/firc/issues
+

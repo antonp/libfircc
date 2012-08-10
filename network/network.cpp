@@ -292,6 +292,13 @@ namespace numeric_replies
                                                      &host);
             MsgPrefix msgPrefix(prefix, nick, user, host);
 
+            if ( !validUser )
+            {
+                std::stringstream ss;
+                ss << "failed to parse a valid user from prefix: " << prefix;
+                ANPLOGD("libfirc", ss.str());
+            }
+
             parseParams(parameters, params);
 
             if ( numPattern.FullMatch(command) )

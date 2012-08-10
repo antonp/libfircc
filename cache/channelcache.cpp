@@ -53,15 +53,15 @@ namespace irc
 
     ChannelCacheImpl::ChannelCacheImpl(const std::string &name,
                                         const std::string &topic):
-    m_name(name),
-    m_topic(topic)
+    m_topic(topic),
+    m_name(name)
     {
         // ...
     }
 
     ChannelCacheImpl::ChannelCacheImpl(const ChannelCacheImpl &impl):
-    m_name(impl.m_name),
-    m_topic(impl.m_topic)
+    m_topic(impl.m_topic),
+    m_name(impl.m_name)
     {
         // ...
     }

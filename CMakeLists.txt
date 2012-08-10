@@ -54,7 +54,7 @@ ADD_LIBRARY(fircc SHARED ${ircclient_sources})
 TARGET_LINK_LIBRARIES(fircc anpcode)
 SET_TARGET_PROPERTIES(fircc
                       PROPERTIES
-                      COMPILE_FLAGS "-fPIC"
+                      COMPILE_FLAGS "-fPIC -Wall"
                       VERSION ${fircc_ver_concat}
                       SOVERSION ${fircc_ver_major})
 

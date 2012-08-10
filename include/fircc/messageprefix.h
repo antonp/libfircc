@@ -88,10 +88,10 @@ public:
      */
     const std::string &host() const { return m_host; }
 protected:
+    std::string m_prefix;
     std::string m_nick;
     std::string m_user;
     std::string m_host;
-    std::string m_prefix;
 };
 } // namespace irc
 } // namespace anp

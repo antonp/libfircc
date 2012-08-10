@@ -18,7 +18,7 @@ ADD_EXECUTABLE(libfircc_sampleapp main.cpp)
 TARGET_LINK_LIBRARIES(libfircc_sampleapp anpcode fircc pthread dl pcrecpp)
 SET_TARGET_PROPERTIES(libfircc_sampleapp
                       PROPERTIES
-                      COMPILE_FLAGS "-fPIC"
+                      COMPILE_FLAGS "-fPIC -Wall"
                       VERSION ${fircc_ver_concat})
 INSTALL(TARGETS libfircc_sampleapp
         DESTINATION bin

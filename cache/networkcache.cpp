@@ -52,9 +52,9 @@ namespace irc
         m_modes(modes)
         {
         }
-        uint32_t m_modes;
         std::string m_channel;
         std::string m_user;
+        uint32_t m_modes;
     };
 
     // Use to sort on channel only
@@ -218,7 +218,7 @@ namespace irc
             ChannelCache temp(channel);
             std::vector<ChannelCache *> &list = m_impl->m_channels;
             std::vector<ChannelCache *>::iterator i =
-            i = std::lower_bound(list.begin(),
+                std::lower_bound(list.begin(),
                 list.end(), &temp, channelinfo_compare);
             if ( i != list.end() )
             {
@@ -237,7 +237,9 @@ namespace irc
     {
         anp::threading::Lock lock(m_impl->m_mutex);
 
-        ChannelCache *channel = m_impl->channel(channelName);
+        // Verify that this is a known channel
+        // else exception
+        m_impl->channel(channelName);
 
         ChannelUserRelation newRelation(channelName, name, 0);
         std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;

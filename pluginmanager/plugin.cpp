@@ -49,8 +49,8 @@ namespace irc
         void *appContext
     ):
         m_lib(fileName),
-        m_name("n/a"),
         m_pf_pluginDeinit(NULL),
+        m_name("n/a"),
         m_unloadReason(0)
     {
         PF_pluginInit pf_pluginInit = (PF_pluginInit)m_lib.getSymbol(

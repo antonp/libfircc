@@ -9,6 +9,8 @@ SET(fircc_ver_minor 1)
 SET(fircc_ver_patch 1)
 SET(fircc_ver_concat ${fircc_ver_major}.${fircc_ver_minor}.${fircc_ver_patch})
 
+ENABLE_TESTING()
+
 # defs can be handled from here
 
 # common handled here too?
@@ -34,6 +36,7 @@ ELSE()
 ENDIF()
 
 ADD_SUBDIRECTORY(samples/consoleapp)
+ADD_SUBDIRECTORY(tests)
 
 SET(ircclient_sources network/messagesender.cpp
                       network/network.cpp

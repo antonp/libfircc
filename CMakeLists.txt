@@ -4,6 +4,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(fircc)
 
+SET(fircc_ver_major 0)
+SET(fircc_ver_minor 1)
+SET(fircc_ver_patch 1)
+SET(fircc_ver_concat ${fircc_ver_major}.${fircc_ver_minor}.${fircc_ver_patch})
+
 # defs can be handled from here
 
 # common handled here too?
@@ -47,8 +52,8 @@ TARGET_LINK_LIBRARIES(fircc anpcode)
 SET_TARGET_PROPERTIES(fircc
                       PROPERTIES
                       COMPILE_FLAGS "-fPIC"
-                      VERSION 0.1.1
-                      SOVERSION 0)
+                      VERSION ${fircc_ver_concat}
+                      SOVERSION ${fircc_ver_major})
 
 INSTALL(TARGETS fircc
         DESTINATION lib${LIB_SUFFIX}
@@ -71,9 +76,9 @@ INSTALL(FILES include/fircc/channelcache.h
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Manages connections to irc networks")
 SET(CPACK_PACKAGE_VENDOR "Anton Petersson")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-SET(CPACK_PACKAGE_VERSION_MAJOR "0")
-SET(CPACK_PACKAGE_VERSION_MINOR "1")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_PACKAGE_VERSION_MAJOR "${fircc_ver_major}")
+SET(CPACK_PACKAGE_VERSION_MINOR "${fircc_ver_minor}")
+SET(CPACK_PACKAGE_VERSION_PATCH "${fircc_ver_patch}")
 
 INCLUDE(CPack)
 

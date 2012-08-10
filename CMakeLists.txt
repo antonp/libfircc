@@ -47,8 +47,8 @@ TARGET_LINK_LIBRARIES(fircc anpcode)
 SET_TARGET_PROPERTIES(fircc
                       PROPERTIES
                       COMPILE_FLAGS "-fPIC"
-                      VERSION 1.0.0
-                      SOVERSION 1)
+                      VERSION 0.1.1
+                      SOVERSION 0)
 
 INSTALL(TARGETS fircc
         DESTINATION lib${LIB_SUFFIX}

@@ -19,8 +19,7 @@ TARGET_LINK_LIBRARIES(libfircc_sampleapp anpcode fircc pthread dl pcrecpp)
 SET_TARGET_PROPERTIES(libfircc_sampleapp
                       PROPERTIES
                       COMPILE_FLAGS "-fPIC"
-                      VERSION 1.0.0
-                      SOVERSION 1)
+                      VERSION 0.1.1)
 INSTALL(TARGETS libfircc_sampleapp
         DESTINATION bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

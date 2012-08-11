@@ -61,13 +61,7 @@ void test_newNetwork()
 
 int main(int argc, char **argv)
 {
-    try
-    {
-        test_newNetwork();
-    } catch (...)
-    {
-        std::cout << "fail: exception occured" << std::endl;
-    }
+    test_newNetwork();
 
     return 0;
 }

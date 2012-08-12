@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "inc/network.h"
 #include <list>
 #include <stdexcept>
+#include <cassert>
 
 namespace anp
 {
@@ -142,6 +143,23 @@ namespace irc
                                       const std::string &port)
     {
         m_impl->closeNetwork(host, port);
+    }
+
+    void NetworkFactory::foreachNetwork(Visit visit, void *userData)
+    {
+        std::list<INetwork *> &networks = m_impl->m_networks;
+
+        if ( visit == NULL )
+        {
+            throw std::logic_error("visit can't be NULL");
+        }
+
+        for ( std::list<INetwork *>::iterator i=networks.begin();
+              i != networks.end(); i++ )
+        {
+            assert((*i) != NULL);
+            visit(*(*i), userData);
+        }
     }
 
     dispatchers::NewNetwork &

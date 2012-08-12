@@ -52,6 +52,8 @@ namespace irc
         NetworkFactory();
         ~NetworkFactory();
 
+        typedef void (*Visit)(INetwork &network, void *userData);
+
         /**
          * Opens a new network.
          *
@@ -103,6 +105,18 @@ namespace irc
          */
         void closeNetwork(const std::string &host,
                           const std::string &port);
+
+        /**
+         * Iterates over all INetwork instances associated
+         * with this NetworkFactory instance.
+         *
+         * @param visit
+         * This function will be called once for every network.
+
+         * @param userData
+         * Data to pass on to the supplied function
+         */
+        void foreachNetwork(Visit visit, void *userData);
 
         /**
          * Retrieves a subscriber interface for the NewNetwork event.

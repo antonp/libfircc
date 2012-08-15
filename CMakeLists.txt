@@ -72,6 +72,7 @@ INSTALL(FILES include/fircc/channelcache.h
               include/fircc/networkeventsubscribers.h
               include/fircc/networkfactory.h
               include/fircc/pluginmanager.h
+              include/fircc/fircc.h
         DESTINATION include/fircc
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 

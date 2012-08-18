@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fircc/channelcache.h>
 #include "inc/userinfo.h"
 #include "inc/utilities.h"
+#include "../network/inc/tokenizer.h" // TODO move tokenizer.h to /inc/
+#include "inc/modeconv.h"
 #include <stdexcept>
 #include <anpcode/log_singleton.h>
 #include <anpcode/anp_threading.h>
@@ -46,7 +48,8 @@ namespace irc
     struct ChannelUserRelation
     {
         ChannelUserRelation(const std::string &channel,
-                            const std::string &user, uint32_t modes):
+                            const std::string &user,
+                            const std::string &modes):
         m_channel(channel),
         m_user(user),
         m_modes(modes)
@@ -54,24 +57,25 @@ namespace irc
         }
         std::string m_channel;
         std::string m_user;
-        uint32_t m_modes;
+        std::string m_modes;
     };
 
     // Use to sort on channel only
     static int channeluserrelation_compareC(const ChannelUserRelation &r1,
-                                    const ChannelUserRelation &r2)
+                                            const ChannelUserRelation &r2)
     {
         return r1.m_channel.compare(r2.m_channel);
     }
 
     // Use to sort on channel, user
     static int channeluserrelation_compareCU(const ChannelUserRelation &r1,
-                                    const ChannelUserRelation &r2)
+                                             const ChannelUserRelation &r2)
     {
         int ret = r1.m_channel.compare(r2.m_channel);
         if ( 0 == ret )
         {
-            return r1.m_user.compare(r2.m_user);
+            //return r1.m_user.compare(r2.m_user);
+            return (r1.m_user < r2.m_user);
         }
         return ret;
     }
@@ -88,6 +92,14 @@ namespace irc
                                         const std::string &name) const;
         void getChannelCopy(const std::string &name,
                                                 ChannelCache &dest) const;
+        /**
+        Lookup channel user relation entry.
+
+        @remark
+        Note that this method doesn't lock.. 
+        */
+        ChannelUserRelation &cuRel(const std::string &channel,
+                   const std::string &user);
 
         UserInfo *userByName(const std::string &name);
         std::vector<ChannelCache *> m_channels;
@@ -151,7 +163,7 @@ namespace irc
         {
             std::stringstream err;
             err << "Unable to find channel: " << name;
-            throw std::runtime_error(err.str());
+           throw std::runtime_error(err.str());
         }
         throw std::logic_error("Reached an unreachable point in code.");
         return NULL; // Should never happen
@@ -176,6 +188,38 @@ namespace irc
         } else
         {
             return NULL;
+        }
+    }
+
+    ChannelUserRelation &NetworkCacheImpl::cuRel(const std::string &channel,
+                                                 const std::string &user)
+    {
+        ChannelUserRelation tempRel(channel, user, "");
+        std::pair<
+            std::vector<ChannelUserRelation>::iterator,
+            std::vector<ChannelUserRelation>::iterator
+        > range = std::equal_range(m_cuRelations.begin(), m_cuRelations.end(),
+                                   tempRel, channeluserrelation_compareCU);
+
+        if ( range.first != m_cuRelations.end() )
+        {
+            return *range.first;
+        } else
+        {
+            // Generate some debug output: all cu relations
+            std::stringstream ts;
+            ts << "Dump cu relations: ";
+            for ( unsigned int i=0; i<m_cuRelations.size(); i++ )
+            {
+                ts << "'" << m_cuRelations[i].m_channel << "':'" <<
+                    m_cuRelations[i].m_user << "', ";
+            }
+            ANPLOGD("libfircc-cache", ts.str());
+
+            std::stringstream ss;
+            ss << "Couldn't find channel-user relation in cache: "
+                << channel << ", '" << user << '\'';
+            throw std::runtime_error(ss.str());
         }
     }
 
@@ -231,9 +275,10 @@ namespace irc
     }
 
     void NetworkCache::addUserToChannel(const std::string &name,
-                              const std::string &user,
-                              const std::string &host,
-                              const std::string &channelName)
+                                        const std::string &user,
+                                        const std::string &host,
+                                        const std::string &channelName,
+                                        char mode)
     {
         anp::threading::Lock lock(m_impl->m_mutex);
 
@@ -241,12 +286,14 @@ namespace irc
         // else exception
         m_impl->channel(channelName);
 
-        ChannelUserRelation newRelation(channelName, name, 0);
+        ChannelUserRelation newRelation(channelName,
+                                        name,
+                                        mode == ' ' ? "" : std::string(1, mode));
         std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
 
         // Avoid duplicates (drop duplicates silently without
         // exceptions or anything)
-        if ( table.empty() || !std::binary_search(table.begin(), 
+        if ( table.empty() || !std::binary_search(table.begin(),
                 table.end(), newRelation,
                 channeluserrelation_compareCU) )
         {
@@ -290,7 +337,7 @@ namespace irc
     {
         anp::threading::Lock lock(m_impl->m_mutex);
 
-        ChannelUserRelation tempRel(channelName, name, 0);
+        ChannelUserRelation tempRel(channelName, name, "");
         std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
         std::pair<
             std::vector<ChannelUserRelation>::iterator,
@@ -331,7 +378,7 @@ namespace irc
     {
         anp::threading::Lock lock(m_impl->m_mutex);
 
-        ChannelUserRelation tempRel(channel, "", 0);
+        ChannelUserRelation tempRel(channel, "", "");
         std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
         std::pair<
             std::vector<ChannelUserRelation>::iterator,
@@ -371,23 +418,24 @@ namespace irc
     }
 
     void NetworkCache::getUsersInChannel(const std::string &name,
-                        anp::IWritableContainer<std::string> &userList) const
+                        anp::IWritableContainer<UserInChannel> &userList) const
     {
         anp::threading::Lock lock(m_impl->m_mutex);
 
-        ChannelUserRelation tempRel(name, "", 0);
+        ChannelUserRelation tempRel(name, "", "");
         std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
         std::pair<
             std::vector<ChannelUserRelation>::iterator,
             std::vector<ChannelUserRelation>::iterator
         > range = std::equal_range(table.begin(), table.end(), tempRel,
                                     channeluserrelation_compareC);
-// todo: UserList copy constructor
+
         if ( range.first != table.end() ) // equal_range() succeeded?
         {
             while ( range.first != range.second )
             {
-                userList.pushBack((*range.first).m_user);
+                userList.pushBack(UserInChannel((*range.first).m_user,
+                                                (*range.first).m_modes));
                 range.first++;
             }
         } else
@@ -395,6 +443,34 @@ namespace irc
             std::stringstream ss;
             ss << "Unable to find channel '" << name << "'.";
             ANPLOGD("libfirc", ss.str());
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    void NetworkCache::getUserInChannel(const std::string &channel,
+                                        const std::string &nick,
+                                        UserInChannel &dest) const
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+
+        ChannelUserRelation tempRel(channel, nick, "");
+        std::vector<ChannelUserRelation> &table = m_impl->m_cuRelations;
+        std::pair<
+            std::vector<ChannelUserRelation>::iterator,
+            std::vector<ChannelUserRelation>::iterator
+        > range = std::equal_range(table.begin(), table.end(), tempRel,
+                                    channeluserrelation_compareCU);
+
+        if ( range.first != table.end() )
+        {
+            dest.nick = (*range.first).m_user;
+            dest.modes = (*range.first).m_modes;
+        } else
+        {
+            std::stringstream ss;
+            ss << "Unable to find user '" << nick << "' in channel '"
+                << channel << "'.";
+            ANPLOGD("libfircc", ss.str());
             throw std::runtime_error(ss.str());
         }
     }
@@ -409,6 +485,9 @@ namespace irc
         if ( command == "332" ) // RPL_TOPIC
         {
             setTopic(event.param(1), event.param(2));
+        } else if ( command == "353" ) // RPL_NAMREPLY
+        {
+           handle_RPL_NAMREPLY(event.param(2), event.param(3)); 
         }
     }
 
@@ -425,7 +504,8 @@ namespace irc
         addUserToChannel(origin.nick(),
                          origin.user(),
                          origin.host(),
-                         event.channel());
+                         event.channel(),
+                         ' ');
     }
 
     void NetworkCache::receiveEvent(anp::irc::events::Part &event)
@@ -445,6 +525,85 @@ namespace irc
     void NetworkCache::receiveEvent(anp::irc::events::Topic &event)
     {
         setTopic(event.channel(), event.topic());
+    }
+
+    void NetworkCache::receiveEvent(anp::irc::events::Command &event)
+    {
+        if ( event.command() == "MODE" )
+        {
+            unsigned int currModeParamIndex = 2;
+            const std::string &target = event.param(0);
+            const std::string &modes = event.param(1);
+            const char *cmodes = modes.c_str();
+            char mchar;
+            enum Action { ADD, REMOVE };
+            Action currAction;
+
+            std::stringstream ss;
+
+            while ( (mchar = *cmodes) != 0 )
+            {
+                switch ( mchar )
+                {
+                case '+':
+                    currAction = ADD;
+                    break;
+                case '-':
+                    currAction = REMOVE;
+                    break;
+                default:
+                    if ( modeconv_validMode(mchar) )
+                    {
+                        ChannelUserRelation &curel =
+                            m_impl->cuRel(target, event.param(currModeParamIndex++));
+                        std::string::size_type ret = curel.m_modes.find(mchar);
+                        if ( std::string::npos == ret && currAction == ADD )
+                        {
+                            curel.m_modes += mchar;
+                        } else if ( std::string::npos != ret
+                                    && currAction == REMOVE )
+                        {
+                            curel.m_modes.erase(ret, 1);
+                            // Assume there were no duplicates
+                        }
+                    } else
+                    {
+                        ss.str("");
+                        ss.clear();
+                        ss << "MODE parser: Unrecognized modechar: '" << mchar << "'";
+                        ANPLOGE("libfircc-cache", ss.str());
+                    }
+                    break;
+                }
+
+                ++cmodes;
+            }
+        }
+    }
+
+    void NetworkCache::handle_RPL_NAMREPLY(const std::string &channel,
+                                           const std::string &userlist)
+    {
+        using tokenizer::tokenize;
+        std::string nick, userlistCopy = userlist;
+        char mode;
+        bool keepGoing = true;
+
+        while ( keepGoing ) {
+            // nick = [@|+|nothing]nickname
+            keepGoing = tokenize(nick, // note, reusing var nick
+                                 userlistCopy,
+                                 " ");
+
+            mode = modeconv_parseNick(nick);
+
+            // Stupid temporary fix.
+            // Parsing should be fixed instead.
+            if ( nick != "" && nick != " " )
+            {
+                addUserToChannel(nick, "", "", channel, mode);
+            }
+        }
     }
 }
 }

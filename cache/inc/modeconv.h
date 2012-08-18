@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2010, Anton Petersson < anton (at) anp.nu >
+Copyright (c) 2012, Anton Petersson < anton (at) anp.nu >
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -25,28 +25,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef _NETWORKEVENTSUBSCRIBERS_H_
-#define _NETWORKEVENTSUBSCRIBERS_H_
-
 namespace anp
 {
 namespace irc
 {
-/**
- * Collection of typedefs to save programmers from excessive typing.
- */
-namespace eventsubscribers
-{
-    typedef anp::ISubscriber<anp::irc::events::Join> Join;
-    typedef anp::ISubscriber<anp::irc::events::Part> Part;
-    typedef anp::ISubscriber<anp::irc::events::PrivMsg> PrivMsg;
-    typedef anp::ISubscriber<anp::irc::events::Topic> Topic;
-    typedef anp::ISubscriber<anp::irc::events::Command> Command;
-    typedef anp::ISubscriber<anp::irc::events::NumericReply> NumericReply;
-    typedef anp::ISubscriber<anp::irc::events::NewNetwork> NewNetwork;
-    typedef anp::ISubscriber<anp::irc::events::RemovingNetwork> RemovingNetwork;
-} // namespace eventsubscribers
-} // namespace irc
-} // namespace anp
 
-#endif // _NETWORKEVENTSUBSCRIBERS_H_
+/**
+Checks whether a character
+is a recognized mode character.
+
+@param mchar
+Character to check.
+
+@return
+true if mchar is a valid mode character, false otherwise.
+*/
+bool modeconv_validMode(char mchar);
+
+/**
+Parse mode char from nick ('@bill' has +o for instance).
+
+@param nick
+Nickname to check for mode prefix.
+
+@return 
+The prefix, converted to a mode char.
+*/
+char modeconv_parseNick(std::string &nick);
+
+}
+}
+

@@ -47,6 +47,7 @@ SET(ircclient_sources network/messagesender.cpp
                       cache/networkcache.cpp
                       cache/userinfo.cpp
                       cache/utilities.cpp
+                      cache/modeconv.cpp
                       pluginmanager/plugin.cpp
                       pluginmanager/pluginmanager.cpp)
 

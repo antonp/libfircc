@@ -48,7 +48,8 @@ namespace irc
                         public anp::irc::eventsubscribers::NumericReply,
                         public anp::irc::eventsubscribers::Join,
                         public anp::irc::eventsubscribers::Part,
-                        public anp::irc::eventsubscribers::Topic
+                        public anp::irc::eventsubscribers::Topic,
+                        public anp::irc::eventsubscribers::Command
     {
     public:
         NetworkCache();
@@ -96,11 +97,15 @@ namespace irc
          *
          * @param channelName
          * Name of channel.
+         *
+         * @param mode
+         * (Greatest) Channel mode for the user.
          */
         void addUserToChannel(const std::string &name,
                               const std::string &user,
                               const std::string &host,
-                              const std::string &channelName);
+                              const std::string &channelName,
+                              char mode);
 
         /**
          * Removes a user from a channel.
@@ -152,12 +157,19 @@ namespace irc
         void getClientNickName(std::string &clientNickName) const;
 
         void getUsersInChannel(const std::string &name,
-                               anp::IWritableContainer<std::string> &userList) const;
+                               anp::IWritableContainer<UserInChannel> &userList) const;
+
+        void getUserInChannel(const std::string &channel,
+                              const std::string &nick,
+                              UserInChannel &dest) const;
     private:
         void receiveEvent(anp::irc::events::NumericReply &event);
         void receiveEvent(anp::irc::events::Join &event);
         void receiveEvent(anp::irc::events::Part &event);
         void receiveEvent(anp::irc::events::Topic &event);
+        void receiveEvent(anp::irc::events::Command &event);
+        void handle_RPL_NAMREPLY(const std::string &channel,
+                                 const std::string &userlist);
 
         NetworkCacheImpl *m_impl;
     };

@@ -101,6 +101,7 @@ namespace numeric_replies
         m_eventDispatchers.join.subscribe(&m_networkCache);
         m_eventDispatchers.part.subscribe(&m_networkCache);
         m_eventDispatchers.topic.subscribe(&m_networkCache);
+        m_eventDispatchers.command.subscribe(&m_networkCache);
 
         m_state = CONNECTED;
     }
@@ -304,10 +305,6 @@ namespace numeric_replies
             if ( numPattern.FullMatch(command) )
             {
                 // Numeric replies
-                if ( command == numeric_replies::RPL_NAMREPLY )
-                {
-                    msgNumHandleRPL_NAMREPLY(params[2], params[3]);
-                }
                 msgNumHandle(msgPrefix, command, params);
             } else
             {
@@ -386,39 +383,6 @@ namespace numeric_replies
     {
         events::Topic event(*this, origin, channel, topic);
         m_eventDispatchers.topic.dispatch(event);
-    }
-
-    void Network::msgNumHandleRPL_NAMREPLY(
-                                const std::string &channel,
-                                const std::string &userlist)
-    {
-        using tokenizer::tokenize;
-        std::string nick, userlistCopy = userlist;
-        bool keepGoing = true;
-
-        while ( keepGoing ) {
-            // nick = [@|+|nothing]nickname
-            keepGoing = tokenize(nick, // note, reusing var nick
-                                 userlistCopy,
-                                 " ");
-            switch ( nick[0] ) {
-            case '@':
-                nick.erase(0, 1);
-                break;
-            case '+':
-                nick.erase(0, 1);
-                break;
-            default:
-                break;
-            }
-            // Stupid temporary fix.
-            // Parsing should be fixed instead.
-            if ( nick != "" && nick != " " )
-            {
-                m_networkCache.addUserToChannel(nick, "", "",
-                                                 channel);
-            }
-        }
     }
 
     void Network::msgNumHandle(const MsgPrefix &origin,

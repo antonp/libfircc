@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2010, Anton Petersson < anton (at) anp.nu >
+Copyright (c) 2012, Anton Petersson < anton (at) anp.nu >
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -25,28 +25,66 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef _NETWORKEVENTSUBSCRIBERS_H_
-#define _NETWORKEVENTSUBSCRIBERS_H_
+#include <stdexcept>
+#include "inc/modeconv.h"
 
 namespace anp
 {
 namespace irc
 {
-/**
- * Collection of typedefs to save programmers from excessive typing.
- */
-namespace eventsubscribers
+
+bool modeconv_validMode(char mchar)
 {
-    typedef anp::ISubscriber<anp::irc::events::Join> Join;
-    typedef anp::ISubscriber<anp::irc::events::Part> Part;
-    typedef anp::ISubscriber<anp::irc::events::PrivMsg> PrivMsg;
-    typedef anp::ISubscriber<anp::irc::events::Topic> Topic;
-    typedef anp::ISubscriber<anp::irc::events::Command> Command;
-    typedef anp::ISubscriber<anp::irc::events::NumericReply> NumericReply;
-    typedef anp::ISubscriber<anp::irc::events::NewNetwork> NewNetwork;
-    typedef anp::ISubscriber<anp::irc::events::RemovingNetwork> RemovingNetwork;
-} // namespace eventsubscribers
+    switch ( mchar )
+    {
+    // Modes affecting user relations
+    case 'v': // voice
+    case 'h': // half-op
+    case 'o': // op
+    case 'a': // protected
+    case 'q': // founder
+    case 'y': // IRCoper
+        return true;
+    default:
+        return false;
+    }
+}
+
+char modeconv_parseNick(std::string &nick)
+{
+    char mode = ' ';
+    switch ( nick[0] ) {
+    case '+':// voice
+        mode = 'v';
+        nick.erase(0, 1);
+        break;
+    case '%':// half-op
+        mode = 'h';
+        nick.erase(0, 1);
+        break;
+    case '@':// op
+        mode = 'o';
+        nick.erase(0, 1);
+        break;
+    case '&':// protected
+        mode = 'a';
+        nick.erase(0, 1);
+        break;
+    case '~':// founder
+        mode = 'q';
+        nick.erase(0, 1);
+        break;
+    case '!':// IRCoper
+        mode = 'y';
+        nick.erase(0, 1);
+        break;
+    default:
+        break; // No error; user has no mode
+    }
+
+    return mode;
+}
+
 } // namespace irc
 } // namespace anp
 
-#endif // _NETWORKEVENTSUBSCRIBERS_H_

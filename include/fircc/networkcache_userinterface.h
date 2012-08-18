@@ -71,6 +71,19 @@ namespace irc
                                                             const = 0;
 
         /**
+        Represents a user in a specific channel.
+        */
+        struct UserInChannel
+        {
+            UserInChannel() { }
+            UserInChannel(const std::string &nick_in,
+                          const std::string &modes_in):
+                          nick(nick_in), modes(modes_in) { }
+            std::string nick;
+            std::string modes;
+        };
+
+        /**
          * Retrieves the userlist of a channel.
          *
          * @param name
@@ -80,7 +93,23 @@ namespace irc
          * This container will have the current userlist written to it.
          */
         virtual void getUsersInChannel(const std::string &name,
-                                anp::IWritableContainer<std::string> &userList) const = 0;
+            anp::IWritableContainer<UserInChannel> &userList) const = 0;
+
+        /**
+        Retrieves a single user from a channel.
+
+        @param channel
+        Name of the channel.
+
+        @param nick
+        Nick of the user.
+
+        @param dest
+        UserInChannel instance to which the user info will be written.
+        */
+        virtual void getUserInChannel(const std::string &channel,
+                                      const std::string &nick,
+                                      UserInChannel &dest) const = 0;
     };
 }
 }

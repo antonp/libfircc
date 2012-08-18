@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fircc/networkfactory.h>
 #include <anpcode/eventdispatcher.h>
 #include <anpcode/log_singleton.h>
+#include <anpcode/stdvector.h>
 
 // Some constants for easy modification.
 static const char *const HOST_ADDR = "irc.freenode.net";
@@ -88,17 +89,35 @@ public:
     }
     void receiveEvent(anp::irc::events::PrivMsg &event)
     {
-        if ( event.target()[0] == '#' && event.message() == "topic?" )
+        if ( event.target()[0] == '#' )
         {
             const anp::irc::NetworkCacheUserInterface &cache =
                 event.network().networkCache();
-            anp::irc::ChannelCache channel;
-            cache.getChannel(event.target(), channel);
+            if ( event.message() == "topic?" )
+            {
+                anp::irc::ChannelCache channel;
+                cache.getChannel(event.target(), channel);
 
-            std::stringstream ss;
-            ss << "PRIVMSG " << channel.name() << " :The topic for "
-                << channel.name() << " is " << channel.topic() << ".\r\n";
-            event.network().sendMessage(ss.str());
+                std::stringstream ss;
+                ss << "PRIVMSG " << channel.name() << " :The topic for "
+                    << channel.name() << " is " << channel.topic() << ".\r\n";
+                event.network().sendMessage(ss.str());
+            } else if ( event.message() == "userlist?" )
+            {
+                anp::StdVector<anp::irc::NetworkCacheUserInterface::UserInChannel>
+                    users;
+                cache.getUsersInChannel(event.target(), users);
+
+                std::stringstream ss;
+                ss << "PRIVMSG " << event.target() << " :Users: ";
+                
+                for ( std::vector<anp::irc::NetworkCacheUserInterface::UserInChannel>::iterator i = users.m_vector.begin(); i != users.m_vector.end(); i++ )
+                {
+                    ss << '[' << (*i).modes << ']' << (*i).nick << ", ";
+                }
+                ss << "\r\n";
+                event.network().sendMessage(ss.str());
+            }
         }
     }
     void receiveEvent(anp::irc::events::Topic &event)

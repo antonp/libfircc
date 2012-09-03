@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fircc/networkevents.h>
 #include <fircc/networkeventsubscribers.h>
 #include <fircc/networkfactory.h>
+#include <fircc/config.h>
 #include <anpcode/eventdispatcher.h>
 #include <anpcode/log_singleton.h>
 #include <anpcode/stdvector.h>
@@ -146,6 +147,8 @@ int main(int argc, char *argv[])
 {
     std::string hostAddr = HOST_ADDR,
                 hostPort = HOST_PORT;
+
+    std::cout << "libfircc version: " << anp::irc::config_version() << std::endl;
 
     if ( argc >= 3 )
     {

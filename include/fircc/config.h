@@ -24,24 +24,40 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+ 
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
-/*
-This is just a convenience header to allow applications
-to use the lib simply by including this single header.
+namespace anp
+{
+namespace irc
+{
+
+/**
+@return
+A null terminated string representation
+of the library.
 */
+const char *config_version();
 
-#ifndef FIRCC_H_
-#define FIRCC_H_
+/**
+@return
+The major version of the library.
+*/
+unsigned int config_major();
 
-#include "inetwork.h"
-#include "messageprefix.h"
-#include "networkcache_userinterface.h"
-#include "channelcache.h"
-#include "networkeventdispatchers.h"
-#include "networkevents.h"
-#include "networkeventsubscribers.h"
-#include "networkfactory.h"
-#include "pluginmanager.h"
-#include "config.h"
+/**
+@return
+The minor version of the library.
+*/
+unsigned int config_minor();
 
-#endif // FIRCC_H_
+/**
+@return
+The patch version of the library.
+*/
+unsigned int config_patch();
+}
+}
+
+#endif // CONFIG_H_

@@ -26,22 +26,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /*
-This is just a convenience header to allow applications
-to use the lib simply by including this single header.
+    NOTE
+
+    config.cpp is generated from the template config.h.cmake .
 */
 
-#ifndef FIRCC_H_
-#define FIRCC_H_
+namespace
+{
+static const char *const VERSION = "@fircc_ver_concat@";
+static const unsigned int VERSION_MAJOR = @fircc_ver_major@;
+static const unsigned int VERSION_MINOR = @fircc_ver_minor@;
+static const unsigned int VERSION_PATCH = @fircc_ver_patch@;
+}
 
-#include "inetwork.h"
-#include "messageprefix.h"
-#include "networkcache_userinterface.h"
-#include "channelcache.h"
-#include "networkeventdispatchers.h"
-#include "networkevents.h"
-#include "networkeventsubscribers.h"
-#include "networkfactory.h"
-#include "pluginmanager.h"
-#include "config.h"
+namespace anp
+{
+namespace irc
+{
 
-#endif // FIRCC_H_
+const char *config_version()
+{
+    return VERSION;
+}
+
+unsigned int config_major()
+{
+    return VERSION_MAJOR;
+}
+
+unsigned int config_minor()
+{
+    return VERSION_MINOR;
+}
+
+unsigned int config_patch()
+{
+    return VERSION_PATCH;
+}
+
+}
+}
+

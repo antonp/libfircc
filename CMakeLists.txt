@@ -11,10 +11,6 @@ SET(fircc_ver_concat ${fircc_ver_major}.${fircc_ver_minor}.${fircc_ver_patch})
 
 ENABLE_TESTING()
 
-# defs can be handled from here
-
-# common handled here too?
-
 IF(UNIX)
     IF(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
         ADD_DEFINITIONS(-DTARGET_LINUX_32)
@@ -24,6 +20,8 @@ IF(UNIX)
 ELSEIF(WIN32)
         MESSAGE(FATAL_ERROR "WIN32 not configured")
 ENDIF(UNIX)
+
+CONFIGURE_FILE(config/config.cpp.cmake config/config.cpp)
 
 # Are we building standalone or as a subdir of another project?
 IF(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
@@ -49,7 +47,8 @@ SET(ircclient_sources network/messagesender.cpp
                       cache/utilities.cpp
                       cache/modeconv.cpp
                       pluginmanager/plugin.cpp
-                      pluginmanager/pluginmanager.cpp)
+                      pluginmanager/pluginmanager.cpp
+                      config/config.cpp)
 
 ADD_LIBRARY(fircc SHARED ${ircclient_sources})
 TARGET_LINK_LIBRARIES(fircc anpcode)

@@ -30,6 +30,20 @@ This is just a convenience header to allow applications
 to use the lib simply by including this single header.
 */
 
+/**
+@mainpage 
+
+@section intro_sec Introduction
+
+This documentation is a work in progress.
+It currently only contains antogenerated api documentation.
+Start by looking at the "classes" tab.
+Also, there is a sample console application in the source distribution,
+which is the closest thing to tutorial at this point.
+
+Contributions to this documentation are welcome.
+*/
+
 #ifndef FIRCC_H_
 #define FIRCC_H_
 

@@ -23,6 +23,12 @@ ENDIF(UNIX)
 
 CONFIGURE_FILE(config/config.cpp.cmake config/config.cpp)
 
+FIND_PACKAGE(Doxygen)
+IF(DOXYGEN_FOUND)
+    CONFIGURE_FILE(Doxyfile.template ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    ADD_CUSTOM_TARGET(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generate api documentation" VERBATIM)
+ENDIF(DOXYGEN_FOUND)
+
 # Are we building standalone or as a subdir of another project?
 IF(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     INCLUDE_DIRECTORIES(anpcode.git/include

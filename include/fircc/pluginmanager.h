@@ -58,6 +58,12 @@ namespace irc
          * @param networkFactory
          * The network factory exposed to this plugin. Can be used by the plugin
          * to subscribe to events and open/close networks.
+         *
+         * @param appContext
+         * Contextual data specific to the application using the lib.
+         * This is not used by the lib.
+         * The idea is to allow app specific plugins to be written.
+         * For instance, the application may expose a gui api to the plugin.
          */
         void loadPlugin(
             const char *fileName,

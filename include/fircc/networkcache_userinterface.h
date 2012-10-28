@@ -89,7 +89,7 @@ namespace irc
          * @param name
          * The name of the channel.
          *
-         * @param userLIst
+         * @param userList
          * This container will have the current userlist written to it.
          */
         virtual void getUsersInChannel(const std::string &name,

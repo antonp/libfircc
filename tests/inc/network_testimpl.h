@@ -12,10 +12,10 @@ public:
     virtual void runMessageReceiverInThread() { }
     virtual void runMessageReceiver() { }
     virtual void tryReceive() { }
-    virtual int addSocketToFdSet(fd_set *readfds) { }
-    virtual bool internalSocketInSet(fd_set *fds) { }
-    virtual const std::string &host() { }
-    virtual const std::string &port() { }
+    virtual int addSocketToFdSet(fd_set *readfds) { return 0; }
+    virtual bool internalSocketInSet(fd_set *fds) { return false; }
+    virtual const std::string &host() { return m_todo; }
+    virtual const std::string &port() { return m_todo; }
     virtual const anp::irc::NetworkCacheUserInterface &networkCache() const { }
     virtual anp::irc::dispatchers::Join &eventDispatcherJoin()
     {
@@ -32,6 +32,10 @@ public:
     virtual anp::irc::dispatchers::Topic &eventDispatcherTopic()
     {
         return m_topic;
+    }
+    virtual anp::irc::dispatchers::Kick &eventDispatcherKick()
+    {
+        return m_kick;
     }
     virtual anp::irc::dispatchers::NumericReply &eventDispatcherNumericReply()
     {
@@ -72,6 +76,11 @@ public:
     > m_topic;
 
     anp::EventDispatcher<
+        anp::ISubscriber<anp::irc::events::Kick>,
+        anp::irc::events::Kick
+    > m_kick;
+
+    anp::EventDispatcher<
         anp::ISubscriber<anp::irc::events::NumericReply>,
         anp::irc::events::NumericReply
     > m_numericreply;
@@ -90,5 +99,7 @@ public:
         anp::ISubscriber<anp::irc::events::ExceptionOccured>,
         anp::irc::events::ExceptionOccured
     > m_exceptionoccured;
+private:
+    std::string m_todo; // TODO: Just to keep warnings away until this is reworked
 };
 

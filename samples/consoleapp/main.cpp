@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <anpcode/stdvector.h>
 
 // Some constants for easy modification.
-static const char *const HOST_ADDR = "irc.freenode.net";
+static const char *const HOST_ADDR = "chat.freenode.net";
 static const char *const HOST_PORT = "6667";
 static const char *const NICK = "fircc_sample";
 static const char *const USER = "fircc_user";

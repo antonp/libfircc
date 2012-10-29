@@ -37,14 +37,19 @@ namespace irc
  */
 namespace eventsubscribers
 {
-    typedef anp::ISubscriber<anp::irc::events::Join> Join;
-    typedef anp::ISubscriber<anp::irc::events::Part> Part;
-    typedef anp::ISubscriber<anp::irc::events::PrivMsg> PrivMsg;
-    typedef anp::ISubscriber<anp::irc::events::Topic> Topic;
-    typedef anp::ISubscriber<anp::irc::events::Command> Command;
-    typedef anp::ISubscriber<anp::irc::events::NumericReply> NumericReply;
-    typedef anp::ISubscriber<anp::irc::events::NewNetwork> NewNetwork;
+    typedef anp::ISubscriber<anp::irc::events::Join>            Join;
+    typedef anp::ISubscriber<anp::irc::events::Part>            Part;
+    typedef anp::ISubscriber<anp::irc::events::PrivMsg>         PrivMsg;
+    typedef anp::ISubscriber<anp::irc::events::Topic>           Topic;
+    typedef anp::ISubscriber<anp::irc::events::Kick>            Kick;
+    typedef anp::ISubscriber<anp::irc::events::Quit>            Quit;
+    typedef anp::ISubscriber<anp::irc::events::Nick>            Nick;
+    typedef anp::ISubscriber<anp::irc::events::Command>         Command;
+    typedef anp::ISubscriber<anp::irc::events::NumericReply>    NumericReply;
+    typedef anp::ISubscriber<anp::irc::events::Ping>            Ping;
+    typedef anp::ISubscriber<anp::irc::events::NewNetwork>      NewNetwork;
     typedef anp::ISubscriber<anp::irc::events::RemovingNetwork> RemovingNetwork;
+    typedef anp::ISubscriber<anp::irc::events::ExceptionOccured> ExceptionOccured;
 } // namespace eventsubscribers
 } // namespace irc
 } // namespace anp

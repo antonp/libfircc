@@ -92,6 +92,8 @@ namespace irc
                                         const std::string &name) const;
         void getChannelCopy(const std::string &name,
                                                 ChannelCache &dest) const;
+        void removeUserFromAllChannels(const std::string &nick);
+        void updateNick(const std::string &nick, const std::string &newNick);
         /**
         Lookup channel user relation entry.
 
@@ -188,6 +190,36 @@ namespace irc
         } else
         {
             return NULL;
+        }
+    }
+    
+    void NetworkCacheImpl::removeUserFromAllChannels(const std::string &nick)
+    {
+        // Somewhat naive implementation for now
+        for ( std::vector<ChannelUserRelation>::iterator i
+              =m_cuRelations.begin();
+              i != m_cuRelations.end();
+              i++ )
+        {
+            if ( (*i).m_user == nick )
+            {
+                i = m_cuRelations.erase(i);
+            }
+        }
+    }
+
+    void NetworkCacheImpl::updateNick(const std::string &nick,
+                                      const std::string &newNick)
+    {
+        for ( std::vector<ChannelUserRelation>::iterator i
+              =m_cuRelations.begin();
+              i != m_cuRelations.end();
+              i++ )
+        {
+            if ( (*i).m_user == nick )
+            {
+                (*i).m_user = newNick;
+            }
         }
     }
 
@@ -525,6 +557,32 @@ namespace irc
     void NetworkCache::receiveEvent(anp::irc::events::Topic &event)
     {
         setTopic(event.channel(), event.topic());
+    }
+
+    void NetworkCache::receiveEvent(anp::irc::events::Kick &event)
+    {
+        std::string clientNickName;
+
+        getClientNickName(clientNickName);
+        if ( event.kickedUser() == clientNickName )
+        {
+            removeChannel(event.channel());
+        } else
+        {
+            removeUserFromChannel(event.kickedUser(), event.channel());
+        }
+    }
+
+    void NetworkCache::receiveEvent(anp::irc::events::Quit &event)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+        m_impl->removeUserFromAllChannels(event.origin().nick());
+    }
+
+    void NetworkCache::receiveEvent(anp::irc::events::Nick &event)
+    {
+        anp::threading::Lock lock(m_impl->m_mutex);
+        m_impl->updateNick(event.origin().nick(), event.nick());
     }
 
     void NetworkCache::receiveEvent(anp::irc::events::Command &event)

@@ -37,6 +37,14 @@ public:
     {
         return m_kick;
     }
+    virtual anp::irc::dispatchers::Quit &eventDispatcherQuit()
+    {
+        return m_quit;
+    }
+    virtual anp::irc::dispatchers::Nick &eventDispatcherNick()
+    {
+        return m_nick;
+    }
     virtual anp::irc::dispatchers::NumericReply &eventDispatcherNumericReply()
     {
         return m_numericreply;
@@ -79,6 +87,16 @@ public:
         anp::ISubscriber<anp::irc::events::Kick>,
         anp::irc::events::Kick
     > m_kick;
+
+    anp::EventDispatcher<
+        anp::ISubscriber<anp::irc::events::Quit>,
+        anp::irc::events::Quit
+    > m_quit;
+
+    anp::EventDispatcher<
+        anp::ISubscriber<anp::irc::events::Nick>,
+        anp::irc::events::Nick
+    > m_nick;
 
     anp::EventDispatcher<
         anp::ISubscriber<anp::irc::events::NumericReply>,

@@ -86,19 +86,15 @@ namespace irc
 
         // Event stuff
         dispatchers::Join &eventDispatcherJoin();
-
         dispatchers::Part &eventDispatcherPart();
-
         dispatchers::PrivMsg &eventDispatcherPrivMsg();
-
         dispatchers::Topic &eventDispatcherTopic();
-
+        dispatchers::Kick &eventDispatcherKick();
+        dispatchers::Quit &eventDispatcherQuit();
+        dispatchers::Nick &eventDispatcherNick();
         dispatchers::NumericReply &eventDispatcherNumericReply();
-
         dispatchers::Command &eventDispatcherCommand();
-
         dispatchers::Ping &eventDispatcherPing();
-
         dispatchers::ExceptionOccured &eventDispatcherExceptionOccured();
 
     private:
@@ -118,6 +114,15 @@ namespace irc
         void msgTopicHandle(const MsgPrefix &origin,
                             const std::string &channel,
                             const std::string &topic);
+        void msgKickHandle(const MsgPrefix &origin,
+                           const std::string &command,
+                           const std::string params[]);
+        void msgQuitHandle(const MsgPrefix &origin,
+                           const std::string &command,
+                           const std::string params[]);
+        void msgNickHandle(const MsgPrefix &origin,
+                           const std::string &command,
+                           const std::string params[]);
         void msgNumHandleRPL_NAMREPLY(
                                 const std::string &channel,
                                 const std::string &userlist);
@@ -167,6 +172,18 @@ namespace irc
                 ISubscriber<events::Topic>,
                 events::Topic
             > topic;
+            EventDispatcher<
+                ISubscriber<events::Kick>,
+                events::Kick
+            > kick;
+            EventDispatcher<
+                ISubscriber<events::Quit>,
+                events::Quit
+            > quit;
+            EventDispatcher<
+                ISubscriber<events::Nick>,
+                events::Nick
+            > nick;
             EventDispatcher<
                 ISubscriber<events::NumericReply>,
                 events::NumericReply

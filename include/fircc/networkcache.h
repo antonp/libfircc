@@ -49,6 +49,9 @@ namespace irc
                         public anp::irc::eventsubscribers::Join,
                         public anp::irc::eventsubscribers::Part,
                         public anp::irc::eventsubscribers::Topic,
+                        public anp::irc::eventsubscribers::Kick,
+                        public anp::irc::eventsubscribers::Quit,
+                        public anp::irc::eventsubscribers::Nick,
                         public anp::irc::eventsubscribers::Command
     {
     public:
@@ -167,6 +170,9 @@ namespace irc
         void receiveEvent(anp::irc::events::Join &event);
         void receiveEvent(anp::irc::events::Part &event);
         void receiveEvent(anp::irc::events::Topic &event);
+        void receiveEvent(anp::irc::events::Kick &event);
+        void receiveEvent(anp::irc::events::Quit &event);
+        void receiveEvent(anp::irc::events::Nick &event);
         void receiveEvent(anp::irc::events::Command &event);
         void handle_RPL_NAMREPLY(const std::string &channel,
                                  const std::string &userlist);

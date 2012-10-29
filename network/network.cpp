@@ -101,6 +101,9 @@ namespace numeric_replies
         m_eventDispatchers.join.subscribe(&m_networkCache);
         m_eventDispatchers.part.subscribe(&m_networkCache);
         m_eventDispatchers.topic.subscribe(&m_networkCache);
+        m_eventDispatchers.kick.subscribe(&m_networkCache);
+        m_eventDispatchers.quit.subscribe(&m_networkCache);
+        m_eventDispatchers.nick.subscribe(&m_networkCache);
         m_eventDispatchers.command.subscribe(&m_networkCache);
 
         m_state = CONNECTED;
@@ -287,18 +290,13 @@ namespace numeric_replies
 
         if ( validMessage )
         {
-            bool validUser = prefixPattern.FullMatch(prefix,
-                                                     &nick,
-                                                     &user,
-                                                     &host);
+            prefixPattern.FullMatch(prefix,
+                                    &nick,
+                                    &user,
+                                    &host);
+            // Unnecessary to check validUser
             MsgPrefix msgPrefix(prefix, nick, user, host);
 
-            if ( !validUser )
-            {
-                std::stringstream ss;
-                ss << "failed to parse a valid user from prefix: " << prefix;
-                ANPLOGD("libfirc", ss.str());
-            }
 
             parseParams(parameters, params);
 
@@ -326,6 +324,15 @@ namespace numeric_replies
                 {
                     msgTopicHandle(msgPrefix, params[0],
                                         params[1]);
+                } else if ( command == "KICK" )
+                {
+                    msgKickHandle(msgPrefix, command, params);
+                } else if ( command == "QUIT" )
+                {
+                    msgQuitHandle(msgPrefix, command, params);
+                } else if ( command == "NICK" )
+                {
+                    msgNickHandle(msgPrefix, command, params);
                 }
                 msgCommandHandle(msgPrefix, command, params);
             }
@@ -354,35 +361,59 @@ namespace numeric_replies
         m_eventDispatchers.ping.dispatch(event);
     }
 
-    void Network::msgJoinHandle( const MsgPrefix &origin,
-                                        const std::string &channel)
+    void Network::msgJoinHandle(const MsgPrefix &origin,
+                                const std::string &channel)
     {
         events::Join event(*this, origin, channel);
         m_eventDispatchers.join.dispatch(event);
     }
 
-    void Network::msgPartHandle(    const MsgPrefix &origin,
-                                        const std::string &channel,
-                                        const std::string &message)
+    void Network::msgPartHandle(const MsgPrefix &origin,
+                                const std::string &channel,
+                                const std::string &message)
     {
         events::Part event(*this, origin, channel, message);
         m_eventDispatchers.part.dispatch(event);
     }
 
-    void Network::msgPrivMsgHandle( const MsgPrefix &origin,
-                                            const std::string &target,
-                                            const std::string &message)
+    void Network::msgPrivMsgHandle(const MsgPrefix &origin,
+                                   const std::string &target,
+                                   const std::string &message)
     {
         events::PrivMsg event(*this, origin, target, message);
         m_eventDispatchers.privMsg.dispatch(event);
     }
 
     void Network::msgTopicHandle(const MsgPrefix &origin,
-                                        const std::string &channel,
-                                        const std::string &topic)
+                                 const std::string &channel,
+                                 const std::string &topic)
     {
         events::Topic event(*this, origin, channel, topic);
         m_eventDispatchers.topic.dispatch(event);
+    }
+
+    void Network::msgKickHandle(const MsgPrefix &origin,
+                                const std::string &command,
+                                const std::string params[])
+    {
+        events::Kick event(*this, origin, command, params);
+        m_eventDispatchers.kick.dispatch(event);
+    }
+
+    void Network::msgQuitHandle(const MsgPrefix &origin,
+                                const std::string &command,
+                                const std::string params[])
+    {
+        events::Quit event(*this, origin, command, params);
+        m_eventDispatchers.quit.dispatch(event);
+    }
+
+    void Network::msgNickHandle(const MsgPrefix &origin,
+                                const std::string &command,
+                                const std::string params[])
+    {
+        events::Nick event(*this, origin, command, params);
+        m_eventDispatchers.nick.dispatch(event);
     }
 
     void Network::msgNumHandle(const MsgPrefix &origin,
@@ -455,6 +486,24 @@ namespace numeric_replies
     Network::eventDispatcherCommand()
     {
         return m_eventDispatchers.command;
+    }
+
+    dispatchers::Kick &
+    Network::eventDispatcherKick()
+    {
+        return m_eventDispatchers.kick;
+    }
+
+    dispatchers::Quit &
+    Network::eventDispatcherQuit()
+    {
+        return m_eventDispatchers.quit;
+    }
+
+    dispatchers::Nick &
+    Network::eventDispatcherNick()
+    {
+        return m_eventDispatchers.nick;
     }
 
     dispatchers::Ping &

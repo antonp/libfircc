@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <anpcode/eventdispatcher.h>
 #include <fircc/messageprefix.h>
 #include <string>
+#include <cassert>
 
 namespace anp
 {
@@ -244,7 +245,7 @@ public:
  * For this event, the origin is the user who changed the topic.
  */
 class Topic: public IRCEvent,
-            public EventWithChannel
+             public EventWithChannel
 {
 public:
     Topic(INetwork &network,
@@ -305,6 +306,113 @@ public:
     EventWithCommand(command),
     EventWithParamList(params)
     {
+    }
+};
+
+/**
+ * This event is sent whenever a client who is in the same channel
+ * as 'self' has QUIT the irc network.
+ */
+class Quit: public IRCEvent,
+            public EventWithCommand,
+            public EventWithParamList
+{
+public:
+    Quit(INetwork &network,
+         const MsgPrefix &origin,
+         const std::string &command,
+         const std::string params[]):
+    IRCEvent(network, origin),
+    EventWithCommand(command),
+    EventWithParamList(params)
+    {
+        assert(command == "QUIT");
+    }
+
+    /**
+     * @return
+     * Quit message of the quitting user.
+     */
+    const std::string &quitMessage() const
+    {
+        return param(0); 
+    }
+};
+
+/**
+ * This event is sent whenever the client receives a KICK message from the
+ * server. For this event, the origin is the user who issued the KICK command.
+ *
+ * @remark
+ * This is implemented according to rfc1459 which states a kick command
+ * can only affect a single channel and a single user. rfc2812 suggests
+ * parameters to the KICK command can contain multiple channels and users,
+ * but that only single pairs may be sent to clients.
+ */
+class Kick: public IRCEvent,
+            public EventWithCommand,
+            public EventWithParamList
+{
+public:
+    Kick(INetwork &network,
+         const MsgPrefix &origin,
+         const std::string &command,
+         const std::string params[]):
+    IRCEvent(network, origin),
+    EventWithCommand(command),
+    EventWithParamList(params)
+    {
+        assert(command == "KICK");
+        assert(params[1] != "");
+    }
+
+    /**
+     * @return
+     * The channel from which someone was kicked.
+     */
+    const std::string &channel() const
+    {
+        return param(0);
+    }
+
+    /**
+     * @return
+     * The kicked user's nick.
+     */
+    const std::string &kickedUser() const
+    {
+        return param(1);
+    }
+};
+
+/**
+   This event is sent whenever the client receives a NICK message, typically
+   indicating that a user visible from the client is changing nickname.
+*/
+class Nick: public IRCEvent,
+            public EventWithCommand,
+            public EventWithParamList
+{
+public:
+    Nick(INetwork &network,
+         const MsgPrefix &origin,
+         const std::string &command,
+         const std::string params[]):
+    IRCEvent(network, origin),
+    EventWithCommand(command),
+    EventWithParamList(params)
+    {
+        assert(command == "NICK");
+        assert(params[0] != "");
+    }
+
+    /**
+     * @return
+     * The new nickname.
+     */
+    const std::string &nick() const
+    {
+        return param(0);
     }
 };
 

@@ -175,6 +175,24 @@ namespace irc
         eventDispatcherCommand() = 0;
 
         /**
+        Returns a subscriber interface for the KICK event dispatcher.
+        */
+        virtual dispatchers::Kick &
+        eventDispatcherKick() = 0;
+
+        /**
+        Returns a subscriber interface for the QUIT event dispatcher.
+        */
+        virtual dispatchers::Quit &
+        eventDispatcherQuit() = 0;
+
+        /**
+        Returns a subscriber interface for the NICK event dispatcher.
+        */
+        virtual dispatchers::Nick &
+        eventDispatcherNick() = 0;
+
+        /**
         Returns a subscriber interface for the PING event dispatcher.
 
         @remark

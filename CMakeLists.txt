@@ -9,6 +9,9 @@ SET(fircc_ver_minor 1)
 SET(fircc_ver_patch 1)
 SET(fircc_ver_concat ${fircc_ver_major}.${fircc_ver_minor}.${fircc_ver_patch})
 
+SET(LOG_SOURCE OFF CACHE BOOL "Include source files and line numbers in log output")
+SET(LIB_SUFFIX CACHE STRING "Appended to 'lib' to determine install dir")
+
 ENABLE_TESTING()
 
 IF(UNIX)
@@ -63,6 +66,10 @@ SET_TARGET_PROPERTIES(fircc
                       COMPILE_FLAGS "-fPIC -Wall"
                       VERSION ${fircc_ver_concat}
                       SOVERSION ${fircc_ver_major})
+
+IF(LOG_SOURCE)
+    SET_TARGET_PROPERTIES(fircc PROPERTIES COMPILE_DEFINITIONS "LOG_SOURCE")
+ENDIF(LOG_SOURCE)
 
 INSTALL(TARGETS fircc
         DESTINATION lib${LIB_SUFFIX}

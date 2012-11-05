@@ -1,5 +1,25 @@
 CHANGES
 
+Version 0.2.0
+Released 2012-10-05
+
+- Enhancement: Logtags are more consistent now.
+- Feature: Add version retrieval:
+    - config_version()
+    - config_major()
+    - config_minor()
+    - config_patch()
+- Feature: Add new events; KICK, NICK and QUIT.
+- Feature: Implement channel user mode caching.
+- Feature: Add convenience header (fircc.h).
+- Feature: Add NetworFactory::foreachNetwork().
+- Build: Add LOG_SOURCE build flag for controlling
+    output of source files and line numbers in log.
+- Build: Add 'doc' build target for api reference.
+    - Also update documentation.
+- Build: Set correct VERSION and SOVERSION.
+- Build: Add support for LIB_SUFFIX.
+
 Version 0.1.1
 Released 2012-08-07.
 

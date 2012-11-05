@@ -5,8 +5,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(fircc)
 
 SET(fircc_ver_major 0)
-SET(fircc_ver_minor 1)
-SET(fircc_ver_patch 1)
+SET(fircc_ver_minor 2)
+SET(fircc_ver_patch 0)
 SET(fircc_ver_concat ${fircc_ver_major}.${fircc_ver_minor}.${fircc_ver_patch})
 
 SET(LOG_SOURCE OFF CACHE BOOL "Include source files and line numbers in log output")

@@ -600,7 +600,7 @@ namespace irc
             const char *cmodes = modes.c_str();
             char mchar;
             enum Action { ADD, REMOVE };
-            Action currAction;
+            Action currAction = ADD;
 
             std::stringstream ss;
 

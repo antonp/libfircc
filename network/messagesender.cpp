@@ -35,6 +35,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdexcept>
 
+namespace
+{
+    const char *const LOGTAG = "libfircc-network";
+}
+
 namespace anp
 {
 namespace irc
@@ -47,7 +52,7 @@ namespace irc
             //throw std::invalid_argument("'Invalid MessageSender'");
             try
             {
-                ANPLOGE("libfirc", "Invalid MessageSender.");
+                ANPLOGE(LOGTAG, "Invalid MessageSender.");
             } catch ( ... )
             {
                 // we're doomed
@@ -60,7 +65,7 @@ namespace irc
                 ms->monitor();
             } catch ( std::exception &e )
             {
-                ANPLOGE("libfirc", std::string("Exception occured: ")+e.what());
+                ANPLOGE(LOGTAG, std::string("Exception occured: ")+e.what());
             }
         }
         pthread_exit(0);
@@ -106,7 +111,7 @@ namespace irc
 
             if ( isDying )
             {
-                ANPLOGI("libfirc", "closing thread.");
+                ANPLOGI(LOGTAG, "closing thread.");
                 break;
             }
 
@@ -123,7 +128,7 @@ namespace irc
                 unsigned int cooldown = 0;
                 std::string &message = m_queue.front();
                 ss << "-> " << message;
-                ANPLOGI("libfirc", ss.str());
+                ANPLOGI(LOGTAG, ss.str());
                 ss.str("");
 
                 m_connection.send(message);

@@ -40,6 +40,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <anpcode/anp_threading.h>
 #include <stdint.h>
 
+namespace
+{
+    const char *const LOGTAG = "libfircc-cache";
+}
+
 namespace anp
 {
 namespace irc
@@ -246,7 +251,7 @@ namespace irc
                 ts << "'" << m_cuRelations[i].m_channel << "':'" <<
                     m_cuRelations[i].m_user << "', ";
             }
-            ANPLOGD("libfircc-cache", ts.str());
+            ANPLOGD(LOGTAG, ts.str());
 
             std::stringstream ss;
             ss << "Couldn't find channel-user relation in cache: "
@@ -332,7 +337,7 @@ namespace irc
             std::stringstream ss;
             ss << "(cache) Added '" << name << "' to '"
                 << channelName << "'.";
-            ANPLOGD("libfirc", ss.str());
+            ANPLOGD(LOGTAG, ss.str());
             table.insert(
                 std::lower_bound(
                     table.begin(),
@@ -345,10 +350,10 @@ namespace irc
         } else
         {
             std::stringstream ss;
-            ss << "(cache) Didn't add '" << name << "' to '"
+            ss << "Didn't add '" << name << "' to '"
                 << channelName << "' because of binary_search. table.size()="
                 << table.size();
-            ANPLOGD("libfirc", ss.str());
+            ANPLOGD(LOGTAG, ss.str());
         }
     }
 
@@ -389,7 +394,7 @@ namespace irc
                     std::stringstream ss;
                     ss << "(cache) Removed '" << name
                         << "' from '" << channelName << "'.";
-                    ANPLOGD("libfirc", ss.str());
+                    ANPLOGD(LOGTAG, ss.str());
                     erased = true;
                 } else
                 {
@@ -400,7 +405,7 @@ namespace irc
         {
             std::stringstream ss;
             ss << "Unable to find channel '" << channelName << "'.";
-            ANPLOGD("libfirc", ss.str());
+            ANPLOGE(LOGTAG, ss.str());
             throw std::runtime_error(ss.str());
         }
     }
@@ -420,7 +425,7 @@ namespace irc
 
         std::stringstream ss;
         ss << "Erasing all users in " << channel;
-        ANPLOGD("libfirc", ss.str());
+        ANPLOGD(LOGTAG, ss.str());
         table.erase(range.first, range.second);
     }
 
@@ -474,7 +479,7 @@ namespace irc
         {
             std::stringstream ss;
             ss << "Unable to find channel '" << name << "'.";
-            ANPLOGD("libfirc", ss.str());
+            ANPLOGD(LOGTAG, ss.str());
             throw std::runtime_error(ss.str());
         }
     }
@@ -502,7 +507,7 @@ namespace irc
             std::stringstream ss;
             ss << "Unable to find user '" << nick << "' in channel '"
                 << channel << "'.";
-            ANPLOGD("libfircc", ss.str());
+            ANPLOGD(LOGTAG, ss.str());
             throw std::runtime_error(ss.str());
         }
     }
@@ -629,7 +634,7 @@ namespace irc
                         ss.str("");
                         ss.clear();
                         ss << "MODE parser: Unrecognized modechar: '" << mchar << "'";
-                        ANPLOGE("libfircc-cache", ss.str());
+                        ANPLOGD(LOGTAG, ss.str());
                     }
                     break;
                 }

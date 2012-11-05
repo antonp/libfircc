@@ -35,6 +35,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <pcrecpp.h>
 
+namespace
+{
+    const char *const LOGTAG = "libfircc-network";
+}
+
 namespace anp
 {
 namespace irc
@@ -56,16 +61,16 @@ namespace numeric_replies
                 std::stringstream ss;
                 ss << "Network-MessageReceiverRunner: Exception occured: "
                    << e.what() << std::endl;
-                ANPLOGE("libfirc", ss.str());
+                ANPLOGE(LOGTAG, ss.str());
 
                 events::ExceptionOccured event(e);
                 nm->m_eventDispatchers.exceptionOccured.dispatch(event);
             }
         } else
         {
-            ANPLOGE("libfirc", "Network: threadRunMessageReceiver Network == NULL");
+            ANPLOGE(LOGTAG, "Network: threadRunMessageReceiver Network == NULL");
         }
-        ANPLOGD("libfirc", "Network: closing thread");
+        ANPLOGD(LOGTAG, "Network: closing thread");
         pthread_exit(0);
     }
 
@@ -80,7 +85,7 @@ namespace numeric_replies
     {
         std::string m_outStr;
 
-        ANPLOGI("libfirc", "Successfully connected.");
+        ANPLOGI(LOGTAG, "Successfully connected.");
 
         m_state = REGISTERING;
         // Nick
@@ -235,7 +240,7 @@ namespace numeric_replies
                     m_leftOvers.erase();
                 }
                 ss << "<- " << m_currentMessage;
-                ANPLOGD("libfirc", ss.str());
+                ANPLOGD(LOGTAG, ss.str());
                 ss.str("");
                 parseMessage(m_currentMessage);
             } else {
@@ -343,7 +348,7 @@ namespace numeric_replies
             ss << "(lib)Invalid IRC message: " << message
                 << "(" << "p=" << prefix << "c=" << command << "pa="
                 << parameters << ")";
-            ANPLOGD("libfirc", ss.str());
+            ANPLOGD(LOGTAG, ss.str());
             // unknownMessageHandler()!
         }
     }

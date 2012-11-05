@@ -76,6 +76,7 @@ INSTALL(TARGETS fircc
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 INSTALL(FILES include/fircc/channelcache.h
+              include/fircc/config.h
               include/fircc/inetwork.h
               include/fircc/messageprefix.h
               include/fircc/networkcache.h
